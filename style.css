@@ -89,13 +89,6 @@ a:hover { border-bottom: 1px solid var(--fg); }
 .stage-label-item[data-side="left"]  { align-self: flex-start; }
 .stage-label-item[data-side="right"] { align-self: flex-end; text-align: right; }
 
-/* Keep S-IC callout aligned with the top row content instead of the bottom slot. */
-#lbl-sic {
-    position: absolute;
-    top: 60px;
-    right: 40px;
-}
-
 .stage-label-item.active {
     display: block;
     opacity: 1;
@@ -410,7 +403,6 @@ a.stage-entry:hover .entry-title::after {
     .transmissions-section { padding: 24px 16px; }
     .content-panel--fullwidth { padding: 40px 20px; }
     .stage-labels { padding: 30px 20px; }
-    #lbl-sic { top: 30px; right: 20px; }
     a.stage-entry { padding: 16px 0; }
     .transmission-item { padding: 20px 16px; }
 }
@@ -447,5 +439,4 @@ a.stage-entry:hover .entry-title::after {
     .panel-card { padding: 20px 16px; }
     .content-panel--fullwidth { padding: 24px 12px; }
     .stage-labels { padding: 20px 12px; }
-    #lbl-sic { top: 20px; right: 12px; }
 }
