@@ -18,7 +18,7 @@ body {
     background: var(--bg);
     color: var(--fg);
     font-family: var(--font);
-    font-size: 14px;
+    font-size: 16px;
     line-height: 1.5;
     overflow-x: hidden;
 }
@@ -40,20 +40,6 @@ a:hover { border-bottom: 1px solid var(--fg); }
 }
 .site-header h1 { font-size: 20px; letter-spacing: 0.07em; margin-bottom: 4px; }
 .header-right { text-align: right; font-size: 11px; }
-
-/* ═══════════════════════════════════════════
-   STATS BAR
-═══════════════════════════════════════════ */
-.stats-bar {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    padding: 14px 40px;
-    gap: 0;
-    border-bottom: var(--border);
-}
-.data-cell { display: flex; flex-direction: column; gap: 4px; padding-right: 16px; }
-.data-label { font-size: 9px; text-transform: uppercase; letter-spacing: 0.14em; color: var(--dim); }
-.data-value { font-size: 12px; }
 
 /* ═══════════════════════════════════════════
    SCROLL WRAPPER
@@ -104,7 +90,7 @@ a:hover { border-bottom: 1px solid var(--fg); }
 .stage-label-item.active { opacity: 1; }
 
 .lbl-badge {
-    font-size: 22px;
+    font-size: 24px;
     letter-spacing: 0.08em;
     border: 1px dashed #ffffff;
     display: inline-block;
@@ -129,6 +115,24 @@ a:hover { border-bottom: 1px solid var(--fg); }
     align-items: center;
     padding: 40px;
     pointer-events: none;
+}
+
+/* ═══════════════════════════════════════════
+   PANEL FADE-IN ANIMATION
+═══════════════════════════════════════════ */
+.panel-card,
+.panel-dual-header,
+.transmissions-section {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+.panel-card.visible,
+.panel-dual-header.visible,
+.transmissions-section.visible {
+    opacity: 1;
+    transform: translateY(0);
 }
 
 .panel-card {
@@ -175,7 +179,7 @@ a:hover { border-bottom: 1px solid var(--fg); }
 }
 
 .card-sublabel {
-    font-size: 11px;
+    font-size: 13px;
     text-transform: uppercase;
     letter-spacing: 0.16em;
     color: var(--fg);
@@ -194,13 +198,13 @@ a:hover { border-bottom: 1px solid var(--fg); }
     margin-bottom: 24px;
 }
 .stage-badge {
-    font-size: 18px;
+    font-size: 20px;
     letter-spacing: 0.06em;
     border: 1px dashed #ffffff;
     padding: 4px 12px;
     flex-shrink: 0;
 }
-.stage-name { font-size: 13px; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 2px; }
+.stage-name { font-size: 14px; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 2px; }
 
 /* ═══════════════════════════════════════════
    STAGE ENTRIES
@@ -216,19 +220,19 @@ a.stage-entry:last-of-type { border-bottom: 1px dashed #2e2e2e; }
 a.stage-entry:hover .entry-title { text-decoration: underline; text-underline-offset: 4px; text-decoration-thickness: 1px; }
 
 .entry-row   { display: grid; grid-template-columns: 1fr auto; gap: 12px; align-items: start; }
-.entry-title { font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 2px; }
-.entry-role  { font-size: 10px; color: var(--dim); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 4px; }
-.entry-desc  { font-size: 11px; color: #bbbbbb; line-height: 1.6; }
-.entry-date  { font-size: 10px; color: var(--dim); text-transform: uppercase; white-space: nowrap; padding-top: 2px; }
+.entry-title { font-size: 14px; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 2px; }
+.entry-role  { font-size: 12px; color: var(--dim); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 4px; }
+.entry-desc  { font-size: 13px; color: #bbbbbb; line-height: 1.6; }
+.entry-date  { font-size: 12px; color: var(--dim); text-transform: uppercase; white-space: nowrap; padding-top: 2px; }
 
 /* ═══════════════════════════════════════════
    MISSION TEXT / INTRO
 ═══════════════════════════════════════════ */
-.section-label { font-size: 9px; text-transform: uppercase; letter-spacing: 0.16em; margin-bottom: 16px; }
-.mission-text  { font-size: 13px; line-height: 1.8; margin-bottom: 24px; }
+.section-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.16em; margin-bottom: 16px; }
+.mission-text  { font-size: 16px; line-height: 1.9; margin-bottom: 24px; }
 
 .contact-nav { display: flex; flex-wrap: wrap; gap: 8px; }
-.contact-nav a { font-size: 11px; color: #999999; }
+.contact-nav a { font-size: 13px; color: #999999; }
 .contact-nav a:hover { color: var(--fg); border-bottom: 1px solid var(--fg); }
 
 /* ═══════════════════════════════════════════
@@ -281,7 +285,7 @@ a.stage-entry:hover .entry-title { text-decoration: underline; text-underline-of
 }
 
 .transmissions-header h2 {
-    font-size: 16px;
+    font-size: 18px;
     letter-spacing: 0.08em;
 }
 
@@ -354,12 +358,11 @@ a.stage-entry:hover .entry-title { text-decoration: underline; text-underline-of
 }
 
 /* ═══════════════════════════════════════════
-   RESPONSIVE
+   RESPONSIVE — TABLET (768px)
 ═══════════════════════════════════════════ */
 @media (max-width: 768px) {
-    .stats-bar { grid-template-columns: repeat(2, 1fr); padding: 14px 20px; }
     .site-header { padding: 20px; }
-    .content-panel { padding: 20px; }
+    .content-panel { padding: 20px; min-height: 80vh; }
     .panel-card { max-width: 100%; }
     .card-right { margin-left: 0; }
     .rocket-sticky { height: 60vw; min-height: 300px; }
@@ -368,4 +371,40 @@ a.stage-entry:hover .entry-title { text-decoration: underline; text-underline-of
     .transmissions-grid { grid-template-columns: 1fr; }
     .transmissions-section { padding: 24px 16px; }
     .content-panel--fullwidth { padding: 40px 20px; }
+    .stage-labels { padding: 30px 20px; }
+    a.stage-entry { padding: 16px 0; }
+    .transmission-item { padding: 20px 16px; }
+}
+
+/* ═══════════════════════════════════════════
+   RESPONSIVE — MOBILE (480px)
+═══════════════════════════════════════════ */
+@media (max-width: 480px) {
+    .site-header {
+        flex-direction: column;
+        gap: 8px;
+        padding: 16px;
+    }
+    .header-right { text-align: left; }
+    .site-header h1 { font-size: 16px; }
+
+    body { font-size: 14px; }
+    .mission-text { font-size: 14px; line-height: 1.7; }
+    .entry-title { font-size: 12px; }
+    .entry-desc { font-size: 12px; }
+    .entry-role { font-size: 11px; }
+    .entry-date { font-size: 11px; }
+    .section-label { font-size: 10px; }
+    .stage-badge { font-size: 16px; }
+    .lbl-badge { font-size: 18px; }
+    .contact-nav a { font-size: 12px; }
+    .transmissions-header h2 { font-size: 15px; }
+    .card-sublabel { font-size: 12px; }
+    .stage-name { font-size: 12px; }
+
+    .rocket-sticky { height: 50vw; min-height: 200px; }
+    .content-panel { min-height: auto; padding: 16px; }
+    .panel-card { padding: 20px 16px; }
+    .content-panel--fullwidth { padding: 24px 12px; }
+    .stage-labels { padding: 20px 12px; }
 }

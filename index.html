@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>D. NARENDRA // SATURN V AMBITION</title>
+    <title>div | escape v.</title>
     <meta name="description" content="developer, builder, creator.">
     <link rel="stylesheet" href="style.css">
     <script type="importmap">
@@ -23,7 +23,7 @@
 <header class="site-header">
     <div>
         <h1>DIVITH NARENDRA</h1>
-        <div class="dim">PRODUCT // BUILDER // FOUNDER'S GUY</div>
+        <div class="dim">PRODUCT // BUILDER // FOUNDER'S GUY // <a href="writing.html">WRITING</a> // <a href="https://drive.google.com/file/d/1ryd-BLh5Y7xK2psEldVXcmuJJ6fnUdoq/view?usp=sharing" target="_blank">RESUME</a></div>
     </div>
     <div class="header-right dim">
         <div>CURRENT_LOC: BANGALORE</div>
@@ -81,8 +81,6 @@
                     <strong>Escape velocity or nothing.</strong>
                 </p>
                 <nav class="contact-nav">
-                    <a href="writing.html">[ WRITING ]</a>
-                    <a href="https://drive.google.com/file/d/1ryd-BLh5Y7xK2psEldVXcmuJJ6fnUdoq/view?usp=sharing" target="_blank">[ RESUME ]</a>
                     <a href="mailto:divithnarendra@gmail.com">[ EMAIL ]</a>
                     <a href="https://www.linkedin.com/in/divith-narendra/" target="_blank">[ LINKEDIN ]</a>
                     <a href="https://x.com/div_narendra" target="_blank">[ TWITTER ]</a>
@@ -93,44 +91,34 @@
 
         <!-- ── PANEL 1: S-IVB + LEM — Dognosis + Lossfunk ── -->
         <div class="content-panel" id="panel-sivb" data-stage="sivb">
-            <div class="panel-dual-wrapper">
-                <div class="panel-dual-header">
-                    <div class="stage-header" style="margin-bottom:0">
-                        <span class="stage-badge">S-IVB</span>
+            <div class="panel-card card-left">
+                <div class="stage-header">
+                    <span class="stage-badge">S-IVB</span>
+                    <div>
+                        <div class="stage-name">THIRD STAGE + LEM</div>
+                        <div class="dim" style="font-size:11px">TRANS-LUNAR INJECTION // CURRENT ORBIT</div>
+                    </div>
+                </div>
+                <a href="https://www.dognosis.tech" class="stage-entry" target="_blank">
+                    <div class="entry-row">
                         <div>
-                            <div class="stage-name">THIRD STAGE + LEM</div>
-                            <div class="dim" style="font-size:11px">TRANS-LUNAR INJECTION // CURRENT ORBIT</div>
+                            <div class="entry-title">DOGNOSIS</div>
+                            <div class="entry-role">FOUNDER'S OFFICE</div>
+                            <div class="entry-desc">Helping run a company proving that dogs + machine learning outperform half your favorite diagnostic tools.</div>
                         </div>
+                        <div class="entry-date">OCT 2025 –<br>PRESENT</div>
                     </div>
-                </div>
-                <div class="panel-dual">
-                    <div class="panel-card">
-                        <div class="card-sublabel">EXPERIENCE</div>
-                        <a href="https://www.dognosis.tech" class="stage-entry" target="_blank">
-                            <div class="entry-row">
-                                <div>
-                                    <div class="entry-title">DOGNOSIS</div>
-                                    <div class="entry-role">FOUNDER'S OFFICE</div>
-                                    <div class="entry-desc">Helping run a company proving that dogs + machine learning outperform half your favorite diagnostic tools.</div>
-                                </div>
-                                <div class="entry-date">OCT 2025 –<br>PRESENT</div>
-                            </div>
-                        </a>
+                </a>
+                <a href="https://x.com/paraschopra/status/2011702947848032656" class="stage-entry" target="_blank">
+                    <div class="entry-row">
+                        <div>
+                            <div class="entry-title">LOSSFUNK</div>
+                            <div class="entry-role">AI RESIDENT</div>
+                            <div class="entry-desc">Teaching LLMs to play Age of Empires and real-time strategy games. Because if AI can manage an economy, defend a base, and execute a 200 IQ rush — maybe it deserves the job.</div>
+                        </div>
+                        <div class="entry-date">2025</div>
                     </div>
-                    <div class="panel-card">
-                        <div class="card-sublabel">PROJECTS & RESEARCH</div>
-                        <a href="https://x.com/paraschopra/status/2011702947848032656" class="stage-entry" target="_blank">
-                            <div class="entry-row">
-                                <div>
-                                    <div class="entry-title">LOSSFUNK</div>
-                                    <div class="entry-role">AI / GAMING RESEARCH</div>
-                                    <div class="entry-desc">Teaching LLMs to play Age of Empires and real-time strategy games. Because if AI can manage an economy, defend a base, and execute a 200 IQ rush — maybe it deserves the job.</div>
-                                </div>
-                                <div class="entry-date">2025</div>
-                            </div>
-                        </a>
-                    </div>
-                </div>
+                </a>
             </div>
         </div>
 
@@ -244,7 +232,7 @@
             <div class="transmissions-section">
                 <div class="transmissions-header">
                     <h2 class="typing-cursor">TRANSMISSION LOGS</h2>
-                    <div class="dim" style="font-size:11px;margin-top:8px">SIGNAL INTERCEPTS // THOUGHTS ON TECH, STARTUPS, AND BUILDING THINGS</div>
+                    <div class="dim" style="font-size:11px;margin-top:8px">MY WRITING ON TECH, STARTUPS AND THE BROADER CULTUROSPHERE</div>
                 </div>
                 <div class="transmissions-grid" id="transmissions-container">
                     <div class="transmission-item">
@@ -297,15 +285,18 @@ const GROUP_MID_Y = {
 
 // Camera zoom per stage (closer for smaller groups)
 const CAM_Z = {
-    none:          22,
+    none:          28,
     csm:           7,
     sivb:          9,
     sii:           10,
     coupler:       10,
     sic:           12,
-    'pre-liftoff': 22,
-    liftoff:       22,
+    'pre-liftoff': 28,
+    liftoff:       28,
 };
+
+// ── Mobile detection ─────────────────────────────────────────
+const isMobile = window.matchMedia('(max-width: 768px)').matches;
 
 // ── Renderer setup ───────────────────────────────────────────
 const canvas  = document.getElementById('rocket-canvas');
@@ -313,11 +304,11 @@ const sticky  = document.getElementById('rocket-sticky');
 
 const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false });
 renderer.setClearColor(0x000000, 1);
-renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, isMobile ? 1.5 : 2));
 
 const scene  = new THREE.Scene();
-const camera = new THREE.PerspectiveCamera(28, 1, 0.01, 200);
-camera.position.set(0, 0, 22);
+const camera = new THREE.PerspectiveCamera(isMobile ? 35 : 28, 1, 0.01, 200);
+camera.position.set(0, 0, 28);
 
 function resize() {
     const w = sticky.clientWidth;
@@ -386,13 +377,13 @@ const opacityCurrent = {};
 for (const k of ALL_GROUPS) { opacityTarget[k] = 0.35; opacityCurrent[k] = 0.35; }
 
 // Vertical separation: Y-offset targets and smoothed current
-const SEP_GAP = 3.0; // gap between separated groups
+const SEP_GAP = isMobile ? 1.8 : 3.0; // gap between separated groups
 const sepTarget  = {};
 const sepCurrent = {};
 for (const k of ALL_GROUPS) { sepTarget[k] = 0; sepCurrent[k] = 0; }
 
 // Camera: target and smoothed current (Z only — camera always looks at y=0)
-let camZTarget = 22, camZCurrent = 22;
+let camZTarget = 28, camZCurrent = 28;
 
 // Liftoff state
 let liftoffActive = false;
@@ -435,6 +426,7 @@ function setActiveStage(newStage) {
         }, 1500);
 
         // Hide all stage labels
+        document.getElementById('stage-labels').style.display = 'none';
         for (const k of ALL_GROUPS) {
             const el = document.getElementById('lbl-' + k);
             if (el) el.classList.remove('active');
@@ -443,6 +435,14 @@ function setActiveStage(newStage) {
     }
 
     liftoffActive = (newStage === 'liftoff');
+
+    // Show/hide stage labels container
+    const stageLabelsEl = document.getElementById('stage-labels');
+    if (newStage === 'none' || newStage === 'liftoff') {
+        stageLabelsEl.style.display = 'none';
+    } else {
+        stageLabelsEl.style.display = '';
+    }
 
     // Opacity targets
     for (const k of ALL_GROUPS) {
@@ -476,7 +476,7 @@ function setActiveStage(newStage) {
     // Camera zoom target
     camZTarget = CAM_Z[newStage] || CAM_Z.none;
 
-    // Stage label UI
+    // Stage label UI — only show the active group's label
     for (const k of ALL_GROUPS) {
         const el = document.getElementById('lbl-' + k);
         if (el) el.classList.toggle('active', k === newStage);
@@ -516,87 +516,70 @@ window.addEventListener('mousemove', e => {
     targetRotY = mouseX * 0.4;
 });
 
-// ── LOX drip particle system (per-group seam droplets) ───────
-const LOX_PER_GROUP = 30;
+// ── LOX drip particle system (S-IC only) ─────────────────────
+const LOX_COUNT = isMobile ? 80 : 200;
 const LOX_FALL_DIST = 1.2;
 const LOX_COLOR = new THREE.Color(0xeeeeff);
+const LOX_CFG = { y: -5.0, r: 0.45 };
 
-// Each group's spawn config: Y = bottom edge, radius = body width at seam
-const LOX_SPAWN = {
-    csm:     { y: 2.988, r: 0.25 },
-    sivb:    { y: 0.793, r: 0.40 },
-    sii:     { y: -1.490, r: 0.50 },
-    coupler: { y: -1.559, r: 0.50 },
-    sic:     { y: -5.0,   r: 0.45 },
-};
+const loxPositions  = new Float32Array(LOX_COUNT * 3);
+const loxOpacities  = new Float32Array(LOX_COUNT);
+const loxVelocities = new Float32Array(LOX_COUNT * 3);
 
-// Per-group particle systems (each lives inside its stageGroup, moves with separation)
-const loxSystems = {};
-
-for (const k of ALL_GROUPS) {
-    const count = LOX_PER_GROUP;
-    const positions  = new Float32Array(count * 3);
-    const opacities  = new Float32Array(count);
-    const velocities = new Float32Array(count * 3);
-    const cfg = LOX_SPAWN[k];
-
-    function initParticle(i, stagger) {
-        const angle = Math.random() * Math.PI * 2;
-        // Spawn on the outer edge (sides of the body, not centre)
-        const rad = cfg.r * (0.7 + Math.random() * 0.3);
-        positions[i * 3]     = Math.cos(angle) * rad;
-        positions[i * 3 + 1] = cfg.y - (stagger ? Math.random() * LOX_FALL_DIST : 0);
-        positions[i * 3 + 2] = Math.sin(angle) * rad;
-        velocities[i * 3]     = (Math.random() - 0.5) * 0.001;
-        velocities[i * 3 + 1] = -(0.004 + Math.random() * 0.006);
-        velocities[i * 3 + 2] = (Math.random() - 0.5) * 0.001;
-        opacities[i] = 0.5 + Math.random() * 0.3;
-    }
-    for (let i = 0; i < count; i++) initParticle(i, true);
-
-    const geo = new THREE.BufferGeometry();
-    geo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-    geo.setAttribute('aOpacity', new THREE.BufferAttribute(opacities, 1));
-
-    const mat = new THREE.ShaderMaterial({
-        uniforms: {
-            uColor: { value: LOX_COLOR },
-            uPointSize: { value: 2.0 * Math.min(window.devicePixelRatio, 2) },
-        },
-        vertexShader: `
-            attribute float aOpacity;
-            varying float vOpacity;
-            uniform float uPointSize;
-            void main() {
-                vOpacity = aOpacity;
-                vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
-                gl_PointSize = uPointSize * (300.0 / -mvPosition.z);
-                gl_Position = projectionMatrix * mvPosition;
-            }
-        `,
-        fragmentShader: `
-            uniform vec3 uColor;
-            varying float vOpacity;
-            void main() {
-                float dist = length(gl_PointCoord - vec2(0.5));
-                if (dist > 0.5) discard;
-                gl_FragColor = vec4(uColor, vOpacity * (1.0 - dist * 2.0));
-            }
-        `,
-        transparent: true,
-        blending: THREE.AdditiveBlending,
-        depthWrite: false,
-    });
-
-    const points = new THREE.Points(geo, mat);
-    stageGroups[k].add(points);
-
-    loxSystems[k] = { positions, opacities, velocities, geo, mat, points, initParticle, cfg, count };
+function initLoxParticle(i, stagger) {
+    const angle = Math.random() * Math.PI * 2;
+    const rad = LOX_CFG.r * (0.7 + Math.random() * 0.3);
+    loxPositions[i * 3]     = Math.cos(angle) * rad;
+    loxPositions[i * 3 + 1] = LOX_CFG.y - (stagger ? Math.random() * LOX_FALL_DIST : 0);
+    loxPositions[i * 3 + 2] = Math.sin(angle) * rad;
+    loxVelocities[i * 3]     = (Math.random() - 0.5) * 0.001;
+    loxVelocities[i * 3 + 1] = -(0.004 + Math.random() * 0.006);
+    loxVelocities[i * 3 + 2] = (Math.random() - 0.5) * 0.001;
+    loxOpacities[i] = 0.5 + Math.random() * 0.3;
 }
+for (let i = 0; i < LOX_COUNT; i++) initLoxParticle(i, true);
+
+const loxGeo = new THREE.BufferGeometry();
+loxGeo.setAttribute('position', new THREE.BufferAttribute(loxPositions, 3));
+loxGeo.setAttribute('aOpacity', new THREE.BufferAttribute(loxOpacities, 1));
+
+const loxMat = new THREE.ShaderMaterial({
+    uniforms: {
+        uColor: { value: LOX_COLOR },
+        uPointSize: { value: 2.0 * Math.min(window.devicePixelRatio, isMobile ? 1.5 : 2) },
+    },
+    vertexShader: `
+        attribute float aOpacity;
+        varying float vOpacity;
+        uniform float uPointSize;
+        void main() {
+            vOpacity = aOpacity;
+            vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
+            gl_PointSize = uPointSize * (300.0 / -mvPosition.z);
+            gl_Position = projectionMatrix * mvPosition;
+        }
+    `,
+    fragmentShader: `
+        uniform vec3 uColor;
+        varying float vOpacity;
+        void main() {
+            float dist = length(gl_PointCoord - vec2(0.5));
+            if (dist > 0.5) discard;
+            gl_FragColor = vec4(uColor, vOpacity * (1.0 - dist * 2.0));
+        }
+    `,
+    transparent: true,
+    blending: THREE.AdditiveBlending,
+    depthWrite: false,
+});
+
+const loxPoints = new THREE.Points(loxGeo, loxMat);
+stageGroups['sic'].add(loxPoints);
 
 // ── Render loop ──────────────────────────────────────────────
 let autoRot = 0;
-const LERP = 0.09;
+const LERP = isMobile ? 0.12 : 0.09;
+const MOUSE_LERP = isMobile ? 0.04 : 0.06;
 
 function animate() {
     requestAnimationFrame(animate);
@@ -613,37 +596,34 @@ function animate() {
 
     // Liftoff: move entire rocket upward (slow, dramatic)
     liftoffYTarget = liftoffActive ? 20 : 0;
-    liftoffYCurrent += (liftoffYTarget - liftoffYCurrent) * LERP * 0.4;
+    liftoffYCurrent += (liftoffYTarget - liftoffYCurrent) * LERP * 0.15;
     rocketRoot.position.y = liftoffYCurrent;
 
-    // Update LOX droplets (per-group seam particles)
-    const isSeparated = activeStage !== 'none' && activeStage !== 'liftoff' && activeStage !== 'pre-liftoff';
-    for (const k of ALL_GROUPS) {
-        const sys = loxSystems[k];
-        const speedMult = (liftoffActive && k === 'sic') ? 3.0 : 1.0;
-        const visible = isSeparated || (liftoffActive && k === 'sic');
+    // Update LOX droplets (S-IC only)
+    const isSicActive = activeStage === 'sic';
+    const loxVisible = isSicActive || liftoffActive;
+    const speedMult = liftoffActive ? 3.0 : 1.0;
 
-        for (let i = 0; i < sys.count; i++) {
-            sys.positions[i * 3]     += sys.velocities[i * 3] * speedMult;
-            sys.positions[i * 3 + 1] += sys.velocities[i * 3 + 1] * speedMult;
-            sys.positions[i * 3 + 2] += sys.velocities[i * 3 + 2] * speedMult;
+    for (let i = 0; i < LOX_COUNT; i++) {
+        loxPositions[i * 3]     += loxVelocities[i * 3] * speedMult;
+        loxPositions[i * 3 + 1] += loxVelocities[i * 3 + 1] * speedMult;
+        loxPositions[i * 3 + 2] += loxVelocities[i * 3 + 2] * speedMult;
 
-            const fallDist = sys.cfg.y - sys.positions[i * 3 + 1];
-            sys.opacities[i] = visible ? Math.max(0, 1.0 - fallDist / LOX_FALL_DIST) * 0.6 : 0;
+        const fallDist = LOX_CFG.y - loxPositions[i * 3 + 1];
+        loxOpacities[i] = loxVisible ? Math.max(0, 1.0 - fallDist / LOX_FALL_DIST) * 0.6 : 0;
 
-            if (fallDist > LOX_FALL_DIST) {
-                sys.initParticle(i, false);
-                if (liftoffActive && k === 'sic') {
-                    sys.velocities[i * 3]     = (Math.random() - 0.5) * 0.008;
-                    sys.velocities[i * 3 + 1] = -(0.02 + Math.random() * 0.03);
-                    sys.velocities[i * 3 + 2] = (Math.random() - 0.5) * 0.008;
-                }
+        if (fallDist > LOX_FALL_DIST) {
+            initLoxParticle(i, false);
+            if (liftoffActive) {
+                loxVelocities[i * 3]     = (Math.random() - 0.5) * 0.008;
+                loxVelocities[i * 3 + 1] = -(0.02 + Math.random() * 0.03);
+                loxVelocities[i * 3 + 2] = (Math.random() - 0.5) * 0.008;
             }
         }
-        sys.geo.attributes.position.needsUpdate = true;
-        sys.geo.attributes.aOpacity.needsUpdate = true;
-        sys.mat.uniforms.uPointSize.value = (liftoffActive && k === 'sic' ? 4.0 : 2.0) * Math.min(window.devicePixelRatio, 2);
     }
+    loxGeo.attributes.position.needsUpdate = true;
+    loxGeo.attributes.aOpacity.needsUpdate = true;
+    loxMat.uniforms.uPointSize.value = (liftoffActive ? 4.0 : 2.0) * Math.min(window.devicePixelRatio, isMobile ? 1.5 : 2);
 
     // Lerp camera Z (zoom in/out)
     camZCurrent += (camZTarget - camZCurrent) * LERP;
@@ -651,9 +631,10 @@ function animate() {
     camera.position.set(0, 0, camZCurrent);
     camera.lookAt(0, 0, 0);
 
-    // Slow auto-rotation + mouse influence
-    autoRot += 0.003;
-    currentRotY += (autoRot + targetRotY - currentRotY) * 0.04;
+    // Sinusoidal auto-rotation + mouse influence
+    const time = performance.now() * 0.001;
+    autoRot += 0.003 + Math.sin(time * 0.5) * 0.001;
+    currentRotY += (autoRot + targetRotY - currentRotY) * MOUSE_LERP;
     rocketRoot.rotation.y = currentRotY;
 
     renderer.render(scene, camera);
@@ -725,6 +706,19 @@ const RSS_URL = 'https://api.rss2json.com/v1/api.json?rss_url=https://kwerky.sub
         }
     }
 })();
+
+// ── Panel fade-in observer ───────────────────────────────────
+const fadeObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+        if (entry.isIntersecting) {
+            entry.target.classList.add('visible');
+        }
+    });
+}, { threshold: 0.15 });
+
+document.querySelectorAll('.panel-card, .panel-dual-header, .transmissions-section').forEach(el => {
+    fadeObserver.observe(el);
+});
 </script>
 
 </body>
