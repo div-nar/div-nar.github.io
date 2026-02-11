@@ -1,267 +1,731 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Divith Narendra</title>
+    <title>D. NARENDRA // SATURN V AMBITION</title>
     <meta name="description" content="developer, builder, creator.">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="style.css">
+    <script type="importmap">
+    {
+        "imports": {
+            "three": "https://cdn.jsdelivr.net/npm/three@0.169.0/build/three.module.js",
+            "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.169.0/examples/jsm/"
+        }
+    }
+    </script>
 </head>
-
 <body>
-    <!-- Star Field Background -->
-    <div class="stars" id="stars"></div>
 
-    <!-- Rocket Timeline -->
-    <div class="rocket-trail"></div>
-    <div class="rocket" id="rocket">
-        <svg viewBox="0 0 24 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <!-- Rocket body -->
-            <path d="M12 0C12 0 6 8 6 20C6 28 8 36 12 44C16 36 18 28 18 20C18 8 12 0 12 0Z" fill="#fafafa" />
-            <!-- Nose cone -->
-            <path d="M12 0C10 4 8 10 8 16L12 12L16 16C16 10 14 4 12 0Z" fill="#d4a574" />
-            <!-- Fins -->
-            <path d="M6 32L2 44L6 38V32Z" fill="#d4a574" />
-            <path d="M18 32L22 44L18 38V32Z" fill="#d4a574" />
-            <!-- Window -->
-            <circle cx="12" cy="18" r="3" fill="#0a0a0a" stroke="#d4a574" stroke-width="1" />
-        </svg>
+<!-- ══════════════════════════════════════════
+     HEADER
+══════════════════════════════════════════ -->
+<header class="site-header">
+    <div>
+        <h1>DIVITH NARENDRA</h1>
+        <div class="dim">PRODUCT // BUILDER // FOUNDER'S GUY</div>
+    </div>
+    <div class="header-right dim">
+        <div>CURRENT_LOC: BANGALORE</div>
+        <div>STATUS: <span class="typing-cursor">ORBITAL</span></div>
+    </div>
+</header>
+
+<!-- ══════════════════════════════════════════
+     SCROLL WRAPPER: full-height sticky rocket
+     + content panels alongside
+══════════════════════════════════════════ -->
+<div class="scroll-wrapper" id="scroll-wrapper">
+
+    <!-- Fixed rocket (centred) -->
+    <div class="rocket-sticky" id="rocket-sticky">
+        <canvas id="rocket-canvas"></canvas>
+
+        <!-- Stage labels — sit left/right of rocket, revealed per group -->
+        <div class="stage-labels" id="stage-labels">
+            <div class="stage-label-item" id="lbl-csm" data-side="right">
+                <div class="lbl-badge">CSM</div>
+                <div class="lbl-sub dim">COMMAND + SERVICE MODULE</div>
+            </div>
+            <div class="stage-label-item" id="lbl-sivb" data-side="left">
+                <div class="lbl-badge">S-IVB</div>
+                <div class="lbl-sub dim">THIRD STAGE + LEM</div>
+            </div>
+            <div class="stage-label-item" id="lbl-sii" data-side="right">
+                <div class="lbl-badge">S-II</div>
+                <div class="lbl-sub dim">SECOND STAGE</div>
+            </div>
+            <div class="stage-label-item" id="lbl-coupler" data-side="left">
+                <div class="lbl-badge">INTERSTAGE</div>
+                <div class="lbl-sub dim">S-II / S-IC COUPLER</div>
+            </div>
+            <div class="stage-label-item" id="lbl-sic" data-side="left">
+                <div class="lbl-badge">S-IC</div>
+                <div class="lbl-sub dim">FIRST STAGE</div>
+            </div>
+        </div>
     </div>
 
-    <div class="container">
-        <!-- Header -->
-        <header class="header">
-            <h1>divith narendra</h1>
-            <p class="tagline">part-time writer, full-time product — founder's guy @ dognosis.</p>
+    <!-- Content panels stacked vertically, overlaid on the sticky rocket -->
+    <div class="content-col" id="content-col">
 
-            <nav class="nav">
-                <a href="https://drive.google.com/file/d/1ryd-BLh5Y7xK2psEldVXcmuJJ6fnUdoq/view?usp=sharing"
-                    class="nav-item" target="_blank">resume</a>
-                <span class="nav-separator">·</span>
-                <a href="writing.html" class="nav-item">writing</a>
-                <span class="nav-separator">·</span>
-                <a href="#contact" class="nav-item">contact</a>
-            </nav>
-        </header>
-
-        <!-- Two Column Layout -->
-        <div class="two-column">
-            <!-- Work Section -->
-            <section id="work" class="section">
-                <h2>Experience</h2>
-
-                <a href="https://www.dognosis.tech" class="item" target="_blank">
-                    <h3 class="item-title">Dognosis</h3>
-                    <div class="item-meta">
-                        <span class="item-role">Founder's Office</span>
-                        <span class="item-date">Oct 2025 – Present</span>
-                    </div>
-                    <p class="item-description">Helping run a company proving that dogs + machine learning outperform
-                        half your favorite diagnostic tools.</p>
-                </a>
-
-                <a href="https://www.meetaugust.ai/" class="item" target="_blank">
-                    <h3 class="item-title">August AI</h3>
-                    <div class="item-meta">
-                        <span class="item-role">Founder's Office</span>
-                        <span class="item-date">Nov 2024 – May 2025</span>
-                    </div>
-                    <p class="item-description">Shipped fast, broke nothing, and somehow convinced 80k people to show up
-                        in a week.</p>
-                </a>
-
-                <a href="https://www.canva.com/design/DAF_jT1HcDk/I7hYO04TESmufHTBj6MczQ/edit" class="item"
-                    target="_blank">
-                    <h3 class="item-title">Indian School of Business</h3>
-                    <div class="item-meta">
-                        <span class="item-role">Analyst</span>
-                        <span class="item-date">May – Aug 2024</span>
-                    </div>
-                    <p class="item-description">Explained to markets why weather exists and why it keeps ruining
-                        everyone's predictions.</p>
-                </a>
-
-                <a href="https://www.liquide.life" class="item" target="_blank">
-                    <h3 class="item-title">Liquide</h3>
-                    <div class="item-meta">
-                        <span class="item-role">Growth Engineer</span>
-                        <span class="item-date">Sept 2023 – Jan 2024</span>
-                    </div>
-                    <p class="item-description">Ran growth campaigns that didn't set anything on fire (except engagement
-                        charts).</p>
-                </a>
-            </section>
-
-            <!-- Projects Section -->
-            <section id="projects" class="section">
-                <h2>Projects</h2>
-
-                <a href="empathetic-machines.pdf" class="item" target="_blank">
-                    <h3 class="item-title">Empathetic Machines</h3>
-                    <div class="item-meta">
-                        <span class="item-date">May 2024</span>
-                    </div>
-                    <p class="item-description">Wrote a research paper in 7 days exploring if machines can feel.
-                        Spoiler: they can't, but they're getting better at pretending.</p>
-                </a>
-
-                <a href="https://github.com/anshulranaa/AT-GCN" class="item" target="_blank">
-                    <h3 class="item-title">Forecasting Fatalities</h3>
-                    <div class="item-meta">
-                        <span class="item-date">Jan – May 2024</span>
-                    </div>
-                    <p class="item-description">Trained a model to predict conflict fatalities without starting any new
-                        ones.</p>
-                </a>
-
-                <a href="https://plaksha.edu.in" class="item" target="_blank">
-                    <h3 class="item-title">SaaS Profitability Pricing</h3>
-                    <div class="item-meta">
-                        <span class="item-date">Jun – Nov 2023</span>
-                    </div>
-                    <p class="item-description">Tried to make SaaS companies profitable. Shockingly, some listened.</p>
-                </a>
-
-                <a href="https://drive.google.com/file/d/17QzwbwJoRpvBeVEyxWDCIcEAQmTamIGA/view?usp=sharing"
-                    class="item" target="_blank">
-                    <h3 class="item-title">Climate-Adjusted Portfolio</h3>
-                    <div class="item-meta">
-                        <span class="item-date">Oct – Dec 2024</span>
-                    </div>
-                    <p class="item-description">Modified CAPM to treat carbon emissions like bad debt—turns out, saving
-                        the planet also beats the market.</p>
-                </a>
-            </section>
+        <!-- ── PANEL 0: Intro (triggers payload separation) ── -->
+        <div class="content-panel" id="panel-intro" data-stage="csm">
+            <div class="panel-card card-left">
+                <div class="section-label dim">MISSION PROFILE</div>
+                <p class="mission-text">
+                    Part-time writer, full-time product.<br><br>
+                    The Saturn V remains the most powerful machine ever built by human hands.
+                    It did not compromise. It burned 20 tons of fuel per second to escape gravity.<br><br>
+                    This is the operating protocol for my work:<br>
+                    <strong>Escape velocity or nothing.</strong>
+                </p>
+                <nav class="contact-nav">
+                    <a href="writing.html">[ WRITING ]</a>
+                    <a href="https://drive.google.com/file/d/1ryd-BLh5Y7xK2psEldVXcmuJJ6fnUdoq/view?usp=sharing" target="_blank">[ RESUME ]</a>
+                    <a href="mailto:divithnarendra@gmail.com">[ EMAIL ]</a>
+                    <a href="https://www.linkedin.com/in/divith-narendra/" target="_blank">[ LINKEDIN ]</a>
+                    <a href="https://x.com/div_narendra" target="_blank">[ TWITTER ]</a>
+                    <a href="https://kwerky.substack.com/" target="_blank">[ SUBSTACK ]</a>
+                </nav>
+            </div>
         </div>
 
-        <!-- Writing Section -->
-        <section id="writing" class="section">
-            <h2>Writing</h2>
-
-            <a href="https://kwerky.substack.com/" class="item" id="latest-article" target="_blank">
-                <h3 class="item-title" id="latest-article-title">Read my latest <span class="arrow">→</span></h3>
-                <p class="item-description" id="latest-article-desc">Thoughts on tech, startups, and building things.
-                    Published on Substack.</p>
-            </a>
-        </section>
-
-        <!-- Contact Section -->
-        <section id="contact" class="section">
-            <h2>Contact</h2>
-            <p class="contact-text">Always interested in new projects and opportunities.</p>
-
-            <div class="links">
-                <a href="mailto:divithnarendra@gmail.com" class="link">Email</a>
-                <a href="https://www.linkedin.com/in/divith-narendra/" class="link" target="_blank">LinkedIn</a>
-                <a href="https://kwerky.substack.com/" class="link" target="_blank">Substack</a>
-                <a href="https://x.com/div_narendra" class="link" target="_blank">X</a>
+        <!-- ── PANEL 1: S-IVB + LEM — Dognosis + Lossfunk ── -->
+        <div class="content-panel" id="panel-sivb" data-stage="sivb">
+            <div class="panel-dual-wrapper">
+                <div class="panel-dual-header">
+                    <div class="stage-header" style="margin-bottom:0">
+                        <span class="stage-badge">S-IVB</span>
+                        <div>
+                            <div class="stage-name">THIRD STAGE + LEM</div>
+                            <div class="dim" style="font-size:11px">TRANS-LUNAR INJECTION // CURRENT ORBIT</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="panel-dual">
+                    <div class="panel-card">
+                        <div class="card-sublabel">EXPERIENCE</div>
+                        <a href="https://www.dognosis.tech" class="stage-entry" target="_blank">
+                            <div class="entry-row">
+                                <div>
+                                    <div class="entry-title">DOGNOSIS</div>
+                                    <div class="entry-role">FOUNDER'S OFFICE</div>
+                                    <div class="entry-desc">Helping run a company proving that dogs + machine learning outperform half your favorite diagnostic tools.</div>
+                                </div>
+                                <div class="entry-date">OCT 2025 –<br>PRESENT</div>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="panel-card">
+                        <div class="card-sublabel">PROJECTS & RESEARCH</div>
+                        <a href="https://x.com/paraschopra/status/2011702947848032656" class="stage-entry" target="_blank">
+                            <div class="entry-row">
+                                <div>
+                                    <div class="entry-title">LOSSFUNK</div>
+                                    <div class="entry-role">AI / GAMING RESEARCH</div>
+                                    <div class="entry-desc">Teaching LLMs to play Age of Empires and real-time strategy games. Because if AI can manage an economy, defend a base, and execute a 200 IQ rush — maybe it deserves the job.</div>
+                                </div>
+                                <div class="entry-date">2025</div>
+                            </div>
+                        </a>
+                    </div>
+                </div>
             </div>
-        </section>
+        </div>
 
-        <!-- Footer -->
-        <footer class="footer">
-            <p>© 2025 Divith Narendra</p>
+        <!-- ── PANEL 2: S-II — Research ── -->
+        <div class="content-panel" id="panel-sii" data-stage="sii">
+            <div class="panel-dual-wrapper">
+                <div class="panel-dual-header">
+                    <div class="stage-header" style="margin-bottom:0">
+                        <span class="stage-badge">S-II</span>
+                        <div>
+                            <div class="stage-name">SECOND STAGE</div>
+                            <div class="dim" style="font-size:11px">ATMOSPHERIC EXIT // RESEARCH</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="panel-dual">
+                    <div class="panel-card">
+                        <div class="card-sublabel">RESEARCH</div>
+                        <a href="empathetic-machines.pdf" class="stage-entry" target="_blank">
+                            <div class="entry-row">
+                                <div>
+                                    <div class="entry-title">EMPATHETIC MACHINES</div>
+                                    <div class="entry-role">RESEARCH PAPER</div>
+                                    <div class="entry-desc">Wrote a research paper in 7 days exploring if machines can feel. Spoiler: they can't, but they're getting better at pretending.</div>
+                                </div>
+                                <div class="entry-date">MAY 2024</div>
+                            </div>
+                        </a>
+                        <a href="https://github.com/anshulranaa/AT-GCN" class="stage-entry" target="_blank">
+                            <div class="entry-row">
+                                <div>
+                                    <div class="entry-title">FORECASTING FATALITIES</div>
+                                    <div class="entry-role">ML RESEARCH</div>
+                                    <div class="entry-desc">Trained a model to predict conflict fatalities without starting any new ones.</div>
+                                </div>
+                                <div class="entry-date">JAN –<br>MAY 2024</div>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="panel-card">
+                        <div class="card-sublabel">PROJECTS</div>
+                        <a href="https://drive.google.com/file/d/17QzwbwJoRpvBeVEyxWDCIcEAQmTamIGA/view?usp=sharing" class="stage-entry" target="_blank">
+                            <div class="entry-row">
+                                <div>
+                                    <div class="entry-title">CLIMATE-ADJUSTED PORTFOLIO</div>
+                                    <div class="entry-role">RESEARCH PROJECT</div>
+                                    <div class="entry-desc">Modified CAPM to treat carbon emissions like bad debt — saving the planet also beats the market.</div>
+                                </div>
+                                <div class="entry-date">OCT –<br>DEC 2024</div>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── PANEL 3: S-IC — ISB + August AI / Latest Article ── -->
+        <div class="content-panel" id="panel-sic" data-stage="sic">
+            <div class="panel-dual-wrapper">
+                <div class="panel-dual-header">
+                    <div class="stage-header" style="margin-bottom:0">
+                        <span class="stage-badge">S-IC</span>
+                        <div>
+                            <div class="stage-name">FIRST STAGE</div>
+                            <div class="dim" style="font-size:11px">LIFTOFF THRUST // PROPULSION</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="panel-dual">
+                    <div class="panel-card">
+                        <div class="card-sublabel">EXPERIENCE</div>
+                        <a href="https://www.canva.com/design/DAF_jT1HcDk/I7hYO04TESmufHTBj6MczQ/edit" class="stage-entry" target="_blank">
+                            <div class="entry-row">
+                                <div>
+                                    <div class="entry-title">INDIAN SCHOOL OF BUSINESS</div>
+                                    <div class="entry-role">ANALYST</div>
+                                    <div class="entry-desc">Explained to markets why weather exists and why it keeps ruining everyone's predictions.</div>
+                                </div>
+                                <div class="entry-date">MAY –<br>AUG 2024</div>
+                            </div>
+                        </a>
+                        <a href="https://www.meetaugust.ai/" class="stage-entry" target="_blank">
+                            <div class="entry-row">
+                                <div>
+                                    <div class="entry-title">AUGUST AI</div>
+                                    <div class="entry-role">FOUNDER'S OFFICE</div>
+                                    <div class="entry-desc">Shipped fast, broke nothing, and somehow convinced 80k people to show up in a week.</div>
+                                </div>
+                                <div class="entry-date">NOV 2024 –<br>MAY 2025</div>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="panel-card">
+                        <div class="card-sublabel">LATEST TRANSMISSION</div>
+                        <div id="latest-article-container">
+                            <div class="stage-entry">
+                                <div class="entry-row">
+                                    <div>
+                                        <div class="entry-title dim">LOADING_SIGNAL...</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── PANEL 4: Transmission Logs (replaces career chart) ── -->
+        <div class="content-panel content-panel--fullwidth" id="panel-transmissions" data-stage="liftoff">
+            <div class="transmissions-section">
+                <div class="transmissions-header">
+                    <h2 class="typing-cursor">TRANSMISSION LOGS</h2>
+                    <div class="dim" style="font-size:11px;margin-top:8px">SIGNAL INTERCEPTS // THOUGHTS ON TECH, STARTUPS, AND BUILDING THINGS</div>
+                </div>
+                <div class="transmissions-grid" id="transmissions-container">
+                    <div class="transmission-item">
+                        <div class="entry-title dim">LOADING_TRANSMISSIONS...</div>
+                    </div>
+                </div>
+                <div class="transmissions-footer">
+                    <a href="writing.html">[ VIEW ALL TRANSMISSIONS ]</a>
+                    <a href="https://kwerky.substack.com/" target="_blank">[ SUBSTACK_FEED ]</a>
+                </div>
+            </div>
+        </div>
+
+        <footer class="site-footer">
+            <p>// DIVITH NARENDRA // SYSTEM STATUS: ONLINE // 2025 //</p>
         </footer>
-    </div>
 
-    <script>
-        // ===================================
-        // Star Field Generation
-        // ===================================
-        function createStars() {
-            const starsContainer = document.getElementById('stars');
-            const numStars = 100;
+    </div><!-- /content-col -->
+</div><!-- /scroll-wrapper -->
 
-            for (let i = 0; i < numStars; i++) {
-                const star = document.createElement('div');
-                star.className = 'star';
 
-                // Random size
-                const sizes = ['star--small', 'star--medium', 'star--large'];
-                const sizeClass = sizes[Math.floor(Math.random() * sizes.length)];
-                star.classList.add(sizeClass);
+<script type="module">
+import * as THREE from 'three';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
-                // Random position
-                star.style.left = Math.random() * 100 + '%';
-                star.style.top = Math.random() * 100 + '%';
+// ── Component groups (4 layers) ───────────────────────────────
+// Node names in GLB: tower, cmd, svc, lem, sivb, sii, cpv2, sic_top, sic_bot, fin_0-3
+const MESH_TO_GROUP = {
+    'tower':   'csm',
+    'cmd':     'csm',
+    'svc':     'csm',
+    'lem':     'sivb',
+    'sivb':    'sivb',
+    'sii':     'sii',
+    'cpv2':    'coupler',
+    'sic_top': 'sic',
+    'sic_bot': 'sic',
+    'fin':     'sic',
+};
+const ALL_GROUPS = ['csm', 'sivb', 'sii', 'coupler', 'sic'];
 
-                // Random animation delay for staggered twinkling
-                star.style.animationDelay = Math.random() * 4 + 's';
-                star.style.animationDuration = (3 + Math.random() * 3) + 's';
+// Each group's geometric midpoint Y (rest position in model space)
+const GROUP_MID_Y = {
+    csm:     3.994,
+    sivb:    2.019,
+    sii:     -0.11,
+    coupler: -1.042,
+    sic:     -3.021,
+};
 
-                starsContainer.appendChild(star);
+// Camera zoom per stage (closer for smaller groups)
+const CAM_Z = {
+    none:          22,
+    csm:           7,
+    sivb:          9,
+    sii:           10,
+    coupler:       10,
+    sic:           12,
+    'pre-liftoff': 22,
+    liftoff:       22,
+};
+
+// ── Renderer setup ───────────────────────────────────────────
+const canvas  = document.getElementById('rocket-canvas');
+const sticky  = document.getElementById('rocket-sticky');
+
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false });
+renderer.setClearColor(0x000000, 1);
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+const scene  = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(28, 1, 0.01, 200);
+camera.position.set(0, 0, 22);
+
+function resize() {
+    const w = sticky.clientWidth;
+    const h = sticky.clientHeight;
+    renderer.setSize(w, h);
+    camera.aspect = w / h;
+    camera.updateProjectionMatrix();
+}
+resize();
+window.addEventListener('resize', resize);
+
+// ── Per-group wire material ──────────────────────────────────
+const stageMats = {};
+const solidMats = {};
+const stageGroups = {};
+for (const k of ALL_GROUPS) {
+    stageMats[k]    = new THREE.LineBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.2 });
+    solidMats[k]    = new THREE.MeshBasicMaterial({ color: 0x000000, side: THREE.FrontSide, transparent: true, opacity: 0.45, depthWrite: false });
+    stageGroups[k]  = new THREE.Group();
+}
+const rocketRoot = new THREE.Group();
+for (const g of Object.values(stageGroups)) rocketRoot.add(g);
+scene.add(rocketRoot);
+rocketRoot.rotation.x = 0.10; // slight forward tilt
+
+// ── Classify mesh by node name → group ───────────────────────
+function nameToGroup(meshName) {
+    const lower = meshName.toLowerCase();
+    for (const [key, group] of Object.entries(MESH_TO_GROUP)) {
+        if (lower.includes(key)) return group;
+    }
+    return 'sic';
+}
+
+// ── Build wireframe + solid meshes from GLB ─────────────────
+function buildFromGLTF(gltfScene) {
+    gltfScene.traverse(child => {
+        if (!child.isMesh) return;
+        const key = nameToGroup(child.name);
+        // Solid fill (renders first, no depth write)
+        const solid = new THREE.Mesh(child.geometry, solidMats[key]);
+        solid.renderOrder = 0;
+        stageGroups[key].add(solid);
+
+        // Wireframe on top
+        const wire = new THREE.LineSegments(
+            new THREE.WireframeGeometry(child.geometry),
+            stageMats[key]
+        );
+        wire.renderOrder = 1;
+        stageGroups[key].add(wire);
+    });
+}
+
+const loader = new GLTFLoader();
+loader.load('rocket-full.glb', gltf => {
+    buildFromGLTF(gltf.scene);
+}, undefined, err => console.error(err));
+
+// ── Scroll / stage state ─────────────────────────────────────
+let activeStage = 'none';
+
+// Opacity: target and smoothed current
+const opacityTarget  = {};
+const opacityCurrent = {};
+for (const k of ALL_GROUPS) { opacityTarget[k] = 0.35; opacityCurrent[k] = 0.35; }
+
+// Vertical separation: Y-offset targets and smoothed current
+const SEP_GAP = 3.0; // gap between separated groups
+const sepTarget  = {};
+const sepCurrent = {};
+for (const k of ALL_GROUPS) { sepTarget[k] = 0; sepCurrent[k] = 0; }
+
+// Camera: target and smoothed current (Z only — camera always looks at y=0)
+let camZTarget = 22, camZCurrent = 22;
+
+// Liftoff state
+let liftoffActive = false;
+let liftoffYTarget = 0, liftoffYCurrent = 0;
+
+// Panel → group mapping
+const panels = ['panel-intro', 'panel-sivb', 'panel-sii', 'panel-sic', 'panel-transmissions'];
+const panelStage = {
+    'panel-intro': 'csm',
+    'panel-sivb':  'sivb',
+    'panel-sii':   'sii',
+    'panel-sic':   'sic',
+    'panel-transmissions': 'pre-liftoff',
+};
+
+// Group ordering for separation math (top → bottom)
+const GROUP_ORDER = ['csm', 'sivb', 'sii', 'coupler', 'sic'];
+
+let preLiftoffTimer = null;
+
+function setActiveStage(newStage) {
+    // Cancel pre-liftoff timer if scrolling away from transmissions
+    if (newStage !== 'pre-liftoff' && newStage !== 'liftoff') {
+        if (preLiftoffTimer) { clearTimeout(preLiftoffTimer); preLiftoffTimer = null; }
+    }
+
+    if (newStage === activeStage) return;
+    activeStage = newStage;
+
+    // ── Pre-liftoff: show assembled S-IC briefly, then fire liftoff ──
+    if (newStage === 'pre-liftoff') {
+        liftoffActive = false;
+        // Reassemble rocket (all groups return to rest), zoom out
+        for (const k of ALL_GROUPS) { opacityTarget[k] = 0.35; sepTarget[k] = 0; }
+        camZTarget = CAM_Z['pre-liftoff'];
+
+        preLiftoffTimer = setTimeout(() => {
+            liftoffActive = true;
+            // activeStage stays 'pre-liftoff' — liftoffActive drives the rise
+        }, 1500);
+
+        // Hide all stage labels
+        for (const k of ALL_GROUPS) {
+            const el = document.getElementById('lbl-' + k);
+            if (el) el.classList.remove('active');
+        }
+        return;
+    }
+
+    liftoffActive = (newStage === 'liftoff');
+
+    // Opacity targets
+    for (const k of ALL_GROUPS) {
+        if (newStage === 'none' || newStage === 'liftoff') {
+            opacityTarget[k] = 0.35;
+        } else {
+            opacityTarget[k] = (k === newStage) ? 0.9 : 0.1;
+        }
+    }
+
+    // Separation strategy:
+    // - Translate active group so its midpoint lands at y=0 (camera centre)
+    // - Push inactive groups further away with SEP_GAP spacing
+    if (newStage === 'none' || newStage === 'liftoff') {
+        for (const k of ALL_GROUPS) sepTarget[k] = 0;
+    } else {
+        const activeMidY = GROUP_MID_Y[newStage];
+        const activeIdx = GROUP_ORDER.indexOf(newStage);
+        for (let i = 0; i < GROUP_ORDER.length; i++) {
+            const k = GROUP_ORDER[i];
+            let offset = -activeMidY;
+            if (i !== activeIdx) {
+                const dir = i < activeIdx ? 1 : -1;
+                const dist = Math.abs(i - activeIdx);
+                offset += dir * SEP_GAP * dist;
+            }
+            sepTarget[k] = offset;
+        }
+    }
+
+    // Camera zoom target
+    camZTarget = CAM_Z[newStage] || CAM_Z.none;
+
+    // Stage label UI
+    for (const k of ALL_GROUPS) {
+        const el = document.getElementById('lbl-' + k);
+        if (el) el.classList.toggle('active', k === newStage);
+    }
+}
+
+function onScroll() {
+    const vh = window.innerHeight;
+
+    // Find panel whose centre is closest to viewport centre
+    let bestPanel = null, bestDist = Infinity;
+    for (const id of panels) {
+        const el = document.getElementById(id);
+        if (!el) continue;
+        const r = el.getBoundingClientRect();
+        const mid = r.top + r.height / 2;
+        const dist = Math.abs(mid - vh / 2);
+        if (dist < bestDist) { bestDist = dist; bestPanel = id; }
+    }
+
+    const threshold = vh;
+    const newStage = (bestPanel && bestDist < threshold)
+        ? panelStage[bestPanel]
+        : 'none';
+
+    setActiveStage(newStage);
+}
+
+window.addEventListener('scroll', onScroll, { passive: true });
+onScroll();
+
+// ── Mouse X rotation influence ───────────────────────────────
+let mouseX = 0, targetRotY = 0, currentRotY = 0;
+window.addEventListener('mousemove', e => {
+    mouseX = (e.clientX / window.innerWidth - 0.5) * 2;
+    // ±0.4 rad influence from mouse
+    targetRotY = mouseX * 0.4;
+});
+
+// ── LOX drip particle system (per-group seam droplets) ───────
+const LOX_PER_GROUP = 30;
+const LOX_FALL_DIST = 1.2;
+const LOX_COLOR = new THREE.Color(0xeeeeff);
+
+// Each group's spawn config: Y = bottom edge, radius = body width at seam
+const LOX_SPAWN = {
+    csm:     { y: 2.988, r: 0.25 },
+    sivb:    { y: 0.793, r: 0.40 },
+    sii:     { y: -1.490, r: 0.50 },
+    coupler: { y: -1.559, r: 0.50 },
+    sic:     { y: -5.0,   r: 0.45 },
+};
+
+// Per-group particle systems (each lives inside its stageGroup, moves with separation)
+const loxSystems = {};
+
+for (const k of ALL_GROUPS) {
+    const count = LOX_PER_GROUP;
+    const positions  = new Float32Array(count * 3);
+    const opacities  = new Float32Array(count);
+    const velocities = new Float32Array(count * 3);
+    const cfg = LOX_SPAWN[k];
+
+    function initParticle(i, stagger) {
+        const angle = Math.random() * Math.PI * 2;
+        // Spawn on the outer edge (sides of the body, not centre)
+        const rad = cfg.r * (0.7 + Math.random() * 0.3);
+        positions[i * 3]     = Math.cos(angle) * rad;
+        positions[i * 3 + 1] = cfg.y - (stagger ? Math.random() * LOX_FALL_DIST : 0);
+        positions[i * 3 + 2] = Math.sin(angle) * rad;
+        velocities[i * 3]     = (Math.random() - 0.5) * 0.001;
+        velocities[i * 3 + 1] = -(0.004 + Math.random() * 0.006);
+        velocities[i * 3 + 2] = (Math.random() - 0.5) * 0.001;
+        opacities[i] = 0.5 + Math.random() * 0.3;
+    }
+    for (let i = 0; i < count; i++) initParticle(i, true);
+
+    const geo = new THREE.BufferGeometry();
+    geo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+    geo.setAttribute('aOpacity', new THREE.BufferAttribute(opacities, 1));
+
+    const mat = new THREE.ShaderMaterial({
+        uniforms: {
+            uColor: { value: LOX_COLOR },
+            uPointSize: { value: 2.0 * Math.min(window.devicePixelRatio, 2) },
+        },
+        vertexShader: `
+            attribute float aOpacity;
+            varying float vOpacity;
+            uniform float uPointSize;
+            void main() {
+                vOpacity = aOpacity;
+                vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
+                gl_PointSize = uPointSize * (300.0 / -mvPosition.z);
+                gl_Position = projectionMatrix * mvPosition;
+            }
+        `,
+        fragmentShader: `
+            uniform vec3 uColor;
+            varying float vOpacity;
+            void main() {
+                float dist = length(gl_PointCoord - vec2(0.5));
+                if (dist > 0.5) discard;
+                gl_FragColor = vec4(uColor, vOpacity * (1.0 - dist * 2.0));
+            }
+        `,
+        transparent: true,
+        blending: THREE.AdditiveBlending,
+        depthWrite: false,
+    });
+
+    const points = new THREE.Points(geo, mat);
+    stageGroups[k].add(points);
+
+    loxSystems[k] = { positions, opacities, velocities, geo, mat, points, initParticle, cfg, count };
+}
+
+// ── Render loop ──────────────────────────────────────────────
+let autoRot = 0;
+const LERP = 0.09;
+
+function animate() {
+    requestAnimationFrame(animate);
+
+    // Lerp per-group opacity + vertical separation
+    for (const k of ALL_GROUPS) {
+        opacityCurrent[k] += (opacityTarget[k] - opacityCurrent[k]) * LERP;
+        stageMats[k].opacity = opacityCurrent[k];
+        solidMats[k].opacity = opacityCurrent[k] * 0.45;
+
+        sepCurrent[k] += (sepTarget[k] - sepCurrent[k]) * LERP;
+        stageGroups[k].position.y = sepCurrent[k];
+    }
+
+    // Liftoff: move entire rocket upward (slow, dramatic)
+    liftoffYTarget = liftoffActive ? 20 : 0;
+    liftoffYCurrent += (liftoffYTarget - liftoffYCurrent) * LERP * 0.4;
+    rocketRoot.position.y = liftoffYCurrent;
+
+    // Update LOX droplets (per-group seam particles)
+    const isSeparated = activeStage !== 'none' && activeStage !== 'liftoff' && activeStage !== 'pre-liftoff';
+    for (const k of ALL_GROUPS) {
+        const sys = loxSystems[k];
+        const speedMult = (liftoffActive && k === 'sic') ? 3.0 : 1.0;
+        const visible = isSeparated || (liftoffActive && k === 'sic');
+
+        for (let i = 0; i < sys.count; i++) {
+            sys.positions[i * 3]     += sys.velocities[i * 3] * speedMult;
+            sys.positions[i * 3 + 1] += sys.velocities[i * 3 + 1] * speedMult;
+            sys.positions[i * 3 + 2] += sys.velocities[i * 3 + 2] * speedMult;
+
+            const fallDist = sys.cfg.y - sys.positions[i * 3 + 1];
+            sys.opacities[i] = visible ? Math.max(0, 1.0 - fallDist / LOX_FALL_DIST) * 0.6 : 0;
+
+            if (fallDist > LOX_FALL_DIST) {
+                sys.initParticle(i, false);
+                if (liftoffActive && k === 'sic') {
+                    sys.velocities[i * 3]     = (Math.random() - 0.5) * 0.008;
+                    sys.velocities[i * 3 + 1] = -(0.02 + Math.random() * 0.03);
+                    sys.velocities[i * 3 + 2] = (Math.random() - 0.5) * 0.008;
+                }
             }
         }
+        sys.geo.attributes.position.needsUpdate = true;
+        sys.geo.attributes.aOpacity.needsUpdate = true;
+        sys.mat.uniforms.uPointSize.value = (liftoffActive && k === 'sic' ? 4.0 : 2.0) * Math.min(window.devicePixelRatio, 2);
+    }
 
-        // ===================================
-        // Rocket Scroll Animation
-        // ===================================
-        function initRocketScroll() {
-            const rocket = document.getElementById('rocket');
-            if (!rocket) return;
+    // Lerp camera Z (zoom in/out)
+    camZCurrent += (camZTarget - camZCurrent) * LERP;
 
-            let lastScrollY = window.scrollY;
-            let rocketY = 10; // Start near top (10%)
+    camera.position.set(0, 0, camZCurrent);
+    camera.lookAt(0, 0, 0);
 
-            window.addEventListener('scroll', () => {
-                const currentScrollY = window.scrollY;
-                const delta = currentScrollY - lastScrollY;
+    // Slow auto-rotation + mouse influence
+    autoRot += 0.003;
+    currentRotY += (autoRot + targetRotY - currentRotY) * 0.04;
+    rocketRoot.rotation.y = currentRotY;
 
-                // Rocket moves with scroll direction
-                rocketY += delta * 0.05;
+    renderer.render(scene, camera);
+}
+animate();
 
-                // Clamp between 10% and 85%
-                rocketY = Math.max(10, Math.min(85, rocketY));
+// ── RSS Loaders: Latest article + Transmission Logs ─────────
+const RSS_URL = 'https://api.rss2json.com/v1/api.json?rss_url=https://kwerky.substack.com/feed';
 
-                rocket.style.top = rocketY + '%';
+(async function loadSubstackContent() {
+    try {
+        const resp = await fetch(RSS_URL);
+        const data = await resp.json();
+        if (data.status !== 'ok' || !data.items || !data.items.length) return;
 
-                // Flip rocket based on direction
-                // Scrolling down = rocket points down, scrolling up = rocket points up
-                if (delta > 0) {
-                    rocket.style.transform = 'scaleY(-1)';
-                } else if (delta < 0) {
-                    rocket.style.transform = 'scaleY(1)';
-                }
+        // ── Latest article for S-IC panel ──
+        const latest = data.items[0];
+        const latestEl = document.getElementById('latest-article-container');
+        if (latestEl && latest) {
+            const d = new Date(latest.pubDate);
+            const fmt = d.toLocaleDateString('en-US', { month: 'short', year: 'numeric' }).toUpperCase();
+            const tmp = document.createElement('div');
+            tmp.innerHTML = latest.description || '';
+            const desc = tmp.textContent.trim().substring(0, 120) + '...';
+            latestEl.innerHTML = `
+                <a href="${latest.link}" class="stage-entry" target="_blank">
+                    <div class="entry-row">
+                        <div>
+                            <div class="entry-title">${latest.title.toUpperCase()}</div>
+                            <div class="entry-role">SUBSTACK</div>
+                            <div class="entry-desc">${desc}</div>
+                        </div>
+                        <div class="entry-date">${fmt}</div>
+                    </div>
+                </a>
+            `;
+        }
 
-                lastScrollY = currentScrollY;
+        // ── Transmission Logs (top 4 posts) ──
+        const container = document.getElementById('transmissions-container');
+        if (container) {
+            container.innerHTML = '';
+            data.items.slice(0, 4).forEach(item => {
+                const d = new Date(item.pubDate);
+                const fmt = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }).toUpperCase();
+                const tmp = document.createElement('div');
+                tmp.innerHTML = item.description || '';
+                const desc = tmp.textContent.trim().substring(0, 200) + '...';
+                const el = document.createElement('a');
+                el.className = 'transmission-item';
+                el.href = item.link;
+                el.target = '_blank';
+                el.innerHTML = `
+                    <div class="transmission-date">${fmt}</div>
+                    <div class="entry-title">${item.title.toUpperCase()}</div>
+                    <div class="transmission-excerpt">${desc}</div>
+                `;
+                container.appendChild(el);
             });
         }
-
-        // ===================================
-        // Fetch Latest Substack Article
-        // ===================================
-        async function loadLatestArticle() {
-            try {
-                const response = await fetch('https://api.rss2json.com/v1/api.json?rss_url=https://kwerky.substack.com/feed');
-                const data = await response.json();
-
-                if (data.status === 'ok' && data.items && data.items.length > 0) {
-                    const latest = data.items[0];
-                    const link = document.getElementById('latest-article');
-                    const title = document.getElementById('latest-article-title');
-                    const desc = document.getElementById('latest-article-desc');
-
-                    link.href = latest.link;
-                    title.innerHTML = latest.title + ' <span class="arrow">→</span>';
-
-                    // Get description snippet
-                    const tempDiv = document.createElement('div');
-                    tempDiv.innerHTML = latest.description || latest.content || '';
-                    desc.textContent = tempDiv.textContent.trim().substring(0, 120) + '...';
-                }
-            } catch (error) {
-                console.error('Error loading latest article:', error);
-            }
+    } catch (e) {
+        // Fallback: link to Substack
+        const latestEl = document.getElementById('latest-article-container');
+        if (latestEl) {
+            latestEl.innerHTML = `
+                <a href="https://kwerky.substack.com/" class="stage-entry" target="_blank">
+                    <div class="entry-row"><div><div class="entry-title">[ VIEW TRANSMISSIONS ]</div></div></div>
+                </a>`;
         }
+    }
+})();
+</script>
 
-        // Initialize everything
-        createStars();
-        initRocketScroll();
-        loadLatestArticle();
-    </script>
 </body>
-
 </html>

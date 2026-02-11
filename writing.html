@@ -4,57 +4,45 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Writing — Divith Narendra</title>
+    <title>D. NARENDRA // TRANSMISSION LOG</title>
     <meta name="description" content="Thoughts on tech, startups, and building things.">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
-    <!-- Star Field Background -->
-    <div class="stars" id="stars"></div>
+    <div class="page-wrapper">
 
-    <!-- Rocket Timeline -->
-    <div class="rocket-trail"></div>
-    <div class="rocket" id="rocket">
-        <svg viewBox="0 0 24 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M12 0C12 0 6 8 6 20C6 28 8 36 12 44C16 36 18 28 18 20C18 8 12 0 12 0Z" fill="#fafafa" />
-            <path d="M12 0C10 4 8 10 8 16L12 12L16 16C16 10 14 4 12 0Z" fill="#d4a574" />
-            <path d="M6 32L2 44L6 38V32Z" fill="#d4a574" />
-            <path d="M18 32L22 44L18 38V32Z" fill="#d4a574" />
-            <circle cx="12" cy="18" r="3" fill="#0a0a0a" stroke="#d4a574" stroke-width="1" />
-        </svg>
-    </div>
-
-    <div class="container">
-        <!-- Header -->
-        <header class="header">
-            <h1>writing</h1>
-            <p class="tagline">Thoughts on tech, startups, and building things.</p>
-
-            <nav class="nav">
-                <a href="index.html" class="nav-item">← Home</a>
-                <span class="nav-separator">·</span>
-                <a href="https://kwerky.substack.com/" class="nav-item" target="_blank">Substack</a>
-            </nav>
+        <header>
+            <div>
+                <h1>TRANSMISSION LOG</h1>
+                <div class="dim">THOUGHTS ON TECH // STARTUPS // BUILDING THINGS</div>
+            </div>
+            <div style="text-align: right;">
+                <div><a href="index.html">[ ← BACK_TO_BASE ]</a></div>
+                <div><a href="https://kwerky.substack.com/" target="_blank">[ SUBSTACK_FEED ]</a></div>
+            </div>
         </header>
 
-        <!-- Writing Section -->
-        <section id="writing" class="section">
-            <h2>Recent Posts</h2>
+        <div class="writing-grid">
 
-            <div id="articles-container">
-                <div class="item">
-                    <p class="item-description">Loading articles...</p>
+            <div style="margin-bottom: 20px;">
+                <h3 class="typing-cursor">SIGNAL INTERCEPTS // RECENT POSTS</h3>
+            </div>
+
+            <div class="article-list" id="articles-container">
+                <div class="article-item">
+                    <div>
+                        <div class="article-title">LOADING_TRANSMISSIONS...</div>
+                    </div>
                 </div>
             </div>
-        </section>
 
-        <!-- Footer -->
+        </div>
+
         <footer class="footer">
-            <p>© 2025 Divith Narendra</p>
+            <p>// DIVITH NARENDRA // SYSTEM STATUS: ONLINE // 2025 //</p>
         </footer>
+
     </div>
 
     <script>
@@ -69,90 +57,70 @@
                     container.innerHTML = '';
 
                     data.items.forEach(item => {
-                        const articleDiv = document.createElement('div');
-                        articleDiv.className = 'item';
+                        const a = document.createElement('a');
+                        a.className = 'article-link';
+                        a.href = item.link;
+                        a.target = '_blank';
 
-                        const title = item.title;
-                        const link = item.link;
-
-                        // Format date
                         const date = new Date(item.pubDate);
                         const formattedDate = date.toLocaleDateString('en-US', {
                             month: 'short',
                             year: 'numeric'
-                        });
+                        }).toUpperCase();
 
-                        // Extract description
                         const tempDiv = document.createElement('div');
                         tempDiv.innerHTML = item.description || item.content || '';
-                        const description = tempDiv.textContent.trim().substring(0, 150) + '...';
+                        const description = tempDiv.textContent.trim().substring(0, 120) + '...';
 
-                        articleDiv.innerHTML = `
-                            <h3><a href="${link}" class="item-link" target="_blank">${title}</a></h3>
-                            <div class="item-meta">
-                                <span class="item-date">${formattedDate}</span>
+                        a.innerHTML = `
+                            <div class="article-item">
+                                <div>
+                                    <div class="article-title">${item.title.toUpperCase()}</div>
+                                    <div class="article-desc">${description}</div>
+                                </div>
+                                <div class="article-date">${formattedDate}</div>
                             </div>
-                            <p class="item-description">${description}</p>
                         `;
 
-                        container.appendChild(articleDiv);
+                        container.appendChild(a);
                     });
 
-                    const allPostsDiv = document.createElement('div');
-                    allPostsDiv.className = 'item item--minimal';
-                    allPostsDiv.innerHTML = `
-                        <h3><a href="https://kwerky.substack.com/" class="item-link" target="_blank">View all posts <span class="arrow">→</span></a></h3>
+                    const allPostsLink = document.createElement('a');
+                    allPostsLink.className = 'article-link';
+                    allPostsLink.href = 'https://kwerky.substack.com/';
+                    allPostsLink.target = '_blank';
+                    allPostsLink.innerHTML = `
+                        <div class="article-item">
+                            <div class="article-title">[ VIEW ALL TRANSMISSIONS → ]</div>
+                        </div>
                     `;
-                    container.appendChild(allPostsDiv);
+                    container.appendChild(allPostsLink);
+
                 } else {
-                    container.innerHTML = '<div class="item"><p class="item-description">Unable to load articles. <a href="https://kwerky.substack.com/" class="item-link" target="_blank">Visit Substack →</a></p></div>';
+                    container.innerHTML = `
+                        <a class="article-link" href="https://kwerky.substack.com/" target="_blank">
+                            <div class="article-item">
+                                <div class="article-title">[ SUBSTACK_DIRECT_LINK → ]</div>
+                                <div class="article-desc">Unable to load feed. Visit Substack directly.</div>
+                            </div>
+                        </a>
+                    `;
                 }
             } catch (error) {
                 console.error('Error loading Substack posts:', error);
-                container.innerHTML = '<div class="item"><p class="item-description">Unable to load articles. <a href="https://kwerky.substack.com/" class="item-link" target="_blank">Visit Substack →</a></p></div>';
+                container.innerHTML = `
+                    <a class="article-link" href="https://kwerky.substack.com/" target="_blank">
+                        <div class="article-item">
+                            <div class="article-title">[ SUBSTACK_DIRECT_LINK → ]</div>
+                            <div class="article-desc">Unable to load feed. Visit Substack directly.</div>
+                        </div>
+                    </a>
+                `;
             }
         }
 
         loadSubstackPosts();
-
-        // Star Field Generation
-        function createStars() {
-            const starsContainer = document.getElementById('stars');
-            for (let i = 0; i < 100; i++) {
-                const star = document.createElement('div');
-                star.className = 'star';
-                const sizes = ['star--small', 'star--medium', 'star--large'];
-                star.classList.add(sizes[Math.floor(Math.random() * sizes.length)]);
-                star.style.left = Math.random() * 100 + '%';
-                star.style.top = Math.random() * 100 + '%';
-                star.style.animationDelay = Math.random() * 4 + 's';
-                star.style.animationDuration = (3 + Math.random() * 3) + 's';
-                starsContainer.appendChild(star);
-            }
-        }
-
-        // Rocket Scroll Animation
-        function initRocketScroll() {
-            const rocket = document.getElementById('rocket');
-            if (!rocket) return;
-            let lastScrollY = window.scrollY;
-            let rocketY = 10;
-            window.addEventListener('scroll', () => {
-                const currentScrollY = window.scrollY;
-                const delta = currentScrollY - lastScrollY;
-                rocketY += delta * 0.05;
-                rocketY = Math.max(10, Math.min(85, rocketY));
-                rocket.style.top = rocketY + '%';
-                // Flip rocket based on direction
-                rocket.style.transform = delta > 0 ? 'scaleY(-1)' : 'scaleY(1)';
-                lastScrollY = currentScrollY;
-            });
-        }
-
-        createStars();
-        initRocketScroll();
     </script>
-
 </body>
 
 </html>
