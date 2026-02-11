@@ -39,6 +39,7 @@ a:hover { border-bottom: 1px solid var(--fg); }
     border-bottom: var(--border);
 }
 .site-header h1 { font-size: 20px; letter-spacing: 0.07em; margin-bottom: 4px; }
+.header-subhead { font-size: 12px; max-width: 720px; margin-bottom: 6px; line-height: 1.5; }
 .header-right { text-align: right; font-size: 11px; }
 
 /* ═══════════════════════════════════════════
@@ -79,15 +80,26 @@ a:hover { border-bottom: 1px solid var(--fg); }
 }
 
 .stage-label-item {
+    display: none;
     opacity: 0;
     transition: opacity 0.4s ease;
     pointer-events: none;
 }
 
 .stage-label-item[data-side="left"]  { align-self: flex-start; }
-.stage-label-item[data-side="right"] { align-self: flex-end; }
+.stage-label-item[data-side="right"] { align-self: flex-end; text-align: right; }
 
-.stage-label-item.active { opacity: 1; }
+/* Keep S-IC callout aligned with the top row content instead of the bottom slot. */
+#lbl-sic {
+    position: absolute;
+    top: 60px;
+    right: 40px;
+}
+
+.stage-label-item.active {
+    display: block;
+    opacity: 1;
+}
 
 .lbl-badge {
     font-size: 24px;
@@ -99,6 +111,7 @@ a:hover { border-bottom: 1px solid var(--fg); }
 }
 
 .lbl-sub { font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em; }
+.lbl-desc { font-size: 11px; line-height: 1.6; max-width: 260px; margin-top: 8px; margin-left: auto; }
 
 /* ── Content column: overlaid on sticky rocket ── */
 .content-col {
@@ -220,10 +233,35 @@ a.stage-entry:last-of-type { border-bottom: 1px dashed #2e2e2e; }
 a.stage-entry:hover .entry-title { text-decoration: underline; text-underline-offset: 4px; text-decoration-thickness: 1px; }
 
 .entry-row   { display: grid; grid-template-columns: 1fr auto; gap: 12px; align-items: start; }
-.entry-title { font-size: 14px; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 2px; }
+.entry-title {
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 2px;
+}
 .entry-role  { font-size: 12px; color: var(--dim); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 4px; }
 .entry-desc  { font-size: 13px; color: #bbbbbb; line-height: 1.6; }
 .entry-date  { font-size: 12px; color: var(--dim); text-transform: uppercase; white-space: nowrap; padding-top: 2px; }
+
+/* External-link cue for experience/project cards */
+a.stage-entry .entry-title {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 6px;
+}
+
+a.stage-entry .entry-title::after {
+    content: "\2197";
+    font-size: 11px;
+    color: var(--dim);
+    transform: translateY(-1px);
+    transition: color 0.2s ease, transform 0.2s ease;
+}
+
+a.stage-entry:hover .entry-title::after {
+    color: var(--fg);
+    transform: translate(1px, -2px);
+}
 
 /* ═══════════════════════════════════════════
    MISSION TEXT / INTRO
@@ -372,6 +410,7 @@ a.stage-entry:hover .entry-title { text-decoration: underline; text-underline-of
     .transmissions-section { padding: 24px 16px; }
     .content-panel--fullwidth { padding: 40px 20px; }
     .stage-labels { padding: 30px 20px; }
+    #lbl-sic { top: 30px; right: 20px; }
     a.stage-entry { padding: 16px 0; }
     .transmission-item { padding: 20px 16px; }
 }
@@ -387,6 +426,7 @@ a.stage-entry:hover .entry-title { text-decoration: underline; text-underline-of
     }
     .header-right { text-align: left; }
     .site-header h1 { font-size: 16px; }
+    .header-subhead { font-size: 11px; margin-bottom: 8px; }
 
     body { font-size: 14px; }
     .mission-text { font-size: 14px; line-height: 1.7; }
@@ -407,4 +447,5 @@ a.stage-entry:hover .entry-title { text-decoration: underline; text-underline-of
     .panel-card { padding: 20px 16px; }
     .content-panel--fullwidth { padding: 24px 12px; }
     .stage-labels { padding: 20px 12px; }
+    #lbl-sic { top: 20px; right: 12px; }
 }
