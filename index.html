@@ -266,7 +266,7 @@ renderer.setClearColor(0x000000, 1);
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, isMobile ? 1.5 : 2));
 
 const scene  = new THREE.Scene();
-const camera = new THREE.PerspectiveCamera(isMobile ? 35 : 28, 1, 0.01, 200);
+const camera = new THREE.PerspectiveCamera(isMobile ? 26 : 28, 1, 0.01, 200);
 camera.position.set(0, 0, 28);
 
 function resize() {
