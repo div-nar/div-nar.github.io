@@ -676,8 +676,12 @@ a.stage-entry:hover .entry-title::after {
     .writing-header { position: static; }
     .writing-main {
         grid-template-columns: 1fr;
-        padding: 20px;
-        gap: 18px;
+        padding: 18px 16px 24px;
+        gap: 14px;
+    }
+    .writing-links {
+        align-items: flex-start;
+        gap: 1px;
     }
     .writing-panel {
         position: static;
@@ -689,13 +693,13 @@ a.stage-entry:hover .entry-title::after {
     .writing-actions {
         flex-direction: row;
         flex-wrap: wrap;
-        gap: 10px;
+        gap: 8px;
     }
     .article-item {
-        min-height: 300px;
+        min-height: 0;
     }
     .article-title { font-size: 16px; }
-    .article-thumb-wrap { min-height: 150px; max-height: 150px; }
+    .article-thumb-wrap { min-height: 132px; max-height: 132px; }
 }
 
 /* ═══════════════════════════════════════════
@@ -734,8 +738,8 @@ a.stage-entry:hover .entry-title::after {
     .stage-label-item[data-side="right"] { right: 12px; }
 
     .writing-main {
-        padding: 14px 12px 20px;
-        gap: 12px;
+        padding: 12px 10px 18px;
+        gap: 10px;
     }
     .writing-links {
         align-items: flex-start;
@@ -744,15 +748,15 @@ a.stage-entry:hover .entry-title::after {
     .writing-kicker { font-size: 12px; }
     .writing-feed-head h2 { font-size: 18px; }
     .article-item {
-        min-height: 270px;
+        min-height: 0;
     }
-    .article-list { grid-template-columns: 1fr; gap: 12px; }
+    .article-list { grid-template-columns: 1fr; gap: 10px; }
     .article-title {
-        font-size: 16px;
+        font-size: 15px;
     }
     .article-desc { font-size: 12px; }
     .article-thumb-wrap {
-        min-height: 140px;
-        max-height: 140px;
+        min-height: 120px;
+        max-height: 120px;
     }
 }
