@@ -631,7 +631,7 @@ function setActiveStage(newStage) {
     if (activeLabel) activeLabel.classList.add('active');
 }
 
-function onScroll() {
+function updateStageFromScroll() {
     const vh = window.innerHeight;
 
     // Find panel whose centre is closest to viewport centre
@@ -653,16 +653,29 @@ function onScroll() {
     setActiveStage(newStage);
 }
 
+let scrollTicking = false;
+function onScroll() {
+    if (scrollTicking) return;
+    scrollTicking = true;
+    requestAnimationFrame(() => {
+        scrollTicking = false;
+        updateStageFromScroll();
+    });
+}
+
 window.addEventListener('scroll', onScroll, { passive: true });
-onScroll();
+window.addEventListener('resize', onScroll, { passive: true });
+updateStageFromScroll();
 
 // ── Mouse X rotation influence ───────────────────────────────
 let mouseX = 0, targetRotY = 0, currentRotY = 0;
-window.addEventListener('mousemove', e => {
-    mouseX = (e.clientX / window.innerWidth - 0.5) * 2;
-    // ±0.4 rad influence from mouse
-    targetRotY = mouseX * 0.4;
-});
+if (!isMobile) {
+    window.addEventListener('mousemove', e => {
+        mouseX = (e.clientX / window.innerWidth - 0.5) * 2;
+        // ±0.4 rad influence from mouse
+        targetRotY = mouseX * 0.4;
+    });
+}
 
 // ── LOX drip particle system (S-IC only) ─────────────────────
 const LOX_COUNT = isMobile ? 80 : 200;
@@ -728,19 +741,20 @@ stageGroups['sic'].add(loxPoints);
 let autoRot = 0;
 const LERP = isMobile ? 0.12 : 0.09;
 const MOUSE_LERP = isMobile ? 0.04 : 0.06;
+const STAGE_FOLLOW = isMobile ? 0.3 : LERP;
 
 function animate() {
     requestAnimationFrame(animate);
 
     // Lerp per-group opacity + vertical separation
     for (const k of ALL_GROUPS) {
-        opacityCurrent[k] += (opacityTarget[k] - opacityCurrent[k]) * LERP;
+        opacityCurrent[k] += (opacityTarget[k] - opacityCurrent[k]) * STAGE_FOLLOW;
         for (const mat of stageMats[k]) {
             mat.opacity = opacityCurrent[k];
             if ('emissiveIntensity' in mat) mat.emissiveIntensity = 0.05 + opacityCurrent[k] * 0.2;
         }
 
-        sepCurrent[k] += (sepTarget[k] - sepCurrent[k]) * LERP;
+        sepCurrent[k] += (sepTarget[k] - sepCurrent[k]) * STAGE_FOLLOW;
         stageGroups[k].position.y = sepCurrent[k];
     }
 
@@ -776,20 +790,26 @@ function animate() {
     loxMat.uniforms.uPointSize.value = (liftoffActive ? 4.0 : 2.0) * Math.min(window.devicePixelRatio, isMobile ? 1.5 : 2);
 
     // Lerp camera pose
-    camXCurrent += (camXTarget - camXCurrent) * LERP;
-    camYCurrent += (camYTarget - camYCurrent) * LERP;
-    camZCurrent += (camZTarget - camZCurrent) * LERP;
-    camLookYCurrent += (camLookYTarget - camLookYCurrent) * LERP;
-    stageRotYCurrent += (stageRotYTarget - stageRotYCurrent) * LERP;
+    camXCurrent += (camXTarget - camXCurrent) * STAGE_FOLLOW;
+    camYCurrent += (camYTarget - camYCurrent) * STAGE_FOLLOW;
+    camZCurrent += (camZTarget - camZCurrent) * STAGE_FOLLOW;
+    camLookYCurrent += (camLookYTarget - camLookYCurrent) * STAGE_FOLLOW;
+    stageRotYCurrent += (stageRotYTarget - stageRotYCurrent) * STAGE_FOLLOW;
 
     camera.position.set(camXCurrent, camYCurrent, camZCurrent);
     camera.lookAt(0, camLookYCurrent, 0);
 
     // Sinusoidal auto-rotation + mouse influence
     const time = performance.now() * 0.001;
-    autoRot += 0.003 + Math.sin(time * 0.5) * 0.001;
-    currentRotY += (autoRot + targetRotY - currentRotY) * MOUSE_LERP;
-    rocketRoot.rotation.y = stageRotYCurrent + currentRotY;
+    if (isMobile) {
+        targetRotY = 0;
+        currentRotY += (0 - currentRotY) * MOUSE_LERP;
+        rocketRoot.rotation.y = stageRotYCurrent;
+    } else {
+        autoRot += 0.003 + Math.sin(time * 0.5) * 0.001;
+        currentRotY += (autoRot + targetRotY - currentRotY) * MOUSE_LERP;
+        rocketRoot.rotation.y = stageRotYCurrent + currentRotY;
+    }
 
     composer.render();
 }

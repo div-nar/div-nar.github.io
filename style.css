@@ -400,6 +400,7 @@ a.stage-entry:hover .entry-title::after {
 .writing-page {
     background: var(--bg);
     color: var(--fg);
+    position: relative;
 }
 
 .writing-header {
@@ -429,6 +430,8 @@ a.stage-entry:hover .entry-title::after {
     grid-template-columns: 220px minmax(0, 1fr);
     gap: 36px;
     flex: 1;
+    position: relative;
+    z-index: 8;
 }
 
 .writing-panel {
@@ -531,6 +534,11 @@ a.stage-entry:hover .entry-title::after {
 }
 
 .article-link:hover .article-item::after {
+    opacity: 0.2;
+}
+
+.article-link:focus-visible .article-item::after,
+.article-link:active .article-item::after {
     opacity: 0.2;
 }
 
@@ -657,6 +665,16 @@ a.stage-entry:hover .entry-title::after {
    RESPONSIVE — TABLET (768px)
 ═══════════════════════════════════════════ */
 @media (max-width: 768px) {
+    @media (hover: none) {
+        .article-item::after {
+            opacity: 0.14;
+        }
+        .article-link:active .article-item::after,
+        .article-link:focus-visible .article-item::after {
+            opacity: 0.24;
+        }
+    }
+
     .site-header { padding: 20px; }
     .content-panel { padding: 20px; min-height: 100vh; }
     .panel-card { max-width: 100%; }
