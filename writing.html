@@ -9,43 +9,65 @@
     <link rel="stylesheet" href="style.css">
 </head>
 
-<body>
-    <div class="page-wrapper">
-
-        <header>
+<body class="writing-page">
+    <div class="writing-shell">
+        <header class="site-header writing-header">
             <div>
                 <h1>TRANSMISSION LOG</h1>
-                <div class="dim">THOUGHTS ON TECH // STARTUPS // BUILDING THINGS</div>
+                <div class="header-subhead dim">Field notes on tech, startups, and building things that survive contact with reality.</div>
             </div>
-            <div style="text-align: right;">
-                <div><a href="index.html">[ ← BACK_TO_BASE ]</a></div>
+            <div class="header-right dim writing-links">
+                <div><a href="index.html">[ BACK_TO_BASE ]</a></div>
                 <div><a href="https://kwerky.substack.com/" target="_blank">[ SUBSTACK_FEED ]</a></div>
             </div>
         </header>
 
-        <div class="writing-grid">
+        <main class="writing-main">
+            <aside class="writing-aside">
+                <div class="writing-panel">
+                    <div class="section-label dim">ARCHIVE STATUS</div>
+                    <p class="writing-kicker">Signal source is live. New transmissions are pulled directly from Substack.</p>
+                    <div class="writing-actions">
+                        <a href="https://kwerky.substack.com/" target="_blank">[ OPEN SUBSTACK ]</a>
+                        <a href="index.html">[ RETURN HOME ]</a>
+                    </div>
+                </div>
+            </aside>
 
-            <div style="margin-bottom: 20px;">
-                <h3 class="typing-cursor">SIGNAL INTERCEPTS // RECENT POSTS</h3>
-            </div>
+            <section class="writing-feed">
+                <div class="writing-feed-head">
+                    <h2>SIGNAL INTERCEPTS</h2>
+                    <div class="dim">Recent posts from the transmission archive</div>
+                </div>
 
-            <div class="article-list" id="articles-container">
-                <div class="article-item">
-                    <div>
+                <div class="article-list" id="articles-container">
+                    <div class="article-item loading">
                         <div class="article-title">LOADING_TRANSMISSIONS...</div>
                     </div>
                 </div>
-            </div>
+                <div class="writing-feed-foot">
+                    <a href="https://kwerky.substack.com/" target="_blank">[ VIEW FULL ARCHIVE ]</a>
+                </div>
+            </section>
+        </main>
 
-        </div>
-
-        <footer class="footer">
+        <footer class="site-footer">
             <p>// DIVITH NARENDRA // SYSTEM STATUS: ONLINE // 2025 //</p>
         </footer>
-
     </div>
 
     <script>
+        function extractArticleImage(item) {
+            if (item.thumbnail && /^https?:\/\//i.test(item.thumbnail)) return item.thumbnail;
+            if (item.enclosure && item.enclosure.link && /^https?:\/\//i.test(item.enclosure.link)) return item.enclosure.link;
+
+            const html = item.content || item.description || '';
+            const match = html.match(/<img[^>]+src=["']([^"']+)["']/i);
+            if (match && match[1] && /^https?:\/\//i.test(match[1])) return match[1];
+
+            return '';
+        }
+
         async function loadSubstackPosts() {
             const container = document.getElementById('articles-container');
 
@@ -56,51 +78,55 @@
                 if (data.status === 'ok' && data.items && data.items.length > 0) {
                     container.innerHTML = '';
 
-                    data.items.forEach(item => {
+                    data.items.slice(0, 4).forEach((item, idx) => {
                         const a = document.createElement('a');
                         a.className = 'article-link';
                         a.href = item.link;
                         a.target = '_blank';
+                        a.rel = 'noopener noreferrer';
 
                         const date = new Date(item.pubDate);
                         const formattedDate = date.toLocaleDateString('en-US', {
                             month: 'short',
+                            day: 'numeric',
                             year: 'numeric'
                         }).toUpperCase();
 
                         const tempDiv = document.createElement('div');
                         tempDiv.innerHTML = item.description || item.content || '';
-                        const description = tempDiv.textContent.trim().substring(0, 120) + '...';
+                        const raw = tempDiv.textContent.trim().replace(/\s+/g, ' ');
+                        const description = raw.length > 160 ? raw.substring(0, 160) + '...' : raw;
+                        const layoutClass = 'article-row';
+                        const imageUrl = extractArticleImage(item);
+                        const imageClass = imageUrl ? '' : 'no-image';
+                        const safeImageUrl = imageUrl ? imageUrl.replace(/'/g, '%27') : '';
+                        const accentStyle = imageUrl ? `style="--accent-image: url('${safeImageUrl}');"` : '';
+                        const imageMarkup = imageUrl
+                            ? `<div class="article-thumb-wrap"><img class="article-thumb" src="${imageUrl}" alt="${item.title}"></div>`
+                            : '';
 
                         a.innerHTML = `
-                            <div class="article-item">
-                                <div>
-                                    <div class="article-title">${item.title.toUpperCase()}</div>
+                            <div class="article-item ${layoutClass} ${imageClass}" ${accentStyle}>
+                                <div class="article-meta">
+                                    <span class="article-date">${formattedDate}</span>
+                                    <span class="article-cta">READ ↗</span>
+                                </div>
+                                <div class="article-main">
+                                    <div class="article-title">${item.title}</div>
                                     <div class="article-desc">${description}</div>
                                 </div>
-                                <div class="article-date">${formattedDate}</div>
+                                ${imageMarkup}
                             </div>
                         `;
 
                         container.appendChild(a);
                     });
 
-                    const allPostsLink = document.createElement('a');
-                    allPostsLink.className = 'article-link';
-                    allPostsLink.href = 'https://kwerky.substack.com/';
-                    allPostsLink.target = '_blank';
-                    allPostsLink.innerHTML = `
-                        <div class="article-item">
-                            <div class="article-title">[ VIEW ALL TRANSMISSIONS → ]</div>
-                        </div>
-                    `;
-                    container.appendChild(allPostsLink);
-
                 } else {
                     container.innerHTML = `
                         <a class="article-link" href="https://kwerky.substack.com/" target="_blank">
-                            <div class="article-item">
-                                <div class="article-title">[ SUBSTACK_DIRECT_LINK → ]</div>
+                            <div class="article-item article-item--all">
+                                <div class="article-title">SUBSTACK DIRECT LINK</div>
                                 <div class="article-desc">Unable to load feed. Visit Substack directly.</div>
                             </div>
                         </a>
@@ -110,8 +136,8 @@
                 console.error('Error loading Substack posts:', error);
                 container.innerHTML = `
                     <a class="article-link" href="https://kwerky.substack.com/" target="_blank">
-                        <div class="article-item">
-                            <div class="article-title">[ SUBSTACK_DIRECT_LINK → ]</div>
+                        <div class="article-item article-item--all">
+                            <div class="article-title">SUBSTACK DIRECT LINK</div>
                             <div class="article-desc">Unable to load feed. Visit Substack directly.</div>
                         </div>
                     </a>
