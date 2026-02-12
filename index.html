@@ -216,6 +216,9 @@
 <script type="module">
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
 
 // ── Component groups (4 layers) ───────────────────────────────
 // Node names in GLB: tower, cmd, svc, lem, sivb, sii, cpv2, sic_top, sic_bot, fin_0-3
@@ -264,28 +267,54 @@ const sticky  = document.getElementById('rocket-sticky');
 const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false });
 renderer.setClearColor(0x000000, 1);
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, isMobile ? 1.5 : 2));
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.0;
+renderer.outputColorSpace = THREE.SRGBColorSpace;
 
 const scene  = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(isMobile ? 26 : 28, 1, 0.01, 200);
 camera.position.set(0, 0, 28);
 
+// ── Lighting for full shaded rocket rendering ────────────────
+const hemiLight = new THREE.HemisphereLight(0xc7d7ff, 0x0a0a0a, 0.7);
+scene.add(hemiLight);
+const keyLight = new THREE.DirectionalLight(0xffffff, 1.05);
+keyLight.position.set(6, 9, 8);
+scene.add(keyLight);
+const rimLight = new THREE.DirectionalLight(0x9fb7ff, 0.5);
+rimLight.position.set(-7, 4, -6);
+scene.add(rimLight);
+const engineGlow = new THREE.PointLight(0xaec1ff, 0.65, 45, 2);
+engineGlow.position.set(0, -6.5, 0);
+scene.add(engineGlow);
+
+// ── Bloom post-processing ────────────────────────────────────
+const composer = new EffectComposer(renderer);
+composer.addPass(new RenderPass(scene, camera));
+const bloomPass = new UnrealBloomPass(
+    new THREE.Vector2(window.innerWidth, window.innerHeight),
+    isMobile ? 0.25 : 0.35, // strength — subtle glow
+    0.8,                     // radius
+    0.6                      // threshold
+);
+composer.addPass(bloomPass);
+
 function resize() {
     const w = sticky.clientWidth;
     const h = sticky.clientHeight;
     renderer.setSize(w, h);
+    composer.setSize(w, h);
     camera.aspect = w / h;
     camera.updateProjectionMatrix();
 }
 resize();
 window.addEventListener('resize', resize);
 
-// ── Per-group wire material ──────────────────────────────────
+// ── Per-group shaded materials ───────────────────────────────
 const stageMats = {};
-const solidMats = {};
 const stageGroups = {};
 for (const k of ALL_GROUPS) {
-    stageMats[k]    = new THREE.LineBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.2 });
-    solidMats[k]    = new THREE.MeshBasicMaterial({ color: 0x000000, side: THREE.FrontSide, transparent: true, opacity: 0.45, depthWrite: false });
+    stageMats[k]    = [];
     stageGroups[k]  = new THREE.Group();
 }
 const rocketRoot = new THREE.Group();
@@ -302,23 +331,39 @@ function nameToGroup(meshName) {
     return 'sic';
 }
 
-// ── Build wireframe + solid meshes from GLB ─────────────────
+function makeStageMaterial(srcMat) {
+    const m = srcMat ? srcMat.clone() : new THREE.MeshStandardMaterial({
+        color: 0xe2e5eb,
+        metalness: 0.2,
+        roughness: 0.65,
+    });
+    if ('metalness' in m) m.metalness = Math.min(0.4, m.metalness ?? 0.25);
+    if ('roughness' in m) m.roughness = Math.max(0.35, m.roughness ?? 0.6);
+    m.transparent = true;
+    m.opacity = 0.35;
+    return m;
+}
+
+// ── Build shaded meshes from GLB ─────────────────────────────
 function buildFromGLTF(gltfScene) {
     gltfScene.traverse(child => {
         if (!child.isMesh) return;
         const key = nameToGroup(child.name);
-        // Solid fill (renders first, no depth write)
-        const solid = new THREE.Mesh(child.geometry, solidMats[key]);
-        solid.renderOrder = 0;
-        stageGroups[key].add(solid);
 
-        // Wireframe on top
-        const wire = new THREE.LineSegments(
-            new THREE.WireframeGeometry(child.geometry),
-            stageMats[key]
-        );
-        wire.renderOrder = 1;
-        stageGroups[key].add(wire);
+        const mat = Array.isArray(child.material)
+            ? child.material.map(m => makeStageMaterial(m))
+            : makeStageMaterial(child.material);
+
+        if (Array.isArray(mat)) stageMats[key].push(...mat);
+        else stageMats[key].push(mat);
+
+        const mesh = new THREE.Mesh(child.geometry, mat);
+        child.updateWorldMatrix(true, false);
+        mesh.matrix.copy(child.matrixWorld);
+        mesh.matrixAutoUpdate = false;
+        mesh.castShadow = false;
+        mesh.receiveShadow = false;
+        stageGroups[key].add(mesh);
     });
 }
 
@@ -548,8 +593,10 @@ function animate() {
     // Lerp per-group opacity + vertical separation
     for (const k of ALL_GROUPS) {
         opacityCurrent[k] += (opacityTarget[k] - opacityCurrent[k]) * LERP;
-        stageMats[k].opacity = opacityCurrent[k];
-        solidMats[k].opacity = opacityCurrent[k] * 0.45;
+        for (const mat of stageMats[k]) {
+            mat.opacity = opacityCurrent[k];
+            if ('emissiveIntensity' in mat) mat.emissiveIntensity = 0.05 + opacityCurrent[k] * 0.2;
+        }
 
         sepCurrent[k] += (sepTarget[k] - sepCurrent[k]) * LERP;
         stageGroups[k].position.y = sepCurrent[k];
@@ -598,7 +645,7 @@ function animate() {
     currentRotY += (autoRot + targetRotY - currentRotY) * MOUSE_LERP;
     rocketRoot.rotation.y = currentRotY;
 
-    renderer.render(scene, camera);
+    composer.render();
 }
 animate();
 

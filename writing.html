@@ -49,13 +49,11 @@
 
     <script>
         function extractArticleImage(item) {
+            // Match Substack card previews: thumbnail first, then enclosure fallback.
             if (item.thumbnail && /^https?:\/\//i.test(item.thumbnail)) return item.thumbnail;
-            if (item.enclosure && item.enclosure.link && /^https?:\/\//i.test(item.enclosure.link)) return item.enclosure.link;
-
-            const html = item.content || item.description || '';
-            const match = html.match(/<img[^>]+src=["']([^"']+)["']/i);
-            if (match && match[1] && /^https?:\/\//i.test(match[1])) return match[1];
-
+            if (item.enclosure && item.enclosure.link && /^https?:\/\//i.test(item.enclosure.link)) {
+                return item.enclosure.link;
+            }
             return '';
         }
 
