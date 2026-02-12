@@ -268,7 +268,7 @@ const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false
 renderer.setClearColor(0x000000, 1);
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, isMobile ? 1.5 : 2));
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure = 1.14;
+renderer.toneMappingExposure = 1.06;
 renderer.outputColorSpace = THREE.SRGBColorSpace;
 
 const scene  = new THREE.Scene();
@@ -276,15 +276,18 @@ const camera = new THREE.PerspectiveCamera(isMobile ? 26 : 28, 1, 0.01, 200);
 camera.position.set(0, 0, 28);
 
 // ── Lighting for full shaded rocket rendering ────────────────
-const hemiLight = new THREE.HemisphereLight(0xffffff, 0x111111, 0.95);
+const hemiLight = new THREE.HemisphereLight(0xf4f7ff, 0x050505, 0.58);
 scene.add(hemiLight);
-const keyLight = new THREE.DirectionalLight(0xffffff, 1.3);
-keyLight.position.set(6, 9, 8);
+const keyLight = new THREE.DirectionalLight(0xffffff, 1.55);
+keyLight.position.set(8, 5, 9);
 scene.add(keyLight);
-const rimLight = new THREE.DirectionalLight(0xf1f4ff, 0.42);
-rimLight.position.set(-7, 5, -6);
+const rimLight = new THREE.DirectionalLight(0xd5def0, 0.72);
+rimLight.position.set(-9, 2.5, -7);
 scene.add(rimLight);
-const engineGlow = new THREE.PointLight(0xffffff, 0.42, 45, 2);
+const topFill = new THREE.DirectionalLight(0xffffff, 0.34);
+topFill.position.set(0, 12, 1);
+scene.add(topFill);
+const engineGlow = new THREE.PointLight(0xaec0df, 0.2, 45, 2);
 engineGlow.position.set(0, -6.5, 0);
 scene.add(engineGlow);
 
@@ -293,9 +296,9 @@ const composer = new EffectComposer(renderer);
 composer.addPass(new RenderPass(scene, camera));
 const bloomPass = new UnrealBloomPass(
     new THREE.Vector2(window.innerWidth, window.innerHeight),
-    isMobile ? 0.25 : 0.35, // strength — subtle glow
-    0.8,                     // radius
-    0.6                      // threshold
+    isMobile ? 0.16 : 0.2, // strength — restrained
+    0.7,                    // radius
+    0.74                    // threshold
 );
 composer.addPass(bloomPass);
 
@@ -331,19 +334,128 @@ function nameToGroup(meshName) {
     return 'sic';
 }
 
-function makeStageMaterial(srcMat) {
+const STAGE_PALETTE = {
+    csm: { color: 0xd2d5da, metalness: 0.03, roughness: 0.84, emissive: 0x07080a },
+    sivb: { color: 0xf2f2f0, metalness: 0.0, roughness: 0.9, emissive: 0x07080a },
+    sii: { color: 0xf2f2f0, metalness: 0.0, roughness: 0.9, emissive: 0x07080a },
+    coupler: { color: 0xf2f2f0, metalness: 0.0, roughness: 0.92, emissive: 0x050608 },
+    sic: { color: 0xf2f2f0, metalness: 0.0, roughness: 0.9, emissive: 0x050608 },
+};
+
+function applyStagePaint(material, stageKey, meshName, yMin, yMax) {
+    const STAGE_INDEX = { csm: 0, sivb: 1, sii: 2, coupler: 3, sic: 4 };
+    const isCommand = Number(meshName.toLowerCase().includes('cmd'));
+    const isTower = Number(meshName.toLowerCase().includes('tower'));
+
+    material.onBeforeCompile = (shader) => {
+        shader.uniforms.uStageIndex = { value: STAGE_INDEX[stageKey] ?? 4 };
+        shader.uniforms.uIsCommand = { value: isCommand };
+        shader.uniforms.uIsTower = { value: isTower };
+        shader.uniforms.uYMin = { value: yMin };
+        shader.uniforms.uYMax = { value: yMax };
+
+        shader.vertexShader = shader.vertexShader
+            .replace(
+                '#include <common>',
+                `#include <common>
+                varying vec3 vLocalPos;`
+            )
+            .replace(
+                '#include <begin_vertex>',
+                `#include <begin_vertex>
+                vLocalPos = position;`
+            );
+
+        shader.fragmentShader = shader.fragmentShader
+            .replace(
+                '#include <common>',
+                `#include <common>
+                varying vec3 vLocalPos;
+                uniform float uStageIndex;
+                uniform float uIsCommand;
+                uniform float uIsTower;
+                uniform float uYMin;
+                uniform float uYMax;
+
+                vec3 paintForStage(float yNorm, float ang01, float stageIndex, float isCmd, float isTwr) {
+                    vec3 saturnWhite = vec3(0.949, 0.949, 0.941); // #F2F2F0
+                    vec3 saturnBlack = vec3(0.067, 0.067, 0.067); // #111111
+                    vec3 alu = vec3(0.824, 0.835, 0.855);
+                    vec3 heatShield = vec3(0.30, 0.22, 0.16);
+                    vec3 outColor = saturnWhite;
+
+                    if (stageIndex < 0.5) {
+                        outColor = alu;
+                        if (isCmd > 0.5 && yNorm < 0.18) outColor = heatShield;
+                        if (isTwr > 0.5) {
+                            outColor = saturnWhite;
+                            float towerMark = step(0.86, fract(ang01 * 8.0));
+                            if (towerMark > 0.5 && yNorm > 0.15 && yNorm < 0.88) outColor = saturnBlack;
+                        }
+                    } else if (stageIndex < 1.5) {
+                        outColor = saturnWhite;
+                        if (yNorm < 0.08) outColor = saturnBlack;   // optional lower thin band
+                        if (yNorm > 0.92) outColor = saturnBlack;   // instrument unit ring
+                        if (yNorm > 0.08 && yNorm < 0.092) outColor = saturnBlack; // crisp lower stage seam
+                    } else if (stageIndex < 2.5) {
+                        outColor = saturnWhite;
+                        if (yNorm < 0.34) {
+                            float s = fract(ang01 * 6.0);
+                            if (abs(s - 0.5) < 0.30) outColor = saturnBlack;
+                        }
+                        if (yNorm > 0.34 && yNorm < 0.353) outColor = saturnBlack; // S-II pattern boundary seam
+                    } else if (stageIndex < 3.5) {
+                        outColor = saturnWhite;
+                        float c = ang01;
+                        float blk = 0.0;
+                        if ((c > 0.02 && c < 0.10) || (c > 0.15 && c < 0.24) || (c > 0.31 && c < 0.43)
+                            || (c > 0.49 && c < 0.58) || (c > 0.67 && c < 0.76) || (c > 0.84 && c < 0.94)) {
+                            blk = 1.0;
+                        }
+                        if (blk > 0.5) outColor = saturnBlack;
+                    } else {
+                        outColor = saturnWhite;
+                        if (yNorm < 0.30) {
+                            float s = fract(ang01 * 5.0);
+                            float width = mix(0.84, 0.96, clamp(yNorm / 0.30, 0.0, 1.0));
+                            if (abs(s - 0.5) < width * 0.5) outColor = saturnBlack;
+                        }
+                        if (yNorm > 0.47 && yNorm < 0.53) outColor = saturnBlack;
+                        if (yNorm > 0.30 && yNorm < 0.312) outColor = saturnBlack; // S-IC lower panel boundary seam
+                    }
+                    return outColor;
+                }`
+            )
+            .replace(
+                '#include <color_fragment>',
+                `#include <color_fragment>
+                float yNorm = clamp((vLocalPos.y - uYMin) / max(0.0001, (uYMax - uYMin)), 0.0, 1.0);
+                float theta = atan(vLocalPos.z, vLocalPos.x);
+                float ang01 = fract((theta + 3.14159265359) / 6.28318530718);
+                vec3 paint = paintForStage(yNorm, ang01, uStageIndex, uIsCommand, uIsTower);
+                diffuseColor.rgb = paint;`
+            );
+    };
+    material.customProgramCacheKey = () => `saturn-paint-${stageKey}-${isCommand}-${isTower}-${yMin.toFixed(4)}-${yMax.toFixed(4)}`;
+    material.needsUpdate = true;
+}
+
+function makeStageMaterial(srcMat, stageKey, meshName, yMin, yMax) {
+    const palette = STAGE_PALETTE[stageKey] || STAGE_PALETTE.sic;
     const m = srcMat ? srcMat.clone() : new THREE.MeshStandardMaterial({
-        color: 0xf3f5f8,
-        metalness: 0.1,
-        roughness: 0.5,
+        color: palette.color,
+        metalness: palette.metalness,
+        roughness: palette.roughness,
     });
-    if ('color' in m) m.color.set(0xf3f5f8);
-    if ('metalness' in m) m.metalness = Math.min(0.2, m.metalness ?? 0.12);
-    if ('roughness' in m) m.roughness = Math.max(0.4, Math.min(0.62, m.roughness ?? 0.5));
-    if ('emissive' in m) m.emissive.set(0x080808);
-    if ('emissiveIntensity' in m) m.emissiveIntensity = 0.08;
+    if ('map' in m) m.map = null;
+    if ('color' in m) m.color.set(palette.color);
+    if ('metalness' in m) m.metalness = palette.metalness;
+    if ('roughness' in m) m.roughness = palette.roughness;
+    if ('emissive' in m) m.emissive.set(palette.emissive);
+    if ('emissiveIntensity' in m) m.emissiveIntensity = 0.06;
     m.transparent = true;
     m.opacity = 0.35;
+    applyStagePaint(m, stageKey, meshName, yMin, yMax);
     return m;
 }
 
@@ -352,10 +464,14 @@ function buildFromGLTF(gltfScene) {
     gltfScene.traverse(child => {
         if (!child.isMesh) return;
         const key = nameToGroup(child.name);
+        child.geometry.computeBoundingBox();
+        const box = child.geometry.boundingBox;
+        const yMin = box ? box.min.y : -0.5;
+        const yMax = box ? box.max.y : 0.5;
 
         const mat = Array.isArray(child.material)
-            ? child.material.map(m => makeStageMaterial(m))
-            : makeStageMaterial(child.material);
+            ? child.material.map(m => makeStageMaterial(m, key, child.name, yMin, yMax))
+            : makeStageMaterial(child.material, key, child.name, yMin, yMax);
 
         if (Array.isArray(mat)) stageMats[key].push(...mat);
         else stageMats[key].push(mat);
@@ -389,8 +505,21 @@ const sepTarget  = {};
 const sepCurrent = {};
 for (const k of ALL_GROUPS) { sepTarget[k] = 0; sepCurrent[k] = 0; }
 
-// Camera: target and smoothed current (Z only — camera always looks at y=0)
-let camZTarget = 28, camZCurrent = 28;
+// Camera: stage-specific framing and angle
+const CAM_POSE = {
+    none: { x: 0.0, y: 0.0, z: 28.0, lookY: 0.0, rotY: 0.0 },
+    csm: { x: 1.9, y: 0.45, z: 7.0, lookY: 0.2, rotY: -0.2 },
+    sivb: { x: -1.4, y: 0.15, z: 9.0, lookY: 0.1, rotY: 0.28 },
+    sii: { x: 1.6, y: -0.1, z: 10.0, lookY: -0.1, rotY: -0.32 },
+    coupler: { x: -1.2, y: 0.0, z: 10.0, lookY: -0.05, rotY: 0.18 },
+    sic: { x: 2.1, y: -0.4, z: 12.0, lookY: -0.45, rotY: -0.38 },
+    'pre-liftoff': { x: 0.0, y: 0.2, z: 28.0, lookY: 0.0, rotY: 0.0 },
+    liftoff: { x: 0.0, y: 0.3, z: 28.0, lookY: 0.0, rotY: 0.0 },
+};
+
+let camXTarget = 0, camYTarget = 0, camZTarget = 28, camLookYTarget = 0;
+let camXCurrent = 0, camYCurrent = 0, camZCurrent = 28, camLookYCurrent = 0;
+let stageRotYTarget = 0, stageRotYCurrent = 0;
 
 // Liftoff state
 let liftoffActive = false;
@@ -425,7 +554,12 @@ function setActiveStage(newStage) {
         liftoffActive = false;
         // Reassemble rocket (all groups return to rest), zoom out
         for (const k of ALL_GROUPS) { opacityTarget[k] = 0.35; sepTarget[k] = 0; }
-        camZTarget = CAM_Z['pre-liftoff'];
+        const prePose = CAM_POSE['pre-liftoff'];
+        camXTarget = prePose.x;
+        camYTarget = prePose.y;
+        camZTarget = prePose.z;
+        camLookYTarget = prePose.lookY;
+        stageRotYTarget = prePose.rotY;
 
         preLiftoffTimer = setTimeout(() => {
             liftoffActive = true;
@@ -480,8 +614,13 @@ function setActiveStage(newStage) {
         }
     }
 
-    // Camera zoom target
-    camZTarget = CAM_Z[newStage] || CAM_Z.none;
+    // Camera pose target
+    const pose = CAM_POSE[newStage] || CAM_POSE.none;
+    camXTarget = pose.x;
+    camYTarget = pose.y;
+    camZTarget = pose.z;
+    camLookYTarget = pose.lookY;
+    stageRotYTarget = pose.rotY;
 
     // Stage label UI — ensure exactly one active label at a time
     for (const k of ALL_GROUPS) {
@@ -636,17 +775,21 @@ function animate() {
     loxGeo.attributes.aOpacity.needsUpdate = true;
     loxMat.uniforms.uPointSize.value = (liftoffActive ? 4.0 : 2.0) * Math.min(window.devicePixelRatio, isMobile ? 1.5 : 2);
 
-    // Lerp camera Z (zoom in/out)
+    // Lerp camera pose
+    camXCurrent += (camXTarget - camXCurrent) * LERP;
+    camYCurrent += (camYTarget - camYCurrent) * LERP;
     camZCurrent += (camZTarget - camZCurrent) * LERP;
+    camLookYCurrent += (camLookYTarget - camLookYCurrent) * LERP;
+    stageRotYCurrent += (stageRotYTarget - stageRotYCurrent) * LERP;
 
-    camera.position.set(0, 0, camZCurrent);
-    camera.lookAt(0, 0, 0);
+    camera.position.set(camXCurrent, camYCurrent, camZCurrent);
+    camera.lookAt(0, camLookYCurrent, 0);
 
     // Sinusoidal auto-rotation + mouse influence
     const time = performance.now() * 0.001;
     autoRot += 0.003 + Math.sin(time * 0.5) * 0.001;
     currentRotY += (autoRot + targetRotY - currentRotY) * MOUSE_LERP;
-    rocketRoot.rotation.y = currentRotY;
+    rocketRoot.rotation.y = stageRotYCurrent + currentRotY;
 
     composer.render();
 }
