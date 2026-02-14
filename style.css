@@ -517,7 +517,7 @@ a.stage-entry:hover .entry-title::after {
     background-size: contain;
     background-repeat: no-repeat;
     background-position: center;
-    opacity: 0.58;
+    opacity: 0.70;
     filter: grayscale(0.02) contrast(1.2) brightness(1.18);
     pointer-events: none;
     z-index: 0;
@@ -841,16 +841,80 @@ a.stage-entry:hover .entry-title::after {
     }
     .writing-kicker { font-size: 12px; }
     .writing-feed-head h2 { font-size: 18px; }
+    .article-list {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+
+    /* Mobile-specific feed language:
+       first card is featured, the rest become compact media rows */
     .article-item {
         min-height: 0;
+        border-color: #3a3a3a;
+        background: rgba(5, 5, 5, 0.78);
     }
-    .article-list { grid-template-columns: 1fr; gap: 10px; }
-    .article-title {
-        font-size: 15px;
+
+    .article-list .article-link:first-child .article-item {
+        display: flex;
+        flex-direction: column;
     }
-    .article-desc { font-size: 12px; }
+
+    .article-list .article-link:first-child .article-main {
+        padding: 12px 12px 6px;
+    }
+
+    .article-list .article-link:first-child .article-meta {
+        padding: 0 12px 12px;
+    }
+
+    .article-list .article-link:first-child .article-title {
+        font-size: 16px;
+    }
+
+    .article-list .article-link:not(:first-child) .article-item {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .article-list .article-link:not(:first-child) .article-main {
+        padding: 10px 12px 4px;
+    }
+
+    .article-list .article-link:not(:first-child) .article-meta {
+        padding: 0 12px 10px;
+        align-items: center;
+    }
+
+    .article-list .article-link:not(:first-child) .article-title {
+        font-size: 13px;
+        margin-bottom: 4px;
+    }
+
+    .article-list .article-link:not(:first-child) .article-desc {
+        font-size: 11px;
+        line-height: 1.55;
+    }
+
+    .article-list .article-link:not(:first-child) .article-date,
+    .article-list .article-link:not(:first-child) .article-cta {
+        font-size: 9px;
+    }
+
+    /* Mobile: text-only transmission cards */
     .article-thumb-wrap {
-        min-height: 120px;
-        max-height: 120px;
+        display: none !important;
+    }
+
+    /* Keep image-derived hue glow even in text-only mobile cards */
+    .article-item::after {
+        opacity: 0.16;
+    }
+    .article-link:active .article-item::after,
+    .article-link:focus-visible .article-item::after {
+        opacity: 0.28;
+    }
+
+    .article-item.no-image .article-main {
+        padding-top: 12px;
     }
 }
