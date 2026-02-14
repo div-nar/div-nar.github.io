@@ -67,7 +67,7 @@
                 if (data.status === 'ok' && data.items && data.items.length > 0) {
                     container.innerHTML = '';
 
-                    data.items.slice(0, 4).forEach((item, idx) => {
+                    data.items.slice(0, 8).forEach((item, idx) => {
                         const a = document.createElement('a');
                         a.className = 'article-link';
                         a.href = item.link;
