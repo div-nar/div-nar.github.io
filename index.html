@@ -15,25 +15,31 @@
     }
     </script>
 </head>
-<body>
+<body class="home-page">
 
 <!-- ══════════════════════════════════════════
      HEADER
 ══════════════════════════════════════════ -->
-<header class="site-header">
+<header class="site-header home-header">
     <div>
         <h1>DIVITH NARENDRA</h1>
-        <div class="header-subhead dim">Saturn V is ambition, simply. This is my site, built around the same idea.</div>
+        <div class="header-subhead dim">Saturn V personifies what I stand for : unrelenting doggedness.</div>
         <div class="header-tags dim">PRODUCT // BUILDER // DREAMER</div>
-        <div class="header-nav-row">
-            <a href="writing.html">[WRITING]</a>
-            <a href="bookshelf.html">[BOOKSHELF]</a>
-            <a href="https://drive.google.com/file/d/14pzGPcHt1y7Hki1PV9T2QCuzLpPFcwph/view?usp=sharing" target="_blank">[RESUME]</a>
+        <div class="header-nav-strip">
+            <div class="header-nav-row">
+                <a href="writing.html">[WRITING]</a>
+                <a href="bookshelf.html">[BOOKSHELF]</a>
+                <a href="https://drive.google.com/file/d/14pzGPcHt1y7Hki1PV9T2QCuzLpPFcwph/view?usp=sharing" target="_blank">[RESUME]</a>
+            </div>
         </div>
     </div>
     <div class="header-right dim">
         <div>CURRENT_LOC: BANGALORE</div>
         <div>STATUS: <span class="typing-cursor">ORBITAL</span></div>
+        <div class="header-socials">
+            <a href="https://www.linkedin.com/in/divith-narendra/" target="_blank">[LINKEDIN]</a>
+            <a href="https://x.com/div_narendra" target="_blank">[X]</a>
+        </div>
     </div>
 </header>
 
@@ -85,7 +91,6 @@
             <div class="panel-card card-left">
                 <div class="section-label dim">MISSION PROFILE</div>
                 <p class="mission-text">
-                    Part-time writer, full-time product.<br><br>
                     The Saturn V remains the most powerful machine ever built by human hands.
                     It did not compromise. It burned 20 tons of fuel per second to escape gravity.<br><br>
                     This is the operating protocol for my work:<br>
@@ -774,6 +779,13 @@ stageGroups['sic'].add(loxPoints);
 
 // ── Render loop ──────────────────────────────────────────────
 let autoRot = 0;
+const STAGE_PART_AUTO_ROT = {
+    csm: 0.0016,
+    sivb: 0.0012,
+    sii: 0.0010,
+    coupler: 0.0,
+    sic: 0.0008,
+};
 const LERP = isMobile ? 0.12 : 0.09;
 const MOUSE_LERP = isMobile ? 0.04 : 0.06;
 const STAGE_FOLLOW = isMobile ? 0.12 : 0.07;
@@ -791,6 +803,8 @@ function animate() {
 
         sepCurrent[k] += (sepTarget[k] - sepCurrent[k]) * STAGE_FOLLOW;
         stageGroups[k].position.y = sepCurrent[k];
+        const rot = STAGE_PART_AUTO_ROT[k] || 0;
+        if (rot) stageGroups[k].rotation.y += rot;
     }
 
     // Liftoff: move entire rocket upward (slow, dramatic)
