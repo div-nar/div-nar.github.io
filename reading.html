@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>D. NARENDRA // READING</title>
+    <meta name="description" content="Read-only book log loaded from local JSON.">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        :root {
+            --saturn-ivory: #f2e8cf;
+            --saturn-sand: #d4b172;
+            --saturn-amber: #b9862f;
+            --saturn-ink: #0b0906;
+        }
+
+        .reading-page {
+            background-color: #000;
+            background-image: url('assets/reading-bg-cassini.jpg');
+            background-position: center 34%;
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            color: #fff;
+            position: relative;
+        }
+
+        .reading-page::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background:
+                linear-gradient(180deg, rgba(0, 0, 0, 0.78) 0%, rgba(0, 0, 0, 0.64) 30%, rgba(0, 0, 0, 0.76) 100%),
+                radial-gradient(1200px 520px at 18% 74%, rgba(196, 130, 20, 0.28), rgba(0, 0, 0, 0) 58%),
+                radial-gradient(900px 420px at 78% 22%, rgba(255, 232, 181, 0.12), rgba(0, 0, 0, 0) 60%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .reading-shell {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            z-index: 1;
+        }
+
+        .reading-header {
+            position: sticky;
+            top: 0;
+            z-index: 20;
+            background: transparent;
+            backdrop-filter: blur(3px);
+            border-bottom: 1px dashed rgba(212, 177, 114, 0.34);
+        }
+
+        .reading-header-meta {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+        }
+
+        .reading-header-meta a {
+            font-size: 11px;
+            color: rgba(242, 232, 207, 0.88);
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            border: 1px dashed rgba(212, 177, 114, 0.46);
+            padding: 3px 7px;
+            background: rgba(10, 8, 5, 0.25);
+        }
+
+        .reading-header-meta a:hover {
+            color: var(--saturn-ivory);
+            border-color: rgba(242, 232, 207, 0.8);
+            border-bottom: 1px dashed rgba(242, 232, 207, 0.8);
+        }
+
+        .reading-main {
+            width: min(1140px, 100%);
+            margin: 0 auto;
+            padding: 30px 40px 54px;
+            display: grid;
+            gap: 14px;
+        }
+
+        .reading-header .header-subhead,
+        .reading-header .dim,
+        .reading-header .header-right {
+            color: rgba(242, 232, 207, 0.84);
+        }
+
+        .reading-header h1 {
+            color: var(--saturn-ivory);
+            text-shadow: 0 0 22px rgba(212, 177, 114, 0.14);
+        }
+
+        .reading-table-wrap {
+            position: relative;
+            border: 1px dashed rgba(212, 177, 114, 0.28);
+            background: linear-gradient(180deg, rgba(8, 7, 4, 0.54), rgba(5, 4, 3, 0.78));
+            box-shadow:
+                0 24px 70px rgba(0, 0, 0, 0.48),
+                0 0 0 1px rgba(212, 177, 114, 0.14) inset;
+            backdrop-filter: blur(8px) saturate(1.1);
+            overflow: auto;
+        }
+
+        .reading-table-wrap::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            background: linear-gradient(180deg, rgba(0, 0, 0, 0.16), rgba(0, 0, 0, 0.02) 36%, rgba(0, 0, 0, 0.18));
+        }
+
+        .reading-table {
+            width: 100%;
+            min-width: 920px;
+            border-collapse: collapse;
+        }
+
+        .reading-table thead th {
+            position: sticky;
+            top: 0;
+            z-index: 2;
+            background: rgba(9, 8, 5, 0.82);
+            color: var(--saturn-ivory);
+            border-bottom: 1px dashed rgba(212, 177, 114, 0.32);
+            padding: 12px 12px;
+            text-align: left;
+            font-size: 11px;
+            letter-spacing: 0.11em;
+            text-transform: uppercase;
+        }
+
+        .reading-table td {
+            border-bottom: 1px dashed rgba(212, 177, 114, 0.18);
+            padding: 12px;
+            vertical-align: top;
+            font-size: 13px;
+            line-height: 1.5;
+            color: var(--saturn-ivory);
+            position: relative;
+            z-index: 1;
+        }
+
+        .reading-table tbody tr:nth-child(odd) {
+            background: rgba(255, 255, 255, 0.015);
+        }
+
+        .reading-table tbody tr:hover {
+            background: rgba(212, 177, 114, 0.09);
+        }
+
+        .reading-table td:first-child {
+            color: #fff7e6;
+            letter-spacing: 0.01em;
+        }
+
+        .reading-table td:nth-child(4) {
+            white-space: nowrap;
+            font-size: 12px;
+            letter-spacing: 0.06em;
+        }
+
+        .reading-table td:nth-child(5) {
+            text-align: center;
+            width: 88px;
+        }
+
+        .reading-muted {
+            color: rgba(242, 232, 207, 0.82);
+        }
+
+        .reading-empty {
+            padding: 20px;
+            color: #d0d0d0;
+            font-size: 12px;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+        }
+
+        @media (max-width: 800px) {
+            .reading-page {
+                background-attachment: scroll;
+                background-position: 60% 30%;
+            }
+
+            .reading-main {
+                padding: 16px;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .reading-main {
+                padding: 12px;
+            }
+
+            .reading-table-wrap {
+                border-radius: 6px;
+            }
+
+            .reading-table {
+                min-width: 0;
+                width: 100%;
+                table-layout: fixed;
+            }
+
+            .reading-table thead th,
+            .reading-table td {
+                padding: 10px 10px;
+            }
+
+            .reading-table thead th {
+                font-size: 10px;
+                letter-spacing: 0.09em;
+            }
+
+            /* Mobile: keep only Book Name + Rating */
+            .reading-table th:nth-child(2),
+            .reading-table th:nth-child(3),
+            .reading-table th:nth-child(4),
+            .reading-table td:nth-child(2),
+            .reading-table td:nth-child(3),
+            .reading-table td:nth-child(4) {
+                display: none;
+            }
+
+            .reading-table td:first-child {
+                width: auto;
+                font-size: 15px;
+                line-height: 1.35;
+                letter-spacing: 0.01em;
+            }
+
+            .reading-table th:nth-child(5),
+            .reading-table td:nth-child(5) {
+                width: 72px;
+                text-align: right;
+                font-size: 13px;
+            }
+
+            .reading-empty {
+                padding: 16px 10px;
+                font-size: 11px;
+            }
+        }
+    </style>
+</head>
+
+<body class="reading-page">
+    <div class="reading-shell">
+        <header class="site-header reading-header">
+            <div>
+                <h1>READING</h1>
+                <div class="header-subhead dim">A compiled archive of all the books I have read.</div>
+                <div class="reading-header-meta">
+                    <a href="index.html">[ HOME ]</a>
+                    <a href="writing.html">[ WRITING ]</a>
+                    <a href="https://drive.google.com/file/d/14pzGPcHt1y7Hki1PV9T2QCuzLpPFcwph/view?usp=sharing"
+                        target="_blank">[ RESUME ]</a>
+                </div>
+            </div>
+            <div class="header-right dim">
+                <div>SYSTEM: READING_DB</div>
+                <div>MODE: READ ONLY</div>
+            </div>
+        </header>
+
+        <main class="reading-main">
+            <section class="reading-table-wrap">
+                <table class="reading-table">
+                    <thead>
+                        <tr>
+                            <th>Title</th>
+                            <th>Genre</th>
+                            <th>Author</th>
+                            <th>Finished</th>
+                            <th>Rating</th>
+                        </tr>
+                    </thead>
+                    <tbody id="books-table-body">
+                        <tr>
+                            <td class="reading-empty" colspan="5">Loading books...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+        </main>
+
+        <footer class="site-footer">
+            <p>// DIVITH NARENDRA // READING // 2026 //</p>
+        </footer>
+    </div>
+
+    <script>
+        function esc(text) {
+            return String(text ?? '')
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
+
+        function parseDateValue(value) {
+            if (!value) return 0;
+            const t = Date.parse(value);
+            return Number.isNaN(t) ? 0 : t;
+        }
+
+        function formatDateValue(value) {
+            if (!value) return '—';
+            const t = Date.parse(value);
+            if (Number.isNaN(t)) return esc(value);
+            return new Date(t).toLocaleDateString('en-US', {
+                month: 'short',
+                day: 'numeric',
+                year: 'numeric'
+            }).toUpperCase();
+        }
+
+        function sortedBooks(list) {
+            return [...list].sort((a, b) => {
+                const da = parseDateValue(a.finished);
+                const db = parseDateValue(b.finished);
+                if (db !== da) return db - da;
+                return (a.title || '').localeCompare(b.title || '');
+            });
+        }
+
+        function renderBooks(list) {
+            const body = document.getElementById('books-table-body');
+            if (!list.length) {
+                body.innerHTML = '<tr><td class="reading-empty" colspan="5">No books found in data/books.json.</td></tr>';
+                return;
+            }
+
+            body.innerHTML = sortedBooks(list).map((b) => `
+                <tr>
+                    <td>${esc(b.title || '—')}</td>
+                    <td class="reading-muted">${esc(b.genre || b.type || '—')}</td>
+                    <td class="reading-muted">${esc(b.author || '—')}</td>
+                    <td class="reading-muted">${formatDateValue(b.finished)}</td>
+                    <td>${esc(b.rating || '—')}</td>
+                </tr>
+            `).join('');
+        }
+
+        async function loadBooks() {
+            const body = document.getElementById('books-table-body');
+            try {
+                const response = await fetch('data/books.json', { cache: 'no-store' });
+                if (!response.ok) throw new Error('Failed to load books.json');
+                const data = await response.json();
+                renderBooks(Array.isArray(data) ? data : []);
+            } catch (err) {
+                body.innerHTML = '<tr><td class="reading-empty" colspan="5">Unable to load data/books.json.</td></tr>';
+            }
+        }
+
+        loadBooks();
+    </script>
+</body>
+
+</html>

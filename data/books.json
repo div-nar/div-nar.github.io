@@ -1,0 +1,222 @@
+[
+  {
+    "id": "bk-1",
+    "title": "A New Earth",
+    "author": "Eckhart Tolle",
+    "status": "READING",
+    "type": "SELF DEVELOPMENT",
+    "started": "",
+    "finished": "",
+    "rating": "4"
+  },
+  {
+    "id": "bk-2",
+    "title": "Selfish Gene",
+    "author": "Richard Dawkins",
+    "status": "TO READ",
+    "type": "",
+    "started": "",
+    "finished": "",
+    "rating": ""
+  },
+  {
+    "id": "bk-3",
+    "title": "The Wind-Up Bird Chronicle",
+    "author": "Haruki Murakami",
+    "status": "FINISHED",
+    "type": "FICTION",
+    "started": "",
+    "finished": "",
+    "rating": "3"
+  },
+  {
+    "id": "bk-4",
+    "title": "Pachinko",
+    "author": "Min Jin Lee",
+    "status": "FINISHED",
+    "type": "FICTION",
+    "started": "",
+    "finished": "2023-02-22",
+    "rating": "5"
+  },
+  {
+    "id": "bk-5",
+    "title": "An Artist of a Floating World",
+    "author": "Kazuo Ishiguro",
+    "status": "READING",
+    "type": "HISTORY",
+    "started": "",
+    "finished": "",
+    "rating": "4"
+  },
+  {
+    "id": "bk-6",
+    "title": "Zen and the Art of Motorcycle Maintenance",
+    "author": "Robert M Pirsig",
+    "status": "TO READ",
+    "type": "SELF DEVELOPMENT",
+    "started": "",
+    "finished": "",
+    "rating": ""
+  },
+  {
+    "id": "bk-7",
+    "title": "Killing Commendatore",
+    "author": "Haruki Murakami",
+    "status": "FINISHED",
+    "type": "MAGICAL REALISM",
+    "started": "",
+    "finished": "2024-04-07",
+    "rating": "4"
+  },
+  {
+    "id": "bk-8",
+    "title": "Siddhartha",
+    "author": "Herman Hesse",
+    "status": "FINISHED",
+    "type": "CLASSICS",
+    "started": "",
+    "finished": "2024-06-10",
+    "rating": "4"
+  },
+  {
+    "id": "bk-9",
+    "title": "How China sees India",
+    "author": "Shyam Saran",
+    "status": "DNF",
+    "type": "HISTORY",
+    "started": "",
+    "finished": "",
+    "rating": "4"
+  },
+  {
+    "id": "bk-10",
+    "title": "The Difficulty of Being Good",
+    "author": "Gurucharan Das",
+    "status": "FINISHED",
+    "type": "PHILOSOPHY",
+    "started": "",
+    "finished": "2024-01-15",
+    "rating": "5"
+  },
+  {
+    "id": "bk-11",
+    "title": "In Service of the Republic",
+    "author": "Vijay Kelkar and Ajay Shah",
+    "status": "FINISHED",
+    "type": "POLITICAL THEORY",
+    "started": "",
+    "finished": "2024-07-17",
+    "rating": "5"
+  },
+  {
+    "id": "bk-12",
+    "title": "1984",
+    "author": "George Orwell",
+    "status": "FINISHED",
+    "type": "CLASSICS",
+    "started": "",
+    "finished": "",
+    "rating": "4"
+  },
+  {
+    "id": "bk-13",
+    "title": "Identity",
+    "author": "Francis Fukuyama",
+    "status": "FINISHED",
+    "type": "POLITICAL THEORY",
+    "started": "",
+    "finished": "2024-08-05",
+    "rating": "4"
+  },
+  {
+    "id": "bk-14",
+    "title": "The Origins of Political Order",
+    "author": "Francis Fukuyama",
+    "status": "FINISHED",
+    "type": "POLITICAL THEORY",
+    "started": "",
+    "finished": "",
+    "rating": "4"
+  },
+  {
+    "id": "bk-15",
+    "title": "Augustus",
+    "author": "Adrian Goldsworthy",
+    "status": "FINISHED",
+    "type": "BIOGRAPHY",
+    "started": "",
+    "finished": "2025-03-31",
+    "rating": "4"
+  },
+  {
+    "id": "bk-16",
+    "title": "The Dispossessed",
+    "author": "Ursula Le Guinn",
+    "status": "FINISHED",
+    "type": "SCI-FI",
+    "started": "",
+    "finished": "2025-01-31",
+    "rating": "4"
+  },
+  {
+    "id": "bk-17",
+    "title": "Ultra-Processed People",
+    "author": "Chris Van Tulliken",
+    "status": "FINISHED",
+    "type": "HEALTH",
+    "started": "",
+    "finished": "2025-01-31",
+    "rating": "4"
+  },
+  {
+    "id": "bk-18",
+    "title": "The Creative Act",
+    "author": "Rick Rubin",
+    "status": "READING",
+    "type": "SELF DEVELOPMENT",
+    "started": "",
+    "finished": "",
+    "rating": "5"
+  },
+  {
+    "id": "bk-19",
+    "title": "Wealth Money Can’t Buy",
+    "author": "Robin Sharma",
+    "status": "FINISHED",
+    "type": "SELF DEVELOPMENT",
+    "started": "",
+    "finished": "2025-01-31",
+    "rating": "4"
+  },
+  {
+    "id": "bk-20",
+    "title": "12 Rules for Life",
+    "author": "Jordan B Peterson",
+    "status": "FINISHED",
+    "type": "PSYCHOLOGY",
+    "started": "",
+    "finished": "",
+    "rating": "4"
+  },
+  {
+    "id": "bk-21",
+    "title": "The Algebra of Wealth",
+    "author": "Scot Galloway",
+    "status": "FINISHED",
+    "type": "SELF DEVELOPMENT",
+    "started": "",
+    "finished": "",
+    "rating": "3"
+  },
+  {
+    "id": "bk-22",
+    "title": "Churchill",
+    "author": "Andrew Roberts",
+    "status": "READING",
+    "type": "BIOGRAPHY",
+    "started": "",
+    "finished": "",
+    "rating": "5"
+  }
+]
