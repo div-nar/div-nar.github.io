@@ -13,6 +13,7 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 html { -webkit-font-smoothing: none; scroll-behavior: smooth; }
+@media (max-width: 768px) { html { scroll-behavior: auto; } }
 
 body {
     background: var(--bg);
@@ -476,6 +477,7 @@ a.stage-entry:hover .entry-title::after {
     inset: 0;
     pointer-events: none;
     z-index: 0;
+    will-change: transform;
     background:
         radial-gradient(1280px 560px at 80% 6%, rgba(176, 122, 74, 0.30), rgba(0, 0, 0, 0) 56%),
         radial-gradient(980px 460px at 10% 78%, rgba(143, 179, 200, 0.22), rgba(0, 0, 0, 0) 58%),
@@ -812,6 +814,8 @@ a.stage-entry:hover .entry-title::after {
     a.stage-entry { padding: 16px 0; }
     .transmission-item { padding: 20px 16px; }
 
+    body { overscroll-behavior: none; }
+    .writing-page { background-attachment: scroll; }
     .writing-header { position: sticky; top: 0; }
     .writing-main {
         padding: 18px 16px 24px;

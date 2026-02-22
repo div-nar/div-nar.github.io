@@ -503,6 +503,7 @@ function buildFromGLTF(gltfScene) {
 const loader = new GLTFLoader();
 loader.load('rocket-full.glb', gltf => {
     buildFromGLTF(gltf.scene);
+    if (isMobile) wakeAnimation();
 }, undefined, err => console.error(err));
 
 // ── Scroll / stage state ─────────────────────────────────────
@@ -700,6 +701,7 @@ function onScroll() {
     requestAnimationFrame(() => {
         scrollTicking = false;
         updateStageFromScroll();
+        if (isMobile) wakeAnimation();
     });
 }
 
@@ -778,6 +780,16 @@ const loxPoints = new THREE.Points(loxGeo, loxMat);
 stageGroups['sic'].add(loxPoints);
 
 // ── Render loop ──────────────────────────────────────────────
+// On mobile: dirty-render pattern — pause the loop when settled so the GPU
+// is free to handle scroll compositing. Woken by scroll events and GLB load.
+let mobileAnimating = false;
+function wakeAnimation() {
+    if (!mobileAnimating) {
+        mobileAnimating = true;
+        requestAnimationFrame(animate);
+    }
+}
+
 let autoRot = 0;
 const STAGE_PART_AUTO_ROT = {
     csm: 0.0016,
@@ -791,8 +803,6 @@ const MOUSE_LERP = isMobile ? 0.04 : 0.06;
 const STAGE_FOLLOW = isMobile ? 0.12 : 0.07;
 
 function animate() {
-    requestAnimationFrame(animate);
-
     // Lerp per-group opacity + vertical separation
     for (const k of ALL_GROUPS) {
         opacityCurrent[k] += (opacityTarget[k] - opacityCurrent[k]) * STAGE_FOLLOW;
@@ -862,8 +872,31 @@ function animate() {
 
     if (composer) composer.render();
     else renderer.render(scene, camera);
+
+    // On mobile: only keep looping if something is still changing.
+    // When settled, the loop goes idle and wakeAnimation() restarts it on scroll.
+    if (isMobile) {
+        const EPS = 0.001;
+        const lerpsActive =
+            ALL_GROUPS.some(k =>
+                Math.abs(opacityTarget[k] - opacityCurrent[k]) > EPS ||
+                Math.abs(sepTarget[k] - sepCurrent[k]) > EPS
+            ) ||
+            Math.abs(camZTarget - camZCurrent) > EPS ||
+            Math.abs(camYTarget - camYCurrent) > EPS ||
+            (activeStage === 'sic' || liftoffActive); // particles need continuous frames
+        if (lerpsActive) {
+            requestAnimationFrame(animate);
+        } else {
+            mobileAnimating = false; // go idle until next scroll
+        }
+    } else {
+        requestAnimationFrame(animate);
+    }
 }
-animate();
+
+if (isMobile) wakeAnimation();
+else animate();
 
 // ── RSS Loaders: Latest article + Transmission Logs ─────────
 const RSS_URL = 'https://api.rss2json.com/v1/api.json?rss_url=https://kwerky.substack.com/feed';
