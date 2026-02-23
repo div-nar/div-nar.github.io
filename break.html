@@ -1,0 +1,1028 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>D. NARENDRA // TOUCH GRASS</title>
+    <meta name="description" content="A pixel-art fishing mini-game. You deserve a break.">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .break-page {
+            background-color: #000;
+            background-image: url('assets/touch-grass-krishnapair.jpg?v=1');
+            background-position: center center;
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            color: #fff;
+            position: relative;
+        }
+
+        .break-page::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 0;
+            background: linear-gradient(180deg, rgba(0, 0, 0, 0.52), rgba(0, 0, 0, 0.58));
+        }
+
+        .break-shell {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            z-index: 1;
+        }
+
+        .break-main {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px 16px;
+        }
+
+        .game-wrapper {
+            position: relative;
+            width: min(800px, calc(100vw - 32px));
+            margin: 0 auto;
+        }
+
+        #fishing-canvas {
+            display: block;
+            width: 100%;
+            image-rendering: pixelated;
+            image-rendering: crisp-edges;
+            -webkit-image-rendering: pixelated;
+            border: 1px dashed #2e2e2e;
+            cursor: crosshair;
+        }
+
+        #game-ui {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            pointer-events: none;
+            padding: 10px 14px;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        #catch-counter {
+            color: var(--dim);
+        }
+
+        #game-prompt {
+            position: absolute;
+            bottom: 14px;
+            left: 0;
+            right: 0;
+            text-align: center;
+            color: var(--fg);
+            transition: opacity 0.3s;
+        }
+
+        #game-stats {
+            position: absolute;
+            top: 10px;
+            right: 14px;
+            text-align: right;
+            color: var(--dim);
+        }
+
+        #music-toggle {
+            margin-top: 8px;
+            font-family: inherit;
+            font-size: 10px;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: #fff;
+            background: #090909;
+            border: 1px dashed #3a3a3a;
+            padding: 5px 8px;
+            cursor: pointer;
+        }
+
+        #music-toggle:hover {
+            border-color: #7a7a7a;
+            color: #f6f6f6;
+        }
+
+        @media (max-width: 480px) {
+            .break-main { padding: 12px 8px; }
+            #game-ui { font-size: 9px; padding: 6px 8px; }
+            .break-page { background-attachment: scroll; }
+        }
+    </style>
+</head>
+
+<body class="break-page">
+    <div class="break-shell">
+        <header class="site-header">
+            <div>
+                <h1>TOUCH GRASS</h1>
+                <div class="header-subhead dim">You've scrolled enough. Go fishing.</div>
+                <div class="header-nav-row">
+                    <a href="index.html">[ HOME ]</a>
+                    <a href="writing.html">[ PENMANSHIP ]</a>
+                    <a href="bookshelf.html">[ THE BOOKSHOP ]</a>
+                    <a href="https://drive.google.com/file/d/14pzGPcHt1y7Hki1PV9T2QCuzLpPFcwph/view?usp=sharing" target="_blank">[ RESUME ]</a>
+                </div>
+            </div>
+            <div class="header-right dim">
+                <div>SYSTEM: FISHING_SIM</div>
+                <div>MODE: RELAXATION</div>
+                <button id="music-toggle" type="button">[ MUSIC: OFF ]</button>
+            </div>
+        </header>
+
+        <main class="break-main">
+            <div class="game-wrapper">
+                <canvas id="fishing-canvas"></canvas>
+                <div id="game-ui">
+                    <div id="catch-counter">CATCH: 0</div>
+                    <div id="game-stats">STREAK: 0</div>
+                    <div id="game-prompt">CLICK TO CAST</div>
+                </div>
+            </div>
+        </main>
+
+        <footer class="site-footer">
+            <p>// DIVITH NARENDRA // FISHING SIMULATOR // 2025 //</p>
+        </footer>
+    </div>
+    <audio id="touch-grass-audio" loop preload="none">
+        <source src="assets/oh-tengo-suerte.mp3" type="audio/mpeg">
+    </audio>
+
+    <script>
+    // ── Constants ────────────────────────────────────────────────
+    const GAME_W = 240;
+    const GAME_H = 160;
+    const WATER_Y = 65;
+    const DOCK_X = 170;       // dock starts here (right side)
+    const DOCK_Y = 55;        // dock surface
+    const ROD_TIP_X = 155;    // where the rod tip ends (left of dock)
+    const ROD_TIP_Y = 30;     // rod tip height
+    const MAX_FISH = 6;
+    const GAME_COLORS = {
+        fishEye: '#10141b',
+        fishMouth: '#6f86a8',
+        fishEyeLight: '#efe1cf',
+        bubble: 'rgba(198,218,255,0.24)',
+        sky: '#0b1220',
+        moonOuter: '#b9a98d',
+        moonInner: '#d8c9ae',
+        moonCrater: '#a39176',
+        stars: '#7f96ba',
+        starsDim: '#60779c',
+        water: '#101a2b',
+        wave: (alpha) => `rgba(185,208,242,${alpha})`,
+        current: 'rgba(138,161,199,0.09)',
+        dockPost: '#3d2c27',
+        dockPlank: '#5b3f36',
+        dockDetail: '#2f211d',
+        tire: '#1a1f2b',
+        fisherLeg: '#4e3650',
+        fisherFeet: '#2f223b',
+        fisherTorso: '#6b4a66',
+        fisherHead: '#be8a67',
+        fisherHat: '#d1ad64',
+        fisherArm: '#8f6286',
+        rod: '#9f7e66',
+        bucket: '#4c322c',
+        bucketRim: '#6c4a41',
+        bucketFish: '#c3a865',
+        line: '#9eb4ce',
+        hook: '#c8d7ea',
+        catchSpark: '#cfdcf5',
+        splash: '#9fbee5',
+        frameBase: '#06090f',
+        gameOver: 'rgba(7,10,16,0.45)',
+        floatHat: '#cda760',
+        warnRing: 'rgba(255,176,176,0.38)',
+        fishRing: 'rgba(180,209,255,0.22)',
+        promptHighlight: '#f4d38a'
+    };
+
+    // ── Canvases ────────────────────────────────────────────────
+    const gameCanvas = document.createElement('canvas');
+    gameCanvas.width = GAME_W;
+    gameCanvas.height = GAME_H;
+    const g = gameCanvas.getContext('2d');
+
+    const display = document.getElementById('fishing-canvas');
+    const d = display.getContext('2d');
+    d.imageSmoothingEnabled = false;
+
+    function resizeDisplay() {
+        const wrap = display.parentElement;
+        const w = wrap.clientWidth;
+        const h = w * (GAME_H / GAME_W);
+        display.width = w;
+        display.height = h;
+        d.imageSmoothingEnabled = false;
+    }
+    resizeDisplay();
+    window.addEventListener('resize', resizeDisplay);
+
+    // ── UI refs ─────────────────────────────────────────────────
+    const counterEl = document.getElementById('catch-counter');
+    const statsEl = document.getElementById('game-stats');
+    const promptEl = document.getElementById('game-prompt');
+    const musicToggleEl = document.getElementById('music-toggle');
+    const bgAudioEl = document.getElementById('touch-grass-audio');
+
+    // ── Fish types (subtle palette accents) ─────────────────────
+    const FISH_TYPES = [
+        { name: 'minnow',   w: 6,  h: 3, speed: 0.35, shade: '#7fa7c9', dangerous: false },
+        { name: 'bass',     w: 9,  h: 5, speed: 0.2,  shade: '#8db8d2', dangerous: false },
+        { name: 'pike',     w: 11, h: 4, speed: 0.3,  shade: '#7596c0', dangerous: false },
+        { name: 'catfish',  w: 12, h: 6, speed: 0.14, shade: '#9b87bd', dangerous: false },
+    ];
+    const DANGEROUS_TYPES = [
+        { name: 'shark',    w: 20, h: 8,  speed: 0.25, shade: '#744a5f', dangerous: true, kind: 'shark' },
+        { name: 'whale',    w: 28, h: 12, speed: 0.1,  shade: '#5b4f7a', dangerous: true, kind: 'whale' },
+        { name: 'dolphin',  w: 16, h: 7,  speed: 0.35, shade: '#6b638f', dangerous: true, kind: 'dolphin' },
+        { name: 'swordfish',w: 22, h: 6,  speed: 0.4,  shade: '#7d535d', dangerous: true, kind: 'swordfish' },
+    ];
+
+    // ── Game state ──────────────────────────────────────────────
+    let state = 'idle';  // idle | fishing | reeling | caught | missed | dragged | gameover
+    let catchCount = 0;
+    let streak = 0;
+    let bestStreak = 0;
+
+    // Hook position (controlled by mouse/touch when fishing)
+    let hookX = ROD_TIP_X;
+    let hookY = ROD_TIP_Y;
+    let hookTargetX = ROD_TIP_X;
+    let hookTargetY = ROD_TIP_Y;
+
+    // Mouse position in game coords
+    let mouseGX = GAME_W / 2;
+    let mouseGY = GAME_H / 2;
+
+    let caughtFish = null;
+    let stateTimer = 0;
+    let fishes = [];
+    let spawnTimer = 1;
+    let dangerousSpawnTimer = getDangerousSpawnDelay();
+
+    function getSpeedMultiplier() {
+        // Gradual ramp: ~1.0 at streak 0 up to ~2.0 by high streaks.
+        return 1 + Math.min(1.0, streak * 0.06);
+    }
+
+    function getMaxDangerousCount() {
+        // 1 at low streaks, then rises every few catches.
+        return 1 + Math.floor(Math.min(15, streak) / 3);
+    }
+
+    function getDangerousSpawnDelay() {
+        // As streak climbs, dangerous fish appear more frequently.
+        const base = Math.max(3.5, 11.5 - streak * 0.58);
+        const jitter = Math.max(2.4, 7.5 - streak * 0.30);
+        return base + Math.random() * jitter;
+    }
+
+    // Game over animation
+    let fishermanY = 0;    // offset for falling animation
+    let splashParticles = [];
+
+    // Bubbles for visual flair
+    let bubbles = [];
+
+    // ── Fish class ──────────────────────────────────────────────
+    class Fish {
+        constructor(typeOverride) {
+            const type = typeOverride || FISH_TYPES[Math.floor(Math.random() * FISH_TYPES.length)];
+            this.name = type.name;
+            this.w = type.w;
+            this.h = type.h;
+            this.speed = type.speed;
+            this.shade = type.shade;
+            this.dangerous = type.dangerous || false;
+            this.kind = type.kind || null;
+            this.dir = Math.random() < 0.5 ? 1 : -1;
+            this.x = this.dir === 1 ? -this.w - 4 : GAME_W + 4;
+            this.y = WATER_Y + 12 + Math.random() * (GAME_H - WATER_Y - 30);
+            this.alive = true;
+            this.hooked = false;
+            this.wobbleOff = Math.random() * 100;
+            this.scared = false;
+            this.scareTimer = 0;
+        }
+
+        update(dt, t) {
+            if (this.hooked) return;
+            const speedMul = getSpeedMultiplier() + (this.dangerous ? 0.15 : 0);
+            const effectiveSpeed = this.speed * speedMul;
+
+            // scare fish if hook is very close but not caught
+            if (state === 'fishing' && !this.scared) {
+                const dx = hookX - (this.x + this.w / 2);
+                const dy = hookY - (this.y + this.h / 2);
+                const dist = Math.sqrt(dx * dx + dy * dy);
+                if (dist < 12 && dist > 5) {
+                    // slight speed boost away from hook
+                    this.scared = true;
+                    this.scareTimer = 0.6;
+                }
+            }
+
+            if (this.scared) {
+                this.scareTimer -= dt;
+                if (this.scareTimer <= 0) this.scared = false;
+                this.x += this.dir * effectiveSpeed * 2.5 * 60 * dt;
+            } else {
+                this.x += effectiveSpeed * this.dir * 60 * dt;
+            }
+
+            this.y += Math.sin(t * 2.5 + this.wobbleOff) * 0.12;
+
+            if ((this.dir === 1 && this.x > GAME_W + 15) ||
+                (this.dir === -1 && this.x < -15 - this.w)) {
+                this.alive = false;
+            }
+        }
+
+        draw() {
+            const rx = Math.round(this.x);
+            const ry = Math.round(this.y);
+            const flipX = this.dir === -1;
+
+            if (this.kind === 'shark') return this.drawShark(rx, ry, flipX);
+            if (this.kind === 'whale') return this.drawWhale(rx, ry, flipX);
+            if (this.kind === 'dolphin') return this.drawDolphin(rx, ry, flipX);
+            if (this.kind === 'swordfish') return this.drawSwordfish(rx, ry, flipX);
+
+            // normal fish body
+            g.fillStyle = this.shade;
+            g.fillRect(rx, ry, this.w, this.h);
+
+            // tail fin
+            if (flipX) {
+                g.fillRect(rx + this.w, ry + 1, 3, this.h - 2);
+            } else {
+                g.fillRect(rx - 3, ry + 1, 3, this.h - 2);
+            }
+
+            // dorsal fin (top)
+            g.fillRect(rx + Math.floor(this.w / 3), ry - 1, Math.ceil(this.w / 3), 1);
+
+            // eye
+            g.fillStyle = GAME_COLORS.fishEye;
+            if (flipX) {
+                g.fillRect(rx + 1, ry + 1, 1, 1);
+            } else {
+                g.fillRect(rx + this.w - 2, ry + 1, 1, 1);
+            }
+
+            // mouth line
+            g.fillStyle = GAME_COLORS.fishMouth;
+            if (flipX) {
+                g.fillRect(rx, ry + Math.floor(this.h / 2), 1, 1);
+            } else {
+                g.fillRect(rx + this.w - 1, ry + Math.floor(this.h / 2), 1, 1);
+            }
+        }
+
+        drawShark(rx, ry, flipX) {
+            g.fillStyle = this.shade;
+            // tapered body
+            g.fillRect(rx + 3, ry + 1, this.w - 6, this.h - 2);
+            g.fillRect(rx + 1, ry + 2, this.w - 2, this.h - 4);
+            // snout
+            const snoutX = flipX ? rx - 2 : rx + this.w;
+            g.fillRect(snoutX, ry + 3, 3, this.h - 6);
+            // tall dorsal fin
+            g.fillRect(rx + 8, ry - 3, 3, 4);
+            g.fillRect(rx + 9, ry - 5, 2, 2);
+            // tail
+            const tailX = flipX ? rx + this.w - 1 : rx - 1;
+            g.fillRect(tailX, ry - 1, 3, this.h + 2);
+            g.fillRect(flipX ? tailX + 2 : tailX - 1, ry - 2, 2, 2);
+            g.fillRect(flipX ? tailX + 2 : tailX - 1, ry + this.h, 2, 2);
+            // eye
+            g.fillStyle = GAME_COLORS.fishEyeLight;
+            g.fillRect(flipX ? rx + 2 : rx + this.w - 4, ry + 2, 2, 1);
+            g.fillStyle = GAME_COLORS.fishEye;
+            g.fillRect(flipX ? rx + 2 : rx + this.w - 3, ry + 2, 1, 1);
+            // mouth/teeth line
+            g.fillStyle = GAME_COLORS.fishMouth;
+            g.fillRect(flipX ? rx - 1 : rx + this.w + 1, ry + 4, 2, 1);
+        }
+
+        drawWhale(rx, ry, flipX) {
+            g.fillStyle = this.shade;
+            // large oval body
+            g.fillRect(rx + 2, ry, this.w - 4, this.h);
+            g.fillRect(rx, ry + 2, this.w, this.h - 4);
+            g.fillRect(rx + 1, ry + 1, this.w - 2, this.h - 2);
+            // tail flukes
+            const tailX = flipX ? rx + this.w - 2 : rx - 2;
+            g.fillRect(tailX, ry - 2, 4, 3);
+            g.fillRect(tailX, ry + this.h - 1, 4, 3);
+            g.fillRect(flipX ? tailX + 3 : tailX - 1, ry - 3, 2, 2);
+            g.fillRect(flipX ? tailX + 3 : tailX - 1, ry + this.h, 2, 2);
+            // eye
+            g.fillStyle = GAME_COLORS.fishEyeLight;
+            g.fillRect(flipX ? rx + 3 : rx + this.w - 5, ry + 3, 2, 2);
+            g.fillStyle = GAME_COLORS.fishEye;
+            g.fillRect(flipX ? rx + 3 : rx + this.w - 4, ry + 3, 1, 1);
+            // belly (lighter stripe)
+            g.fillStyle = '#8d8eb3';
+            g.fillRect(rx + 4, ry + this.h - 3, this.w - 8, 2);
+        }
+
+        drawDolphin(rx, ry, flipX) {
+            g.fillStyle = this.shade;
+            // sleek body
+            g.fillRect(rx + 2, ry + 1, this.w - 4, this.h - 2);
+            g.fillRect(rx + 4, ry, this.w - 8, this.h);
+            // snout (long beak)
+            const beakX = flipX ? rx - 3 : rx + this.w;
+            g.fillRect(beakX, ry + 2, 4, this.h - 5);
+            g.fillRect(flipX ? beakX - 1 : beakX + 3, ry + 3, 2, this.h - 7);
+            // dorsal fin (curved)
+            g.fillRect(rx + 6, ry - 2, 3, 3);
+            g.fillRect(rx + 7, ry - 4, 2, 2);
+            // tail
+            const tailX = flipX ? rx + this.w - 1 : rx;
+            g.fillRect(tailX, ry, 2, this.h);
+            g.fillRect(flipX ? tailX + 1 : tailX - 2, ry - 1, 2, 2);
+            g.fillRect(flipX ? tailX + 1 : tailX - 2, ry + this.h - 1, 2, 2);
+            // eye
+            g.fillStyle = GAME_COLORS.fishEyeLight;
+            g.fillRect(flipX ? rx + 3 : rx + this.w - 5, ry + 2, 1, 1);
+            // belly
+            g.fillStyle = '#8aa5c7';
+            g.fillRect(rx + 5, ry + this.h - 2, this.w - 10, 1);
+        }
+
+        drawSwordfish(rx, ry, flipX) {
+            g.fillStyle = this.shade;
+            // sleek narrow body
+            g.fillRect(rx + 3, ry + 1, this.w - 6, this.h - 2);
+            g.fillRect(rx + 1, ry + 2, this.w - 2, this.h - 4);
+            // long sword/bill
+            const swordX = flipX ? rx - 7 : rx + this.w;
+            g.fillRect(swordX, ry + 2, 8, 1);
+            g.fillRect(flipX ? swordX - 2 : swordX + 7, ry + 2, 3, 1);
+            // tall dorsal fin
+            g.fillRect(rx + 8, ry - 3, 2, 4);
+            g.fillRect(rx + 7, ry - 2, 4, 2);
+            // tail (forked)
+            const tailX = flipX ? rx + this.w : rx - 1;
+            g.fillRect(tailX, ry - 1, 2, this.h + 2);
+            g.fillRect(flipX ? tailX + 1 : tailX - 1, ry - 2, 2, 2);
+            g.fillRect(flipX ? tailX + 1 : tailX - 1, ry + this.h, 2, 2);
+            // eye
+            g.fillStyle = GAME_COLORS.fishEyeLight;
+            g.fillRect(flipX ? rx + 2 : rx + this.w - 4, ry + 2, 1, 1);
+        }
+    }
+
+    // ── Bubble class ────────────────────────────────────────────
+    class Bubble {
+        constructor(x, y) {
+            this.x = x + (Math.random() - 0.5) * 4;
+            this.y = y;
+            this.speed = 0.3 + Math.random() * 0.4;
+            this.alive = true;
+        }
+        update(dt) {
+            this.y -= this.speed * 60 * dt;
+            this.x += Math.sin(this.y * 0.3) * 0.1;
+            if (this.y < WATER_Y - 2) this.alive = false;
+        }
+        draw() {
+            g.fillStyle = GAME_COLORS.bubble;
+            g.fillRect(Math.round(this.x), Math.round(this.y), 1, 1);
+        }
+    }
+
+    // ── Drawing helpers ─────────────────────────────────────────
+    function drawSky(t) {
+        // gradient sky — dark at top, slightly lighter at horizon
+        g.fillStyle = GAME_COLORS.sky;
+        g.fillRect(0, 0, GAME_W, WATER_Y);
+
+        // moon
+        g.fillStyle = GAME_COLORS.moonOuter;
+        g.fillRect(25, 12, 8, 8);
+        g.fillStyle = GAME_COLORS.moonInner;
+        g.fillRect(26, 13, 6, 6);
+        // moon crater
+        g.fillStyle = GAME_COLORS.moonCrater;
+        g.fillRect(28, 15, 2, 2);
+
+        // stars
+        g.fillStyle = GAME_COLORS.stars;
+        const stars = [[8,6],[50,4],[75,15],[100,8],[130,5],[148,18],[45,22],[110,20],[15,28],[85,10]];
+        for (const [sx, sy] of stars) {
+            const twinkle = Math.sin(t * 2 + sx) > 0.3 ? 1 : 0;
+            if (twinkle) g.fillRect(sx, sy, 1, 1);
+        }
+        // always-on stars
+        g.fillStyle = GAME_COLORS.starsDim;
+        g.fillRect(60, 8, 1, 1);
+        g.fillRect(120, 12, 1, 1);
+        g.fillRect(35, 18, 1, 1);
+    }
+
+    function drawWater(t) {
+        // water body
+        g.fillStyle = GAME_COLORS.water;
+        g.fillRect(0, WATER_Y, GAME_W, GAME_H - WATER_Y);
+
+        // surface wave lines
+        for (let row = 0; row < 3; row++) {
+            const wy = WATER_Y + row * 2;
+            const alpha = row === 0 ? 0.2 : 0.08;
+            g.strokeStyle = GAME_COLORS.wave(alpha);
+            g.lineWidth = 1;
+            g.beginPath();
+            for (let x = 0; x <= GAME_W; x += 1) {
+                const y = wy + Math.sin(x * 0.06 + t * 1.5 + row * 1.2) * 1.2
+                             + Math.sin(x * 0.1 + t * 2.3 + row) * 0.6;
+                if (x === 0) g.moveTo(x, y); else g.lineTo(x, y);
+            }
+            g.stroke();
+        }
+
+        // deep horizontal current lines
+        g.strokeStyle = GAME_COLORS.current;
+        for (let i = 0; i < 5; i++) {
+            const ly = WATER_Y + 25 + i * 18;
+            const off = (t * (8 + i * 3)) % (GAME_W + 60);
+            g.beginPath();
+            g.moveTo(off - 30, ly);
+            g.lineTo(off + 15, ly);
+            g.stroke();
+        }
+    }
+
+    function drawDock(t) {
+        const bob = Math.sin(t * 1.2) * 0.4;
+
+        // dock posts (vertical)
+        g.fillStyle = GAME_COLORS.dockPost;
+        g.fillRect(DOCK_X + 2, Math.round(DOCK_Y + bob), 3, 20);
+        g.fillRect(DOCK_X + 20, Math.round(DOCK_Y + bob), 3, 18);
+        g.fillRect(GAME_W - 8, Math.round(DOCK_Y + bob - 2), 3, 22);
+
+        // dock platform
+        g.fillStyle = GAME_COLORS.dockPlank;
+        g.fillRect(DOCK_X, Math.round(DOCK_Y + bob - 2), GAME_W - DOCK_X, 4);
+        // plank lines
+        g.fillStyle = GAME_COLORS.dockDetail;
+        g.fillRect(DOCK_X + 8, Math.round(DOCK_Y + bob - 2), 1, 4);
+        g.fillRect(DOCK_X + 18, Math.round(DOCK_Y + bob - 2), 1, 4);
+        g.fillRect(DOCK_X + 28, Math.round(DOCK_Y + bob - 2), 1, 4);
+        g.fillRect(DOCK_X + 38, Math.round(DOCK_Y + bob - 2), 1, 4);
+        g.fillRect(DOCK_X + 48, Math.round(DOCK_Y + bob - 2), 1, 4);
+
+        // tire bumper
+        g.fillStyle = GAME_COLORS.tire;
+        g.fillRect(DOCK_X - 1, Math.round(DOCK_Y + bob + 4), 4, 5);
+        g.fillStyle = GAME_COLORS.dockDetail;
+        g.fillRect(DOCK_X, Math.round(DOCK_Y + bob + 5), 2, 3);
+
+        return bob;
+    }
+
+    function drawFisherman(t, dockBob) {
+        if (state === 'gameover') return { rodTipX: ROD_TIP_X, rodTipY: ROD_TIP_Y }; // fisherman is gone
+        const by = Math.round(DOCK_Y + dockBob - 2 + fishermanY);
+        const fx = DOCK_X + 8;
+
+        // legs (sitting on dock edge)
+        g.fillStyle = GAME_COLORS.fisherLeg;
+        g.fillRect(fx, by, 3, 4);        // left leg
+        g.fillRect(fx + 4, by, 3, 4);    // right leg
+        // dangling feet below dock
+        g.fillStyle = GAME_COLORS.fisherFeet;
+        g.fillRect(fx - 1, by + 4, 3, 3);
+        g.fillRect(fx + 4, by + 4, 3, 3);
+
+        // torso
+        g.fillStyle = GAME_COLORS.fisherTorso;
+        g.fillRect(fx, by - 8, 7, 8);
+
+        // head
+        g.fillStyle = GAME_COLORS.fisherHead;
+        g.fillRect(fx + 1, by - 12, 5, 4);
+        // hat
+        g.fillStyle = GAME_COLORS.fisherHat;
+        g.fillRect(fx, by - 13, 7, 2);
+        g.fillRect(fx + 1, by - 14, 5, 1);
+
+        // arm holding rod (angled toward rod tip)
+        g.fillStyle = GAME_COLORS.fisherArm;
+        g.fillRect(fx - 1, by - 7, 2, 1);
+        g.fillRect(fx - 3, by - 8, 2, 1);
+        g.fillRect(fx - 5, by - 9, 3, 1);
+
+        // fishing rod
+        g.strokeStyle = GAME_COLORS.rod;
+        g.lineWidth = 1;
+        g.beginPath();
+        g.moveTo(fx - 4, by - 9);
+        g.lineTo(ROD_TIP_X, ROD_TIP_Y);
+        g.stroke();
+
+        // bucket next to fisherman
+        g.fillStyle = GAME_COLORS.bucket;
+        g.fillRect(fx + 10, by - 4, 5, 4);
+        g.fillStyle = GAME_COLORS.bucketRim;
+        g.fillRect(fx + 10, by - 5, 5, 1);
+        // fish count in bucket (tiny lines)
+        for (let i = 0; i < Math.min(catchCount, 3); i++) {
+            g.fillStyle = GAME_COLORS.bucketFish;
+            g.fillRect(fx + 11 + i, by - 3, 2, 1);
+        }
+
+        return { rodTipX: ROD_TIP_X, rodTipY: ROD_TIP_Y };
+    }
+
+    function drawLine(rodTipX, rodTipY) {
+        if (state === 'idle' || state === 'gameover') return;
+
+        // fishing line — curved from rod tip to hook
+        g.strokeStyle = GAME_COLORS.line;
+        g.lineWidth = 1;
+        g.beginPath();
+        g.moveTo(rodTipX, rodTipY);
+
+        // subtle curve via quadratic bezier
+        const midX = (rodTipX + hookX) / 2 - 5;
+        const midY = (rodTipY + hookY) / 2 + 8;
+        g.quadraticCurveTo(midX, midY, Math.round(hookX), Math.round(hookY));
+        g.stroke();
+
+        // hook
+        if (state === 'fishing') {
+            g.fillStyle = GAME_COLORS.hook;
+            g.fillRect(Math.round(hookX), Math.round(hookY), 1, 3);
+            g.fillRect(Math.round(hookX) - 1, Math.round(hookY) + 3, 1, 1);
+            g.fillRect(Math.round(hookX) - 2, Math.round(hookY) + 2, 1, 1);
+        }
+    }
+
+    function drawCaughtAnim(t) {
+        if (state !== 'caught') return;
+        // small splash lines near rod tip
+        const progress = 1 - (stateTimer / 1.2);
+        if (progress < 0.5) {
+            g.fillStyle = GAME_COLORS.catchSpark;
+            const spread = progress * 10;
+            g.fillRect(Math.round(hookX - spread), Math.round(hookY - 2), 1, 1);
+            g.fillRect(Math.round(hookX + spread), Math.round(hookY - 1), 1, 1);
+            g.fillRect(Math.round(hookX), Math.round(hookY - spread), 1, 1);
+        }
+    }
+
+    // ── State machine ───────────────────────────────────────────
+    function handleClick(e) {
+        const rect = display.getBoundingClientRect();
+        const cx = (e.clientX || e.touches?.[0]?.clientX || 0) - rect.left;
+        const cy = (e.clientY || e.touches?.[0]?.clientY || 0) - rect.top;
+        mouseGX = cx * (GAME_W / display.width);
+        mouseGY = cy * (GAME_H / display.height);
+
+        if (state === 'idle') {
+            state = 'fishing';
+            hookX = ROD_TIP_X;
+            hookY = ROD_TIP_Y;
+            hookTargetX = mouseGX;
+            hookTargetY = Math.max(WATER_Y + 5, mouseGY);
+            promptEl.textContent = 'MOVE TO FISH — CLICK TO REEL';
+            promptEl.style.color = 'var(--dim)';
+        } else if (state === 'fishing') {
+            // check if hook is near a fish
+            let caught = false;
+            for (const fish of fishes) {
+                if (!fish.alive || fish.hooked) continue;
+                const dx = hookX - (fish.x + fish.w / 2);
+                const dy = hookY - (fish.y + fish.h / 2);
+                const dist = Math.sqrt(dx * dx + dy * dy);
+                if (dist < (fish.dangerous ? 14 : 8)) {
+                    fish.hooked = true;
+                    caughtFish = fish;
+
+                    if (fish.dangerous) {
+                        // dragged into the ocean!
+                        state = 'dragged';
+                        stateTimer = 2.5;
+                        fishermanY = 0;
+                        splashParticles = [];
+                        promptEl.textContent = '';
+                    } else {
+                        state = 'reeling';
+                        stateTimer = 0;
+                        promptEl.textContent = '';
+                    }
+                    caught = true;
+
+                    for (let i = 0; i < 5; i++) {
+                        bubbles.push(new Bubble(fish.x + fish.w / 2, fish.y));
+                    }
+                    break;
+                }
+            }
+            if (!caught) {
+                state = 'missed';
+                stateTimer = 1.0;
+                streak = 0;
+                promptEl.textContent = 'NOTHING THERE...';
+                promptEl.style.color = 'var(--dim)';
+            }
+        } else if (state === 'gameover') {
+            // restart
+            resetGame();
+        }
+    }
+
+    function handleMove(e) {
+        const rect = display.getBoundingClientRect();
+        const cx = (e.clientX || e.touches?.[0]?.clientX || 0) - rect.left;
+        const cy = (e.clientY || e.touches?.[0]?.clientY || 0) - rect.top;
+        mouseGX = cx * (GAME_W / display.width);
+        mouseGY = cy * (GAME_H / display.height);
+
+        if (state === 'fishing') {
+            hookTargetX = mouseGX;
+            hookTargetY = Math.max(WATER_Y + 5, mouseGY);
+        }
+    }
+
+    function updateState(dt, t) {
+        // hook always lerps toward target
+        hookX += (hookTargetX - hookX) * 4 * dt;
+        hookY += (hookTargetY - hookY) * 4 * dt;
+
+        switch (state) {
+            case 'reeling':
+                // animate hook + fish back to rod tip
+                hookTargetX = ROD_TIP_X;
+                hookTargetY = ROD_TIP_Y;
+                if (caughtFish) {
+                    caughtFish.x += (hookX - 3 - caughtFish.x) * 4 * dt;
+                    caughtFish.y += (hookY - caughtFish.h / 2 - caughtFish.y) * 4 * dt;
+                }
+                const dist = Math.sqrt((hookX - ROD_TIP_X) ** 2 + (hookY - ROD_TIP_Y) ** 2);
+                if (dist < 3) {
+                    state = 'caught';
+                    stateTimer = 1.2;
+                    catchCount++;
+                    streak++;
+                    if (streak > bestStreak) bestStreak = streak;
+                    counterEl.textContent = 'CATCH: ' + catchCount;
+                    statsEl.textContent = 'STREAK: ' + streak;
+                    if (caughtFish) {
+                        caughtFish.alive = false;
+                        promptEl.textContent = caughtFish.name.toUpperCase() + '!';
+                        promptEl.style.color = GAME_COLORS.promptHighlight;
+                    }
+                    caughtFish = null;
+                }
+                break;
+
+            case 'dragged':
+                stateTimer -= dt;
+                // fisherman gets pulled off dock
+                fishermanY += 40 * dt;
+                // the big fish drags away
+                if (caughtFish) {
+                    caughtFish.x += caughtFish.dir * 80 * dt;
+                    hookTargetX += caughtFish.dir * 80 * dt;
+                    hookTargetY += 10 * dt;
+                }
+                // spawn splash when fisherman hits water
+                if (fishermanY > 10 && splashParticles.length === 0) {
+                    for (let i = 0; i < 12; i++) {
+                        splashParticles.push({
+                            x: DOCK_X + 12,
+                            y: WATER_Y,
+                            vx: (Math.random() - 0.5) * 40,
+                            vy: -20 - Math.random() * 30,
+                        });
+                    }
+                }
+                // update splash
+                for (const p of splashParticles) {
+                    p.x += p.vx * dt;
+                    p.y += p.vy * dt;
+                    p.vy += 60 * dt; // gravity
+                }
+                if (stateTimer <= 0) {
+                    const fishName = caughtFish?.name?.toUpperCase() || 'SOMETHING';
+                    state = 'gameover';
+                    stateTimer = 0;
+                    caughtFish = null;
+                    promptEl.textContent = fishName + ' PULLED YOU IN — CLICK TO RESTART';
+                    promptEl.style.color = GAME_COLORS.promptHighlight;
+                }
+                break;
+
+            case 'caught':
+            case 'missed':
+                hookTargetX = ROD_TIP_X;
+                hookTargetY = ROD_TIP_Y;
+                stateTimer -= dt;
+                if (stateTimer <= 0) {
+                    state = 'idle';
+                    promptEl.textContent = 'CLICK TO CAST';
+                    promptEl.style.color = 'var(--fg)';
+                }
+                break;
+
+            case 'gameover':
+                // waiting for click
+                break;
+        }
+    }
+
+    function resetGame() {
+        state = 'idle';
+        catchCount = 0;
+        streak = 0;
+        fishermanY = 0;
+        splashParticles = [];
+        fishes = [];
+        bubbles = [];
+        caughtFish = null;
+        hookX = ROD_TIP_X;
+        hookY = ROD_TIP_Y;
+        hookTargetX = ROD_TIP_X;
+        hookTargetY = ROD_TIP_Y;
+        spawnTimer = 1;
+        dangerousSpawnTimer = getDangerousSpawnDelay();
+        counterEl.textContent = 'CATCH: 0';
+        statsEl.textContent = 'STREAK: 0';
+        promptEl.textContent = 'CLICK TO CAST';
+        promptEl.style.color = 'var(--fg)';
+    }
+
+    // ── Input ───────────────────────────────────────────────────
+    display.addEventListener('click', handleClick);
+    display.addEventListener('mousemove', handleMove);
+    display.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        handleClick(e);
+    }, { passive: false });
+    display.addEventListener('touchmove', (e) => {
+        e.preventDefault();
+        handleMove(e);
+    }, { passive: false });
+
+    // ── Game loop ───────────────────────────────────────────────
+    let lastTime = 0;
+
+    function loop(timestamp) {
+        const dt = Math.min((timestamp - lastTime) / 1000, 0.05);
+        lastTime = timestamp;
+        const t = timestamp * 0.001;
+
+        // spawn normal fish
+        spawnTimer -= dt;
+        if (spawnTimer <= 0 && fishes.length < MAX_FISH && state !== 'gameover') {
+            fishes.push(new Fish());
+            spawnTimer = 1.5 + Math.random() * 2;
+        }
+
+        // spawn dangerous fish (rarer)
+        if (state !== 'gameover' && state !== 'dragged') {
+            dangerousSpawnTimer -= dt;
+            const dangerousAlive = fishes.filter((f) => f.dangerous && f.alive).length;
+            if (dangerousSpawnTimer <= 0 && dangerousAlive < getMaxDangerousCount()) {
+                const dtype = DANGEROUS_TYPES[Math.floor(Math.random() * DANGEROUS_TYPES.length)];
+                fishes.push(new Fish(dtype));
+                dangerousSpawnTimer = getDangerousSpawnDelay();
+            } else if (dangerousSpawnTimer <= 0) {
+                // Keep checking soon if cap is reached.
+                dangerousSpawnTimer = 0.8 + Math.random() * 0.8;
+            }
+        }
+
+        // update fish
+        for (const fish of fishes) fish.update(dt, t);
+        fishes = fishes.filter(f => f.alive);
+
+        // update bubbles
+        for (const b of bubbles) b.update(dt);
+        bubbles = bubbles.filter(b => b.alive);
+
+        // update state
+        updateState(dt, t);
+
+        // ── Draw ────────────────────────────────────────────
+        g.fillStyle = GAME_COLORS.frameBase;
+        g.fillRect(0, 0, GAME_W, GAME_H);
+
+        drawSky(t);
+        drawWater(t);
+
+        // fish (underwater)
+        for (const fish of fishes) fish.draw();
+
+        // bubbles
+        for (const b of bubbles) b.draw();
+
+        // dock + fisherman
+        const dockBob = drawDock(t);
+        const { rodTipX, rodTipY } = drawFisherman(t, dockBob);
+
+        // fishing line + hook
+        drawLine(rodTipX, rodTipY);
+        drawCaughtAnim(t);
+
+        // splash particles (during dragged/gameover)
+        if (state === 'dragged' || state === 'gameover') {
+            g.fillStyle = GAME_COLORS.splash;
+            for (const p of splashParticles) {
+                g.fillRect(Math.round(p.x), Math.round(p.y), 2, 2);
+            }
+        }
+
+        // game over overlay
+        if (state === 'gameover') {
+            g.fillStyle = GAME_COLORS.gameOver;
+            g.fillRect(0, 0, GAME_W, GAME_H);
+
+            // empty dock — fisherman gone, hat floating
+            g.fillStyle = GAME_COLORS.floatHat;
+            g.fillRect(DOCK_X + 10, Math.round(WATER_Y + Math.sin(t * 2) * 1), 6, 2);
+        }
+
+        // hook proximity indicator (when fishing, near a fish)
+        if (state === 'fishing') {
+            for (const fish of fishes) {
+                if (!fish.alive) continue;
+                const dx = hookX - (fish.x + fish.w / 2);
+                const dy = hookY - (fish.y + fish.h / 2);
+                const dist = Math.sqrt(dx * dx + dy * dy);
+                if (dist < (fish.dangerous ? 14 : 10)) {
+                    // warning ring for dangerous, subtle ring for normal
+                    g.strokeStyle = fish.dangerous ? GAME_COLORS.warnRing : GAME_COLORS.fishRing;
+                    g.lineWidth = 1;
+                    g.strokeRect(
+                        Math.round(fish.x - 2),
+                        Math.round(fish.y - 2),
+                        fish.w + 4,
+                        fish.h + 4
+                    );
+                }
+            }
+        }
+
+        // blit to display
+        d.clearRect(0, 0, display.width, display.height);
+        d.drawImage(gameCanvas, 0, 0, display.width, display.height);
+
+        requestAnimationFrame(loop);
+    }
+    requestAnimationFrame(loop);
+
+    // ── Audio toggle ────────────────────────────────────────────
+    let musicOn = false;
+
+    function syncMusicButton() {
+        musicToggleEl.textContent = musicOn ? '[ MUSIC: ON ]' : '[ MUSIC: OFF ]';
+    }
+
+    async function toggleMusic() {
+        if (!bgAudioEl) return;
+        if (musicOn) {
+            bgAudioEl.pause();
+            musicOn = false;
+            syncMusicButton();
+            return;
+        }
+
+        try {
+            await bgAudioEl.play();
+            musicOn = true;
+            syncMusicButton();
+        } catch (error) {
+            musicOn = false;
+            musicToggleEl.textContent = '[ MUSIC FILE MISSING ]';
+            console.error('Unable to play audio. Add assets/oh-tengo-suerte.mp3', error);
+        }
+    }
+
+    if (musicToggleEl) {
+        syncMusicButton();
+        musicToggleEl.addEventListener('click', toggleMusic);
+    }
+    </script>
+</body>
+
+</html>
