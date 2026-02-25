@@ -58,6 +58,7 @@
             -webkit-image-rendering: pixelated;
             border: 1px dashed #2e2e2e;
             cursor: crosshair;
+            touch-action: none;
         }
 
         #game-ui {
@@ -130,7 +131,7 @@
                 <div class="header-nav-row">
                     <a href="index.html">[ HOME ]</a>
                     <a href="writing.html">[ PENMANSHIP ]</a>
-                    <a href="bookshelf.html">[ THE BOOKSHOP ]</a>
+                    <a href="bookshelf.html">[ BOOKSHOP ]</a>
                     <a href="https://drive.google.com/file/d/14pzGPcHt1y7Hki1PV9T2QCuzLpPFcwph/view?usp=sharing" target="_blank">[ RESUME ]</a>
                 </div>
             </div>
@@ -147,7 +148,7 @@
                 <div id="game-ui">
                     <div id="catch-counter">CATCH: 0</div>
                     <div id="game-stats">STREAK: 0</div>
-                    <div id="game-prompt">CLICK TO CAST</div>
+                    <div id="game-prompt">TAP / CLICK TO CAST</div>
                 </div>
             </div>
         </main>
@@ -237,6 +238,13 @@
     const promptEl = document.getElementById('game-prompt');
     const musicToggleEl = document.getElementById('music-toggle');
     const bgAudioEl = document.getElementById('touch-grass-audio');
+    const PRIMARY_PROMPT = 'TAP / CLICK TO CAST';
+    let touchGestureActive = false;
+    let touchStartedFromIdle = false;
+    let touchMovedDuringGesture = false;
+    let lastTouchGX = GAME_W * 0.45;
+    let lastTouchGY = WATER_Y + 24;
+    let ignoreClickUntil = 0;
 
     // ── Fish types (subtle palette accents) ─────────────────────
     const FISH_TYPES = [
@@ -690,20 +698,21 @@
     }
 
     // ── State machine ───────────────────────────────────────────
-    function handleClick(e) {
-        const rect = display.getBoundingClientRect();
-        const cx = (e.clientX || e.touches?.[0]?.clientX || 0) - rect.left;
-        const cy = (e.clientY || e.touches?.[0]?.clientY || 0) - rect.top;
-        mouseGX = cx * (GAME_W / display.width);
-        mouseGY = cy * (GAME_H / display.height);
+    function performPrimaryAction(gameX, gameY) {
+        mouseGX = gameX;
+        mouseGY = gameY;
+        const gx = Math.max(0, Math.min(GAME_W - 1, gameX));
+        const gy = Math.max(0, Math.min(GAME_H - 1, gameY));
+        const normGX = Number.isFinite(gx) ? gx : (GAME_W * 0.45);
+        const normGY = Number.isFinite(gy) ? gy : (WATER_Y + 24);
 
         if (state === 'idle') {
             state = 'fishing';
             hookX = ROD_TIP_X;
             hookY = ROD_TIP_Y;
-            hookTargetX = mouseGX;
-            hookTargetY = Math.max(WATER_Y + 5, mouseGY);
-            promptEl.textContent = 'MOVE TO FISH — CLICK TO REEL';
+            hookTargetX = normGX;
+            hookTargetY = Math.max(WATER_Y + 5, normGY);
+            promptEl.textContent = 'DRAG TO AIM — RELEASE OR TAP TO REEL';
             promptEl.style.color = 'var(--dim)';
         } else if (state === 'fishing') {
             // check if hook is near a fish
@@ -750,6 +759,26 @@
         }
     }
 
+    function getGameCoords(clientX, clientY) {
+        const rect = display.getBoundingClientRect();
+        const cx = clientX - rect.left;
+        const cy = clientY - rect.top;
+        return {
+            gx: cx * (GAME_W / display.width),
+            gy: cy * (GAME_H / display.height),
+        };
+    }
+
+    function handleClick(e) {
+        if (performance.now() < ignoreClickUntil) return;
+        const rect = display.getBoundingClientRect();
+        const cx = (e.clientX || e.touches?.[0]?.clientX || 0) - rect.left;
+        const cy = (e.clientY || e.touches?.[0]?.clientY || 0) - rect.top;
+        const gx = cx * (GAME_W / display.width);
+        const gy = cy * (GAME_H / display.height);
+        performPrimaryAction(gx, gy);
+    }
+
     function handleMove(e) {
         const rect = display.getBoundingClientRect();
         const cx = (e.clientX || e.touches?.[0]?.clientX || 0) - rect.left;
@@ -764,6 +793,11 @@
     }
 
     function updateState(dt, t) {
+        if (state === 'fishing') {
+            hookTargetX = Math.max(1, Math.min(GAME_W - 2, hookTargetX));
+            hookTargetY = Math.max(WATER_Y + 5, Math.min(GAME_H - 3, hookTargetY));
+        }
+
         // hook always lerps toward target
         hookX += (hookTargetX - hookX) * 4 * dt;
         hookY += (hookTargetY - hookY) * 4 * dt;
@@ -827,7 +861,7 @@
                     state = 'gameover';
                     stateTimer = 0;
                     caughtFish = null;
-                    promptEl.textContent = fishName + ' PULLED YOU IN — CLICK TO RESTART';
+                    promptEl.textContent = fishName + ' PULLED YOU IN — TAP / CLICK TO RESTART';
                     promptEl.style.color = GAME_COLORS.promptHighlight;
                 }
                 break;
@@ -839,7 +873,7 @@
                 stateTimer -= dt;
                 if (stateTimer <= 0) {
                     state = 'idle';
-                    promptEl.textContent = 'CLICK TO CAST';
+                    promptEl.textContent = PRIMARY_PROMPT;
                     promptEl.style.color = 'var(--fg)';
                 }
                 break;
@@ -867,7 +901,7 @@
         dangerousSpawnTimer = getDangerousSpawnDelay();
         counterEl.textContent = 'CATCH: 0';
         statsEl.textContent = 'STREAK: 0';
-        promptEl.textContent = 'CLICK TO CAST';
+        promptEl.textContent = PRIMARY_PROMPT;
         promptEl.style.color = 'var(--fg)';
     }
 
@@ -876,11 +910,58 @@
     display.addEventListener('mousemove', handleMove);
     display.addEventListener('touchstart', (e) => {
         e.preventDefault();
-        handleClick(e);
+        const touch = e.touches[0];
+        if (!touch) return;
+
+        const { gx, gy } = getGameCoords(touch.clientX, touch.clientY);
+        lastTouchGX = gx;
+        lastTouchGY = gy;
+        touchGestureActive = true;
+        touchMovedDuringGesture = false;
+        touchStartedFromIdle = state === 'idle';
+        ignoreClickUntil = performance.now() + 450;
+
+        if (state !== 'fishing') {
+            performPrimaryAction(gx, gy);
+        }
     }, { passive: false });
     display.addEventListener('touchmove', (e) => {
         e.preventDefault();
-        handleMove(e);
+        const touch = e.touches[0];
+        if (!touch) return;
+
+        const { gx, gy } = getGameCoords(touch.clientX, touch.clientY);
+        lastTouchGX = gx;
+        lastTouchGY = gy;
+        if (touchGestureActive) touchMovedDuringGesture = true;
+        mouseGX = gx;
+        mouseGY = gy;
+
+        if (state === 'fishing') {
+            hookTargetX = gx;
+            hookTargetY = Math.max(WATER_Y + 5, gy);
+        }
+    }, { passive: false });
+    display.addEventListener('touchend', (e) => {
+        e.preventDefault();
+        ignoreClickUntil = performance.now() + 450;
+        if (!touchGestureActive) return;
+
+        if (state === 'fishing') {
+            const shouldAutoReel = !touchStartedFromIdle || touchMovedDuringGesture;
+            if (shouldAutoReel) {
+                performPrimaryAction(lastTouchGX, lastTouchGY);
+            }
+        }
+
+        touchGestureActive = false;
+        touchStartedFromIdle = false;
+        touchMovedDuringGesture = false;
+    }, { passive: false });
+    display.addEventListener('touchcancel', () => {
+        touchGestureActive = false;
+        touchStartedFromIdle = false;
+        touchMovedDuringGesture = false;
     }, { passive: false });
 
     // ── Game loop ───────────────────────────────────────────────
