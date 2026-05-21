@@ -432,6 +432,34 @@ a:focus-visible {
   font-size: 0.95rem;
 }
 
+@media (max-width: 480px) {
+  body {
+    padding: 5rem 1.25rem 6rem;
+  }
+
+  .menu-toggle {
+    top: 1.75rem;
+    left: 1.25rem;
+  }
+
+  .nav {
+    top: 5rem;
+    left: 1.25rem;
+  }
+
+  .site-name {
+    margin-bottom: 3.5rem;
+  }
+
+  .blurb {
+    margin-bottom: 5rem;
+  }
+
+  .post-header h1 {
+    font-size: 1.3rem;
+  }
+}
+
 /* About subsection heading */
 .about-section-heading {
   font-size: 1rem;
