@@ -10,23 +10,26 @@ html {
   line-height: 1.6;
   color: #1a1a1a;
   background: #faf9f6;
-  min-height: 100vh;
-  transition: background 0.3s ease;
+  transition: background-color 0.3s ease;
+}
+
+body {
+  transition: background-color 0.3s ease;
 }
 
 body.menu-open {
-  background: linear-gradient(to bottom, #0d2818 0%, #0d2818 55%, #3a6b4a 75%, #faf9f6 100%);
+  background: #0d2818;
 }
 
 html:has(body.menu-open) {
-  background: linear-gradient(to bottom, #0d2818 0%, #0d2818 55%, #3a6b4a 75%, #faf9f6 100%);
+  background: #0d2818;
 }
 
 /* Hide everything except hamburger + nav when menu is open */
 body.menu-open main {
   opacity: 0;
   pointer-events: none;
-  transition: opacity 0.05s ease;
+  transition: opacity 0s;
 }
 
 /* Menu links turn light against the dark green */
