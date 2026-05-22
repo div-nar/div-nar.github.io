@@ -18,11 +18,11 @@ body {
 }
 
 body.menu-open {
-  background: linear-gradient(to bottom, #0d2818 0%, #0d2818 50%, #faf9f6 100%);
+  background: #0d2818;
 }
 
 html:has(body.menu-open) {
-  background: linear-gradient(to bottom, #0d2818 0%, #0d2818 50%, #faf9f6 100%);
+  background: #0d2818;
 }
 
 /* Hide everything except hamburger + nav when menu is open */
