@@ -22,7 +22,7 @@ body.menu-open {
 }
 
 html:has(body.menu-open) {
-  background: linear-gradient(to top, #0d2818 0%, #faf9f6 100%);
+  background: linear-gradient(to bottom, #faf9f6 0%, #0d2818 100%);
 }
 
 /* Hide everything except hamburger + nav when menu is open */
