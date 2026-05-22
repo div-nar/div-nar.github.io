@@ -14,8 +14,8 @@ html {
   transition: background 0.3s ease;
 }
 
-body {
-  background: transparent;
+body.menu-open {
+  background: linear-gradient(to bottom, #0d2818 0%, #0d2818 40%, #faf9f6 100%);
 }
 
 html:has(body.menu-open) {
