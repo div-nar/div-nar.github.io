@@ -462,6 +462,22 @@ a:focus-visible {
   }
 }
 
+/* Principles */
+.principles-list {
+  list-style: none;
+}
+
+.principles-list li {
+  margin-bottom: 1rem;
+  color: #444;
+  font-size: 0.95rem;
+}
+
+.principles-list li::before {
+  content: '— ';
+  color: #999;
+}
+
 /* About subsection heading */
 .about-section-heading {
   font-size: 1rem;
