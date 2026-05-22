@@ -10,14 +10,11 @@ html {
   line-height: 1.6;
   color: #1a1a1a;
   background: #faf9f6;
-  transition: background-color 0.3s ease;
+  min-height: 100vh;
+  transition: background 0.3s ease;
 }
 
 body {
-  transition: background-color 0.3s ease;
-}
-
-body.menu-open {
   background: transparent;
 }
 
