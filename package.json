@@ -1,0 +1,14 @@
+{
+  "name": "div-nar.github.io",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "new": "node scripts/new-post.js",
+    "build": "node scripts/build.js",
+    "write": "node scripts/write-server.js"
+  },
+  "dependencies": {
+    "gray-matter": "^4.0.3",
+    "marked": "^14.1.3"
+  }
+}

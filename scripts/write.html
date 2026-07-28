@@ -1,0 +1,250 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Write — Divith Narendra</title>
+  <style>
+    :root {
+      --bg: #faf9f6;
+      --text: #1a1a1a;
+      --muted: #666666;
+      --border: #ddd;
+      --accent: #1a1a1a;
+      --accent-text: #ffffff;
+      --error: #b3261e;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #15171a;
+        --text: #f2f1ee;
+        --muted: #9a9a9a;
+        --border: #333538;
+        --accent: #f2f1ee;
+        --accent-text: #15171a;
+        --error: #ff8a80;
+      }
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 4rem 2rem 6rem;
+      color: var(--text);
+      background: var(--bg);
+      transition: background 0.2s ease, color 0.2s ease;
+    }
+
+    h1 {
+      font-size: 1rem;
+      font-weight: 600;
+      margin-bottom: 3rem;
+      letter-spacing: -0.01em;
+    }
+
+    label {
+      display: block;
+      font-size: 0.8rem;
+      font-weight: 500;
+      color: var(--muted);
+      margin-bottom: 0.4rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .row {
+      display: flex;
+      gap: 1.25rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .row > div { flex: 1; }
+
+    select, input, textarea {
+      width: 100%;
+      font-family: inherit;
+      font-size: 1rem;
+      padding: 0.5rem 0;
+      border: none;
+      border-bottom: 1px solid var(--border);
+      border-radius: 0;
+      background: transparent;
+      color: var(--text);
+      transition: border-color 0.2s ease;
+    }
+
+    select:hover, input:hover, textarea:hover {
+      border-color: var(--muted);
+    }
+
+    select:focus-visible, input:focus-visible, textarea:focus-visible {
+      outline: none;
+      border-color: var(--text);
+    }
+
+    textarea {
+      min-height: 52vh;
+      line-height: 1.7;
+      resize: vertical;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 0.92rem;
+      padding: 0.75rem 0;
+    }
+
+    .field { margin-bottom: 1.5rem; }
+    .field:last-of-type { margin-bottom: 0; }
+
+    button {
+      font-family: inherit;
+      font-size: 0.9rem;
+      font-weight: 600;
+      padding: 0.7rem 1.4rem;
+      border: 1px solid transparent;
+      border-radius: 0.5rem;
+      background: var(--accent);
+      color: var(--accent-text);
+      cursor: pointer;
+      transition: opacity 0.2s ease;
+    }
+
+    button:hover { opacity: 0.8; }
+
+    button.secondary {
+      background: transparent;
+      color: var(--text);
+      border-color: var(--border);
+    }
+
+    button.secondary:hover {
+      opacity: 1;
+      border-color: var(--muted);
+    }
+
+    .actions {
+      display: flex;
+      gap: 0.75rem;
+      align-items: center;
+      margin-top: 2rem;
+    }
+
+    .status {
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+
+    .status.error { color: var(--error); }
+    .status a { color: var(--text); }
+  </style>
+</head>
+<body>
+  <h1>Write</h1>
+
+  <div class="row">
+    <div>
+      <label for="post-select">Post</label>
+      <select id="post-select"></select>
+    </div>
+    <div>
+      <label for="date">Date</label>
+      <input type="date" id="date" />
+    </div>
+  </div>
+
+  <div class="field">
+    <label for="title">Title</label>
+    <input type="text" id="title" placeholder="Post title" />
+  </div>
+
+  <div class="field">
+    <label for="body">Body (Markdown)</label>
+    <textarea id="body" placeholder="Write here…"></textarea>
+  </div>
+
+  <div class="actions">
+    <button id="new-btn" class="secondary" type="button">New post</button>
+    <button id="save-btn" type="button">Save &amp; build</button>
+    <span class="status" id="status"></span>
+  </div>
+
+  <script>
+    const select = document.getElementById('post-select');
+    const dateInput = document.getElementById('date');
+    const titleInput = document.getElementById('title');
+    const bodyInput = document.getElementById('body');
+    const status = document.getElementById('status');
+    let currentSlug = null;
+
+    function today() {
+      return new Date().toISOString().slice(0, 10);
+    }
+
+    function resetForm() {
+      currentSlug = null;
+      select.value = '';
+      titleInput.value = '';
+      bodyInput.value = '';
+      dateInput.value = today();
+      status.textContent = '';
+      status.classList.remove('error');
+    }
+
+    async function loadPosts() {
+      const res = await fetch('/api/posts');
+      const posts = await res.json();
+      select.innerHTML = '<option value="">— New post —</option>' +
+        posts.map((p) => `<option value="${p.slug}">${p.title}</option>`).join('');
+    }
+
+    async function loadPost(slug) {
+      const res = await fetch(`/api/posts/${slug}`);
+      const post = await res.json();
+      currentSlug = post.slug;
+      titleInput.value = post.title;
+      dateInput.value = post.date;
+      bodyInput.value = post.body;
+      status.textContent = '';
+      status.classList.remove('error');
+    }
+
+    select.addEventListener('change', () => {
+      if (select.value) loadPost(select.value);
+      else resetForm();
+    });
+
+    document.getElementById('new-btn').addEventListener('click', resetForm);
+
+    document.getElementById('save-btn').addEventListener('click', async () => {
+      status.classList.remove('error');
+      status.textContent = 'Saving…';
+      try {
+        const res = await fetch('/api/posts', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            slug: currentSlug,
+            title: titleInput.value,
+            date: dateInput.value,
+            body: bodyInput.value,
+          }),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Save failed');
+        status.innerHTML = `Saved and built — <a href="/${data.url.slice(1)}" target="_blank">view post</a>`;
+        currentSlug = data.slug;
+        await loadPosts();
+        select.value = currentSlug;
+      } catch (err) {
+        status.classList.add('error');
+        status.textContent = err.message;
+      }
+    });
+
+    dateInput.value = today();
+    loadPosts();
+  </script>
+</body>
+</html>
