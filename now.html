@@ -7,22 +7,27 @@
   <link rel="stylesheet" href="style.css" />
   <link rel="icon" href="favicon.ico" sizes="any" />
   <link rel="icon" type="image/png" href="favicon.png" />
+  <link rel="alternate" type="application/rss+xml" title="Divith Narendra" href="feed.xml" />
+  <script src="theme.js"></script>
 </head>
 <body>
   <button class="menu-toggle" aria-label="Open menu" aria-expanded="false">
     <span></span><span></span><span></span>
   </button>
-  <nav class="nav">
+  <nav class="nav" aria-label="Main navigation">
     <a href="index.html">Home</a>
     <a href="about.html">About</a>
     <a href="books.html">Books</a>
-    <a href="now.html">Now</a>
+    <a href="now.html" aria-current="page">Now</a>
     <a href="archive.html">Archive</a>
   </nav>
 
-  <main>
-    <a href="index.html" class="site-name">Divith Narendra</a>
+  <header class="site-header">
+    <a class="name" href="index.html">Divith Narendra</a>
+    <button class="theme-toggle" type="button" data-theme-toggle aria-label="Toggle dark mode" hidden><span aria-hidden="true">☾</span></button>
+  </header>
 
+  <main>
     <h1 class="page-title">Now</h1>
     <p class="now-updated">Updated May 2026</p>
 

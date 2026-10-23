@@ -7,43 +7,45 @@
   <link rel="stylesheet" href="style.css" />
   <link rel="icon" href="favicon.ico" sizes="any" />
   <link rel="icon" type="image/png" href="favicon.png" />
+  <link rel="alternate" type="application/rss+xml" title="Divith Narendra" href="feed.xml" />
+  <script src="theme.js"></script>
 </head>
 <body>
   <button class="menu-toggle" aria-label="Open menu" aria-expanded="false">
     <span></span><span></span><span></span>
   </button>
-  <nav class="nav">
-    <a href="index.html">Home</a>
+  <nav class="nav" aria-label="Main navigation">
+    <a href="index.html" aria-current="page">Home</a>
     <a href="about.html">About</a>
     <a href="books.html">Books</a>
     <a href="now.html">Now</a>
     <a href="archive.html">Archive</a>
   </nav>
 
-  <main>
-    <a href="index.html" class="site-name">Divith Narendra</a>
+  <header class="site-header">
+    <a class="name" href="index.html">Divith Narendra</a>
+    <button class="theme-toggle" type="button" data-theme-toggle aria-label="Toggle dark mode" hidden><span aria-hidden="true">☾</span></button>
+  </header>
 
+  <main class="home">
     <p class="tagline">Helping the kal-chakra spin a bit better.</p>
 
     <p class="blurb">
       I work at the Founder's Office at <a href="https://www.dognosis.tech/" target="_blank" rel="noopener noreferrer" class="external inline-logo-link"><strong>Dognosis</strong><img src="dognosis-logo.png" alt="" class="inline-logo" /></a>, building an inter-species collaboration to solve cancer. I also write about India's business, economic and cultural undercurrents at — <a href="https://kwerky.substack.com" target="_blank" rel="noopener noreferrer" class="external"><strong>kwerky</strong></a>.
     </p>
 
+    <section class="home-writing" aria-labelledby="writing-title">
+      <div class="writing-heading"><h2 id="writing-title">Writing</h2><span aria-hidden="true">&middot;</span><a href="feed.xml">RSS</a></div>
     <!-- POSTS:START -->
-    <div class="year-group">
-      <p class="year-heading">2026</p>
-      <ul class="post-list">
-        <li class="post-item">
-          <a href="i-need-not.html" class="post-title">I Need Not</a>
-          <p class="post-meta">1 minute read · May 1, 2026</p>
-        </li>
-        <li class="post-item">
-          <a href="in-betweens.html" class="post-title">The In Betweens</a>
-          <p class="post-meta">4 minutes read · May 19, 2026</p>
-        </li>
+    <section class="archive-year" aria-labelledby="year-2026">
+      <h3 id="year-2026">2026</h3>
+      <ul>
+        <li><a href="in-betweens.html">The In Betweens</a><time datetime="2026-05-19">May 19</time></li>
+        <li><a href="i-need-not.html">I Need Not</a><time datetime="2026-05-01">May 1</time></li>
       </ul>
-    </div>
+    </section>
     <!-- POSTS:END -->
+    </section>
   </main>
 
   <script src="nav.js"></script>

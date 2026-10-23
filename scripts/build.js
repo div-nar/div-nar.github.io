@@ -19,8 +19,18 @@ function readingTimeLabel(text) {
   return `${minutes} minute${minutes === 1 ? "" : "s"} read`;
 }
 
+// gray-matter parses `date: 2026-05-01` as UTC midnight, so format in UTC too;
+// local time would shift the day back when built west of UTC.
 function displayDate(date) {
-  return date.toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
+  return date.toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric", timeZone: "UTC" });
+}
+
+function shortDate(date) {
+  return date.toLocaleDateString("en-US", { month: "long", day: "numeric", timeZone: "UTC" });
+}
+
+function isoDate(date) {
+  return date.toISOString().slice(0, 10);
 }
 
 function indentBody(html) {
@@ -56,6 +66,7 @@ function renderPost(post, template) {
   return template
     .replaceAll("{{title}}", post.title)
     .replaceAll("{{displayDate}}", displayDate(post.date))
+    .replaceAll("{{isoDate}}", isoDate(post.date))
     .replaceAll("{{readingTimeLabel}}", readingTimeLabel(post.body))
     .replace("{{body}}", bodyHtml);
 }
@@ -63,28 +74,26 @@ function renderPost(post, template) {
 function renderIndexList(posts) {
   const byYear = new Map();
   for (const post of posts) {
-    const year = post.date.getFullYear();
+    const year = post.date.getUTCFullYear();
     if (!byYear.has(year)) byYear.set(year, []);
     byYear.get(year).push(post);
   }
   const years = [...byYear.keys()].sort((a, b) => b - a);
 
   const groups = years.map((year) => {
-    const yearPosts = byYear.get(year).sort((a, b) => a.date - b.date);
+    const yearPosts = byYear.get(year).sort((a, b) => b.date - a.date);
     const items = yearPosts
       .map(
-        (post) => `        <li class="post-item">
-          <a href="${post.slug}.html" class="post-title">${post.title}</a>
-          <p class="post-meta">${readingTimeLabel(post.body)} · ${displayDate(post.date)}</p>
-        </li>`
+        (post) =>
+          `        <li><a href="${post.slug}.html">${post.title}</a><time datetime="${isoDate(post.date)}">${shortDate(post.date)}</time></li>`
       )
       .join("\n");
-    return `    <div class="year-group">
-      <p class="year-heading">${year}</p>
-      <ul class="post-list">
+    return `    <section class="archive-year" aria-labelledby="year-${year}">
+      <h3 id="year-${year}">${year}</h3>
+      <ul>
 ${items}
       </ul>
-    </div>`;
+    </section>`;
   });
 
   return groups.join("\n");
