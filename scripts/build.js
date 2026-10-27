@@ -31,8 +31,12 @@ export const collections = {
     out: (slug) => `keg-${slug}.html`,
     backHref: "off-the-keg.html",
     backLabel: "← Back to Off the Keg",
+    shelf: true,
   },
 };
+
+// Off the Keg is shelved like Books: a category in the gutter, in this order.
+export const CATEGORIES = ["Spirits", "Wines", "Beers"];
 
 // gray-matter parses `date: 2026-05-01` as UTC midnight, so format in UTC too;
 // local time would shift the day back when built west of UTC.
@@ -69,9 +73,9 @@ function indentBody(html) {
     .join("\n");
 }
 
-// Drinks show what they were, where, and a rating next to the date.
+// Drinks show who made them, where, and a rating next to the date.
 function details(entry) {
-  return [entry.type, entry.where, entry.rating].filter(Boolean);
+  return [entry.maker, entry.where, entry.rating].filter(Boolean);
 }
 
 export function readEntry(collection, slug) {
@@ -85,7 +89,8 @@ export function readEntry(collection, slug) {
     slug,
     title: String(data.title),
     date: new Date(data.date),
-    type: data.type || "",
+    category: data.category || "",
+    maker: data.maker || "",
     where: data.where || "",
     rating: data.rating ? String(data.rating) : "",
     draft: Boolean(data.draft),
@@ -131,8 +136,7 @@ function renderList(collection, entries) {
     const items = byYear
       .get(year)
       .map((entry) => {
-        const meta = [shortDate(entry.date), entry.type].filter(Boolean).map(escapeHtml).join(" · ");
-        return `        <li><a href="${c.out(entry.slug)}">${escapeHtml(entry.title)}</a><time datetime="${isoDate(entry.date)}">${meta}</time></li>`;
+        return `        <li><a href="${c.out(entry.slug)}">${escapeHtml(entry.title)}</a><time datetime="${isoDate(entry.date)}">${shortDate(entry.date)}</time></li>`;
       })
       .join("\n");
     return `    <section class="archive-year" aria-labelledby="year-${year}">
@@ -146,6 +150,30 @@ ${items}
   return groups.join("\n");
 }
 
+function renderShelf(collection, entries) {
+  const c = collections[collection];
+  const known = new Set(CATEGORIES);
+  const other = [...new Set(entries.map((e) => e.category).filter((k) => !known.has(k)))];
+  return [...CATEGORIES, ...other]
+    .map((category) => {
+      const items = entries
+        .filter((e) => e.category === category)
+        .map((e) => {
+          const maker = e.maker ? `<span class="book-author">${escapeHtml(e.maker)}</span>` : "";
+          return `        <li><a href="${c.out(e.slug)}" class="book-title">${escapeHtml(e.title)}</a>${maker}</li>`;
+        });
+      if (!items.length) return null;
+      return `    <div class="book-section">
+      <h2 class="genre-heading">${escapeHtml(category || "Other")}</h2>
+      <ul class="book-list">
+${items.join("\n")}
+      </ul>
+    </div>`;
+    })
+    .filter(Boolean)
+    .join("\n\n");
+}
+
 function updateIndex(collection, entries) {
   const c = collections[collection];
   const indexPath = path.join(root, c.index);
@@ -157,7 +185,8 @@ function updateIndex(collection, entries) {
   if (startIdx === -1 || endIdx === -1) {
     throw new Error(`${c.index} is missing ${c.marker}:START/${c.marker}:END markers`);
   }
-  const list = entries.length ? `\n${renderList(collection, entries)}` : "";
+  const render = c.shelf ? renderShelf : renderList;
+  const list = entries.length ? `\n${render(collection, entries)}` : "";
   const updated = `${html.slice(0, startIdx + start.length)}${list}\n    ${html.slice(endIdx)}`;
   fs.writeFileSync(indexPath, updated);
 }

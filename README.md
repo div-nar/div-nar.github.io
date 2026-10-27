@@ -19,4 +19,4 @@ In the editor, pick **Writing** or **Off the Keg**, type, and:
 - **Preview** opens the page as it will look.
 - **Publish** builds, commits only that entry's files, and pushes `main`. GitHub Pages is live a minute or two later. It refuses to run on any other branch.
 
-Off the Keg entries also take *what it is* (beer, whisky…), *where*, and a *rating*, shown under the title.
+Off the Keg entries take a *category* (Spirits, Wines or Beers) that shelves them like Books, a *maker* shown under the name, and an optional *where* and *rating* shown on the entry page.

@@ -181,30 +181,30 @@
     <input type="text" id="title" />
   </div>
 
-  <div class="row" id="drink-fields" hidden>
-    <div>
-      <label for="type">What it is</label>
-      <input type="text" id="type" list="types" placeholder="Beer, whisky, rum…" />
-      <datalist id="types">
-        <option value="Beer"></option>
-        <option value="Whisky"></option>
-        <option value="Rum"></option>
-        <option value="Gin"></option>
-        <option value="Vodka"></option>
-        <option value="Tequila"></option>
-        <option value="Wine"></option>
-        <option value="Sake"></option>
-        <option value="Cider"></option>
-        <option value="Cocktail"></option>
-      </datalist>
+  <div id="drink-fields" hidden>
+    <div class="row">
+      <div>
+        <label for="category">Category</label>
+        <select id="category">
+          <option value="Spirits">Spirits</option>
+          <option value="Wines">Wines</option>
+          <option value="Beers">Beers</option>
+        </select>
+      </div>
+      <div>
+        <label for="maker">Maker</label>
+        <input type="text" id="maker" placeholder="Amrut Distilleries" />
+      </div>
     </div>
-    <div>
-      <label for="where">Where</label>
-      <input type="text" id="where" placeholder="Toit, Bengaluru" />
-    </div>
-    <div>
-      <label for="rating">Rating</label>
-      <input type="text" id="rating" placeholder="4/5" />
+    <div class="row">
+      <div>
+        <label for="where">Where</label>
+        <input type="text" id="where" placeholder="Toit, Bengaluru" />
+      </div>
+      <div>
+        <label for="rating">Rating</label>
+        <input type="text" id="rating" placeholder="4/5" />
+      </div>
     </div>
   </div>
 
@@ -226,7 +226,7 @@
     const $ = (id) => document.getElementById(id);
     const select = $('entry-select');
     const status = $('status');
-    const fields = ['title', 'date', 'type', 'where', 'rating', 'body'];
+    const fields = ['title', 'date', 'category', 'maker', 'where', 'rating', 'body'];
     let collection = 'posts';
     let currentSlug = null;
     // Saving a published entry keeps it published; only new entries are drafts.
@@ -251,6 +251,7 @@
       select.value = '';
       for (const f of fields) $(f).value = '';
       $('date').value = today();
+      $('category').value = 'Spirits';
       say('');
     }
 
@@ -273,6 +274,7 @@
       currentSlug = entry.slug;
       isPublished = !entry.draft;
       for (const f of fields) $(f).value = entry[f] || '';
+      if (!entry.category) $('category').value = 'Spirits';
       say(entry.draft ? 'Draft' : 'Published');
     }
 
@@ -282,7 +284,7 @@
         b.setAttribute('aria-pressed', String(b.dataset.collection === next));
       }
       $('drink-fields').hidden = next !== 'drinks';
-      $('title').placeholder = next === 'drinks' ? 'Tintin Toit, Toit Brewpub' : 'Post title';
+      $('title').placeholder = next === 'drinks' ? 'Amrut Fusion' : 'Post title';
       resetForm();
       await loadEntries();
     }

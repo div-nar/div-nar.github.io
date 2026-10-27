@@ -18,7 +18,7 @@ function toJson(entry) {
 
 function writeEntry(collection, slug, fields) {
   const data = { title: fields.title, date: fields.date };
-  for (const key of ["type", "where", "rating"]) {
+  for (const key of ["category", "maker", "where", "rating"]) {
     if (fields[key]) data[key] = fields[key];
   }
   if (fields.draft) data.draft = true;
@@ -145,7 +145,8 @@ const server = http.createServer(async (req, res) => {
           title,
           body,
           date: payload.date || isoDate(new Date()),
-          type: (payload.type || "").trim(),
+          category: (payload.category || "").trim(),
+          maker: (payload.maker || "").trim(),
           where: (payload.where || "").trim(),
           rating: (payload.rating || "").trim(),
           draft: Boolean(payload.draft),
