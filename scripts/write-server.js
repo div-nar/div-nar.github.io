@@ -2,57 +2,67 @@ import fs from "node:fs";
 import path from "node:path";
 import http from "node:http";
 import { execFileSync, exec } from "node:child_process";
-import { fileURLToPath } from "node:url";
 import matter from "gray-matter";
+import { root, collections, build, loadEntries, readEntry, renderPage, slugify, isoDate } from "./build.js";
 
-const root = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
-const postsDir = path.join(root, "posts");
 const formPath = path.join(root, "scripts", "write.html");
 const PORT = 5566;
+const SITE_URL = "https://div-nar.github.io";
+// GitHub Pages serves main, so Publish only pushes from there.
+const PUBLISH_BRANCH = "main";
 
-function slugify(title) {
-  return title
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "");
+function toJson(entry) {
+  const { body, date, ...rest } = entry;
+  return { ...rest, date: isoDate(date), body: body.trim() };
 }
 
-function isoDate(value) {
-  const date = value instanceof Date ? value : new Date(value);
-  return date.toISOString().slice(0, 10);
+function writeEntry(collection, slug, fields) {
+  const data = { title: fields.title, date: fields.date };
+  for (const key of ["type", "where", "rating"]) {
+    if (fields[key]) data[key] = fields[key];
+  }
+  if (fields.draft) data.draft = true;
+  const dir = path.join(root, collections[collection].dir);
+  fs.mkdirSync(dir, { recursive: true });
+  fs.writeFileSync(path.join(dir, `${slug}.md`), matter.stringify(`${fields.body}\n`, data));
 }
 
-function listPosts() {
-  return fs
-    .readdirSync(postsDir)
-    .filter((f) => f.endsWith(".md"))
-    .map((file) => {
-      const slug = path.basename(file, ".md");
-      const { data } = matter(fs.readFileSync(path.join(postsDir, file), "utf8"));
-      return { slug, title: data.title, date: isoDate(data.date) };
-    })
-    .sort((a, b) => new Date(b.date) - new Date(a.date));
+function git(args) {
+  return execFileSync("git", args, { cwd: root, encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] }).trim();
 }
 
-function readPost(slug) {
-  const filePath = path.join(postsDir, `${slug}.md`);
-  if (!fs.existsSync(filePath)) return null;
-  const { data, content } = matter(fs.readFileSync(filePath, "utf8"));
-  return { slug, title: data.title, date: isoDate(data.date), body: content.trim() };
-}
+// Commits only the files this entry touches, so other work in the tree stays out.
+function publish(collection, slug) {
+  const branch = git(["rev-parse", "--abbrev-ref", "HEAD"]);
+  if (branch !== PUBLISH_BRANCH) {
+    throw new Error(`Publishing pushes ${PUBLISH_BRANCH}, but this checkout is on "${branch}". Switch to ${PUBLISH_BRANCH} first.`);
+  }
+  const entry = readEntry(collection, slug);
+  if (!entry) throw new Error("Save the entry before publishing");
 
-function writePost({ slug, title, date, body }) {
-  const frontmatter = `---\ntitle: ${title}\ndate: ${date}\n---\n`;
-  fs.writeFileSync(path.join(postsDir, `${slug}.md`), `${frontmatter}${body.trim()}\n`);
-}
-
-function runBuild() {
-  execFileSync("node", [path.join(root, "scripts", "build.js")], { cwd: root, stdio: "inherit" });
+  const c = collections[collection];
+  const tracked = new Set(git(["ls-files"]).split("\n"));
+  const paths = [`${c.dir}/${slug}.md`, c.out(slug), c.index, "feed.xml"].filter(
+    (p) => tracked.has(p) || fs.existsSync(path.join(root, p))
+  );
+  git(["add", "-A", "--", ...paths]);
+  if (!git(["diff", "--cached", "--name-only", "--", ...paths])) {
+    return { message: "Nothing new to publish" };
+  }
+  const verb = entry.draft ? "Unpublish" : "Publish";
+  git(["commit", "-m", `${verb}: ${entry.title}`, "--", ...paths]);
+  git(["push", "origin", PUBLISH_BRANCH]);
+  return { message: entry.draft ? "Unpublished" : "Published", liveUrl: entry.draft ? null : `${SITE_URL}/${c.out(slug)}` };
 }
 
 function sendJson(res, status, data) {
   res.writeHead(status, { "Content-Type": "application/json" });
   res.end(JSON.stringify(data));
+}
+
+function sendHtml(res, html) {
+  res.writeHead(200, { "Content-Type": "text/html" });
+  res.end(html);
 }
 
 const MIME_TYPES = {
@@ -92,55 +102,73 @@ function readBody(req) {
 const server = http.createServer(async (req, res) => {
   try {
     const url = new URL(req.url, `http://localhost:${PORT}`);
+    // /api/<collection>[/<slug>] and /preview/<collection>/<slug>
+    const [, area, collection, rawSlug] = url.pathname.split("/");
+    const slug = rawSlug ? slugify(rawSlug) : null;
 
     if (req.method === "GET" && url.pathname === "/") {
-      res.writeHead(200, { "Content-Type": "text/html" });
-      res.end(fs.readFileSync(formPath, "utf8"));
-      return;
+      return sendHtml(res, fs.readFileSync(formPath, "utf8"));
     }
 
-    if (req.method === "GET" && url.pathname === "/api/posts") {
-      sendJson(res, 200, listPosts());
-      return;
-    }
-
-    if (req.method === "GET" && url.pathname.startsWith("/api/posts/")) {
-      const slug = url.pathname.split("/").pop();
-      const post = readPost(slug);
-      if (!post) return sendJson(res, 404, { error: "not found" });
-      sendJson(res, 200, post);
-      return;
-    }
-
-    if (req.method === "POST" && url.pathname === "/api/posts") {
+    if (req.method === "POST" && url.pathname === "/api/publish") {
       const payload = JSON.parse(await readBody(req));
-      const title = (payload.title || "").trim();
-      const body = (payload.body || "").trim();
-      const date = payload.date || new Date().toISOString().slice(0, 10);
-      if (!title || !body) return sendJson(res, 400, { error: "title and body are required" });
-
-      const slug = payload.slug || slugify(title);
-      writePost({ slug, title, date, body });
-      runBuild();
-      sendJson(res, 200, { slug, url: `/${slug}.html` });
-      return;
+      if (!collections[payload.collection]) return sendJson(res, 404, { error: "unknown section" });
+      return sendJson(res, 200, publish(payload.collection, slugify(payload.slug || "")));
     }
 
-    if (req.method === "GET") {
-      serveStatic(res, url.pathname);
-      return;
+    if (area === "preview" && collections[collection] && slug) {
+      const entry = readEntry(collection, slug);
+      if (!entry) return sendJson(res, 404, { error: "not found" });
+      return sendHtml(res, renderPage(collection, entry));
     }
+
+    if (area === "api" && collections[collection]) {
+      if (req.method === "GET" && !slug) {
+        return sendJson(res, 200, loadEntries(collection).map(({ slug, title, draft }) => ({ slug, title, draft })));
+      }
+
+      if (req.method === "GET") {
+        const entry = readEntry(collection, slug);
+        if (!entry) return sendJson(res, 404, { error: "not found" });
+        return sendJson(res, 200, toJson(entry));
+      }
+
+      if (req.method === "POST") {
+        const payload = JSON.parse(await readBody(req));
+        const title = (payload.title || "").trim();
+        const body = (payload.body || "").trim();
+        if (!title || !body) return sendJson(res, 400, { error: "Title and body are required" });
+
+        const entrySlug = slugify(payload.slug || title);
+        if (!entrySlug) return sendJson(res, 400, { error: "Title needs at least one letter or number" });
+        writeEntry(collection, entrySlug, {
+          title,
+          body,
+          date: payload.date || isoDate(new Date()),
+          type: (payload.type || "").trim(),
+          where: (payload.where || "").trim(),
+          rating: (payload.rating || "").trim(),
+          draft: Boolean(payload.draft),
+        });
+        build();
+        return sendJson(res, 200, { slug: entrySlug });
+      }
+    }
+
+    if (req.method === "GET") return serveStatic(res, url.pathname);
 
     res.writeHead(404);
     res.end("not found");
   } catch (err) {
-    sendJson(res, 500, { error: err.message });
+    sendJson(res, 500, { error: err.stderr?.toString().trim() || err.message });
   }
 });
 
-server.listen(PORT, () => {
+// Loopback only: this server writes files and can push to GitHub.
+server.listen(PORT, "127.0.0.1", () => {
   const url = `http://localhost:${PORT}`;
   console.log(`Write UI running at ${url}`);
+  if (process.env.NO_OPEN) return;
   const opener = process.platform === "darwin" ? "open" : process.platform === "win32" ? "start" : "xdg-open";
   exec(`${opener} ${url}`);
 });

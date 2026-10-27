@@ -33,17 +33,40 @@
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
       max-width: 760px;
       margin: 0 auto;
-      padding: 4rem 2rem 6rem;
+      padding: 3rem 1rem 6rem;
       color: var(--text);
       background: var(--bg);
-      transition: background 0.2s ease, color 0.2s ease;
+    }
+
+    .top {
+      display: flex;
+      align-items: baseline;
+      gap: 1.5rem;
+      margin-bottom: 2.5rem;
     }
 
     h1 {
       font-size: 1rem;
       font-weight: 600;
-      margin-bottom: 3rem;
-      letter-spacing: -0.01em;
+      margin: 0;
+    }
+
+    .tabs { display: flex; gap: 1rem; }
+
+    .tabs button {
+      font: inherit;
+      font-size: 0.9rem;
+      padding: 0;
+      border: none;
+      background: none;
+      color: var(--muted);
+      cursor: pointer;
+    }
+
+    .tabs button[aria-pressed="true"] {
+      color: var(--text);
+      text-decoration: underline;
+      text-underline-offset: 4px;
     }
 
     label {
@@ -62,7 +85,11 @@
       margin-bottom: 1.5rem;
     }
 
-    .row > div { flex: 1; }
+    .row > div { flex: 1; min-width: 0; }
+
+    @media (max-width: 560px) {
+      .row { flex-direction: column; gap: 1.5rem; }
+    }
 
     select, input, textarea {
       width: 100%;
@@ -74,11 +101,6 @@
       border-radius: 0;
       background: transparent;
       color: var(--text);
-      transition: border-color 0.2s ease;
-    }
-
-    select:hover, input:hover, textarea:hover {
-      border-color: var(--muted);
     }
 
     select:focus-visible, input:focus-visible, textarea:focus-visible {
@@ -96,9 +118,9 @@
     }
 
     .field { margin-bottom: 1.5rem; }
-    .field:last-of-type { margin-bottom: 0; }
+    .hint { font-size: 0.8rem; color: var(--muted); margin: 0.5rem 0 0; }
 
-    button {
+    button.btn {
       font-family: inherit;
       font-size: 0.9rem;
       font-weight: 600;
@@ -108,10 +130,10 @@
       background: var(--accent);
       color: var(--accent-text);
       cursor: pointer;
-      transition: opacity 0.2s ease;
     }
 
-    button:hover { opacity: 0.8; }
+    button.btn:hover { opacity: 0.8; }
+    button.btn:disabled { opacity: 0.4; cursor: default; }
 
     button.secondary {
       background: transparent;
@@ -119,34 +141,34 @@
       border-color: var(--border);
     }
 
-    button.secondary:hover {
-      opacity: 1;
-      border-color: var(--muted);
-    }
-
     .actions {
       display: flex;
+      flex-wrap: wrap;
       gap: 0.75rem;
       align-items: center;
       margin-top: 2rem;
     }
 
-    .status {
-      font-size: 0.85rem;
-      color: var(--muted);
-    }
-
+    .status { font-size: 0.85rem; color: var(--muted); }
     .status.error { color: var(--error); }
     .status a { color: var(--text); }
+
+    [hidden] { display: none !important; }
   </style>
 </head>
 <body>
-  <h1>Write</h1>
+  <div class="top">
+    <h1>Write</h1>
+    <div class="tabs" role="group" aria-label="Section">
+      <button type="button" data-collection="posts" aria-pressed="true">Writing</button>
+      <button type="button" data-collection="drinks" aria-pressed="false">Off the Keg</button>
+    </div>
+  </div>
 
   <div class="row">
     <div>
-      <label for="post-select">Post</label>
-      <select id="post-select"></select>
+      <label for="entry-select">Entry</label>
+      <select id="entry-select"></select>
     </div>
     <div>
       <label for="date">Date</label>
@@ -156,95 +178,190 @@
 
   <div class="field">
     <label for="title">Title</label>
-    <input type="text" id="title" placeholder="Post title" />
+    <input type="text" id="title" />
+  </div>
+
+  <div class="row" id="drink-fields" hidden>
+    <div>
+      <label for="type">What it is</label>
+      <input type="text" id="type" list="types" placeholder="Beer, whisky, rum…" />
+      <datalist id="types">
+        <option value="Beer"></option>
+        <option value="Whisky"></option>
+        <option value="Rum"></option>
+        <option value="Gin"></option>
+        <option value="Vodka"></option>
+        <option value="Tequila"></option>
+        <option value="Wine"></option>
+        <option value="Sake"></option>
+        <option value="Cider"></option>
+        <option value="Cocktail"></option>
+      </datalist>
+    </div>
+    <div>
+      <label for="where">Where</label>
+      <input type="text" id="where" placeholder="Toit, Bengaluru" />
+    </div>
+    <div>
+      <label for="rating">Rating</label>
+      <input type="text" id="rating" placeholder="4/5" />
+    </div>
   </div>
 
   <div class="field">
     <label for="body">Body (Markdown)</label>
     <textarea id="body" placeholder="Write here…"></textarea>
+    <p class="hint">Blank line between paragraphs. **bold**, *italic*, [link](https://…), ## subheading. ⌘S saves. New entries stay private drafts until you publish.</p>
   </div>
 
   <div class="actions">
-    <button id="new-btn" class="secondary" type="button">New post</button>
-    <button id="save-btn" type="button">Save &amp; build</button>
-    <span class="status" id="status"></span>
+    <button id="new-btn" class="btn secondary" type="button">New</button>
+    <button id="draft-btn" class="btn secondary" type="button">Save</button>
+    <button id="preview-btn" class="btn secondary" type="button">Preview</button>
+    <button id="publish-btn" class="btn" type="button">Publish</button>
+    <span class="status" id="status" role="status"></span>
   </div>
 
   <script>
-    const select = document.getElementById('post-select');
-    const dateInput = document.getElementById('date');
-    const titleInput = document.getElementById('title');
-    const bodyInput = document.getElementById('body');
-    const status = document.getElementById('status');
+    const $ = (id) => document.getElementById(id);
+    const select = $('entry-select');
+    const status = $('status');
+    const fields = ['title', 'date', 'type', 'where', 'rating', 'body'];
+    let collection = 'posts';
     let currentSlug = null;
+    // Saving a published entry keeps it published; only new entries are drafts.
+    let isPublished = false;
 
     function today() {
       return new Date().toISOString().slice(0, 10);
     }
 
+    function escapeHtml(s) {
+      return s.replace(/[<>&"]/g, (c) => ({ '<': '&lt;', '>': '&gt;', '&': '&amp;', '"': '&quot;' }[c]));
+    }
+
+    function say(html, isError = false) {
+      status.classList.toggle('error', isError);
+      status.innerHTML = html;
+    }
+
     function resetForm() {
       currentSlug = null;
+      isPublished = false;
       select.value = '';
-      titleInput.value = '';
-      bodyInput.value = '';
-      dateInput.value = today();
-      status.textContent = '';
-      status.classList.remove('error');
+      for (const f of fields) $(f).value = '';
+      $('date').value = today();
+      say('');
     }
 
-    async function loadPosts() {
-      const res = await fetch('/api/posts');
-      const posts = await res.json();
-      select.innerHTML = '<option value="">— New post —</option>' +
-        posts.map((p) => `<option value="${p.slug}">${p.title}</option>`).join('');
+    async function api(path, options) {
+      const res = await fetch(path, options);
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Something went wrong');
+      return data;
     }
 
-    async function loadPost(slug) {
-      const res = await fetch(`/api/posts/${slug}`);
-      const post = await res.json();
-      currentSlug = post.slug;
-      titleInput.value = post.title;
-      dateInput.value = post.date;
-      bodyInput.value = post.body;
-      status.textContent = '';
-      status.classList.remove('error');
+    async function loadEntries() {
+      const entries = await api(`/api/${collection}`);
+      select.innerHTML = '<option value="">New entry</option>' +
+        entries.map((e) => `<option value="${e.slug}">${escapeHtml(e.title)}${e.draft ? ' (draft)' : ''}</option>`).join('');
+      select.value = currentSlug || '';
     }
+
+    async function loadEntry(slug) {
+      const entry = await api(`/api/${collection}/${slug}`);
+      currentSlug = entry.slug;
+      isPublished = !entry.draft;
+      for (const f of fields) $(f).value = entry[f] || '';
+      say(entry.draft ? 'Draft' : 'Published');
+    }
+
+    async function switchTo(next) {
+      collection = next;
+      for (const b of document.querySelectorAll('.tabs button')) {
+        b.setAttribute('aria-pressed', String(b.dataset.collection === next));
+      }
+      $('drink-fields').hidden = next !== 'drinks';
+      $('title').placeholder = next === 'drinks' ? 'Tintin Toit, Toit Brewpub' : 'Post title';
+      resetForm();
+      await loadEntries();
+    }
+
+    async function save(publish) {
+      const payload = { slug: currentSlug, draft: !(publish || isPublished) };
+      for (const f of fields) payload[f] = $(f).value;
+      const data = await api(`/api/${collection}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      currentSlug = data.slug;
+      await loadEntries();
+    }
+
+    async function run(label, task) {
+      for (const b of document.querySelectorAll('.actions button')) b.disabled = true;
+      say(label);
+      try {
+        await task();
+      } catch (err) {
+        say(escapeHtml(err.message), true);
+      } finally {
+        for (const b of document.querySelectorAll('.actions button')) b.disabled = false;
+      }
+    }
+
+    const saveDraft = () => run('Saving…', async () => {
+      await save(false);
+      say(isPublished ? 'Saved. Publish to update the live site.' : 'Draft saved. Only you can see it.');
+    });
 
     select.addEventListener('change', () => {
-      if (select.value) loadPost(select.value);
+      if (select.value) run('Loading…', () => loadEntry(select.value));
       else resetForm();
     });
 
-    document.getElementById('new-btn').addEventListener('click', resetForm);
+    for (const b of document.querySelectorAll('.tabs button')) {
+      b.addEventListener('click', () => switchTo(b.dataset.collection));
+    }
 
-    document.getElementById('save-btn').addEventListener('click', async () => {
-      status.classList.remove('error');
-      status.textContent = 'Saving…';
-      try {
-        const res = await fetch('/api/posts', {
+    $('new-btn').addEventListener('click', resetForm);
+    $('draft-btn').addEventListener('click', saveDraft);
+
+    $('preview-btn').addEventListener('click', () => {
+      // Open the tab now so the browser doesn't treat it as a popup.
+      const tab = window.open('about:blank', '_blank');
+      run('Saving…', async () => {
+        await save(false);
+        tab.location = `/preview/${collection}/${currentSlug}`;
+        say('Saved. Preview opened in a new tab.');
+      }).catch(() => tab.close());
+    });
+
+    $('publish-btn').addEventListener('click', () => {
+      if (!confirm(`Publish "${$('title').value}" to div-nar.github.io?`)) return;
+      run('Publishing…', async () => {
+        await save(true);
+        isPublished = true;
+        const data = await api('/api/publish', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            slug: currentSlug,
-            title: titleInput.value,
-            date: dateInput.value,
-            body: bodyInput.value,
-          }),
+          body: JSON.stringify({ collection, slug: currentSlug }),
         });
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.error || 'Save failed');
-        status.innerHTML = `Saved and built — <a href="/${data.url.slice(1)}" target="_blank">view post</a>`;
-        currentSlug = data.slug;
-        await loadPosts();
-        select.value = currentSlug;
-      } catch (err) {
-        status.classList.add('error');
-        status.textContent = err.message;
+        say(data.liveUrl
+          ? `Published. Live in a minute or two at <a href="${data.liveUrl}" target="_blank">${data.liveUrl.replace('https://', '')}</a>`
+          : escapeHtml(data.message));
+      });
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 's') {
+        e.preventDefault();
+        saveDraft();
       }
     });
 
-    dateInput.value = today();
-    loadPosts();
+    switchTo('posts');
   </script>
 </body>
 </html>

@@ -19,6 +19,7 @@
     <a href="about.html">About</a>
     <a href="books.html">Books</a>
     <a href="now.html">Now</a>
+    <a href="off-the-keg.html">Off the Keg</a>
     <a href="archive.html">Archive</a>
   </nav>
 
@@ -30,14 +31,14 @@
   <main>
     <div class="post-header">
       <h1>{{title}}</h1>
-      <p class="date"><time datetime="{{isoDate}}">{{displayDate}}</time></p>
+      <p class="date"><time datetime="{{isoDate}}">{{displayDate}}</time>{{details}}</p>
     </div>
 
     <div class="post-body">
 {{body}}
     </div>
 
-    <a href="index.html" class="back-link">← Back to writing</a>
+    <a href="{{backHref}}" class="back-link">{{backLabel}}</a>
   </main>
 
   <script src="nav.js"></script>

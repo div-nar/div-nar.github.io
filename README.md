@@ -6,12 +6,17 @@ Live at [div-nar.github.io](https://div-nar.github.io).
 
 ## Writing a post
 
-Posts are written in Markdown under `posts/` and compiled into static HTML.
+Posts live as Markdown under `posts/` (Writing) and `drinks/` (Off the Keg), compiled into static HTML.
 
 ```
-npm run write   # opens a local editor UI at localhost:5566
-npm run new -- "Post Title"   # or scaffold a post file by hand
-npm run build   # renders posts/*.md -> {slug}.html, updates index.html and feed.xml
+bun run write   # opens the editor at localhost:5566
+bun run build   # renders every published entry, updates index.html, off-the-keg.html and feed.xml
 ```
 
-(`bun` works as a drop-in replacement for `npm` in all of the above.)
+In the editor, pick **Writing** or **Off the Keg**, type, and:
+
+- **Save** keeps a new entry as a private draft (`draft: true`, no page is built).
+- **Preview** opens the page as it will look.
+- **Publish** builds, commits only that entry's files, and pushes `main`. GitHub Pages is live a minute or two later. It refuses to run on any other branch.
+
+Off the Keg entries also take *what it is* (beer, whisky…), *where*, and a *rating*, shown under the title.

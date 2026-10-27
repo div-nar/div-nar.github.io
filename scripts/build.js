@@ -4,20 +4,35 @@ import { fileURLToPath } from "node:url";
 import matter from "gray-matter";
 import { marked } from "marked";
 
-const root = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
-const postsDir = path.join(root, "posts");
+export const root = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 const templatePath = path.join(root, "templates", "post.html");
-const indexPath = path.join(root, "index.html");
 const feedPath = path.join(root, "feed.xml");
 
 const SITE_URL = "https://div-nar.github.io";
 const SITE_TITLE = "Divith Narendra";
 
-function readingTimeLabel(text) {
-  const words = text.trim().split(/\s+/).filter(Boolean).length;
-  const minutes = Math.max(1, Math.round(words / 150));
-  return `${minutes} minute${minutes === 1 ? "" : "s"} read`;
-}
+// Each collection is a folder of Markdown files rendered into pages, plus a
+// list spliced between <!-- MARKER:START/END --> comments in its index page.
+export const collections = {
+  posts: {
+    label: "Writing",
+    dir: "posts",
+    index: "index.html",
+    marker: "POSTS",
+    out: (slug) => `${slug}.html`,
+    backHref: "index.html",
+    backLabel: "← Back to writing",
+  },
+  drinks: {
+    label: "Off the Keg",
+    dir: "drinks",
+    index: "off-the-keg.html",
+    marker: "DRINKS",
+    out: (slug) => `keg-${slug}.html`,
+    backHref: "off-the-keg.html",
+    backLabel: "← Back to Off the Keg",
+  },
+};
 
 // gray-matter parses `date: 2026-05-01` as UTC midnight, so format in UTC too;
 // local time would shift the day back when built west of UTC.
@@ -29,8 +44,19 @@ function shortDate(date) {
   return date.toLocaleDateString("en-US", { month: "long", day: "numeric", timeZone: "UTC" });
 }
 
-function isoDate(date) {
+export function isoDate(date) {
   return date.toISOString().slice(0, 10);
+}
+
+export function slugify(title) {
+  return title
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
+function escapeHtml(str) {
+  return String(str).replace(/[<>&"]/g, (c) => ({ "<": "&lt;", ">": "&gt;", "&": "&amp;", '"': "&quot;" }[c]));
 }
 
 function indentBody(html) {
@@ -43,50 +69,71 @@ function indentBody(html) {
     .join("\n");
 }
 
-function loadPosts() {
-  const files = fs.readdirSync(postsDir).filter((f) => f.endsWith(".md"));
-  return files.map((file) => {
-    const slug = path.basename(file, ".md");
-    const raw = fs.readFileSync(path.join(postsDir, file), "utf8");
-    const { data, content } = matter(raw);
-    if (!data.title || !data.date) {
-      throw new Error(`${file}: frontmatter needs "title" and "date"`);
-    }
-    return {
-      slug,
-      title: data.title,
-      date: new Date(data.date),
-      body: content,
-    };
-  });
+// Drinks show what they were, where, and a rating next to the date.
+function details(entry) {
+  return [entry.type, entry.where, entry.rating].filter(Boolean);
 }
 
-function renderPost(post, template) {
-  const bodyHtml = indentBody(marked.parse(post.body));
-  return template
-    .replaceAll("{{title}}", post.title)
-    .replaceAll("{{displayDate}}", displayDate(post.date))
-    .replaceAll("{{isoDate}}", isoDate(post.date))
-    .replaceAll("{{readingTimeLabel}}", readingTimeLabel(post.body))
-    .replace("{{body}}", bodyHtml);
-}
-
-function renderIndexList(posts) {
-  const byYear = new Map();
-  for (const post of posts) {
-    const year = post.date.getUTCFullYear();
-    if (!byYear.has(year)) byYear.set(year, []);
-    byYear.get(year).push(post);
+export function readEntry(collection, slug) {
+  const file = path.join(root, collections[collection].dir, `${slug}.md`);
+  if (!fs.existsSync(file)) return null;
+  const { data, content } = matter(fs.readFileSync(file, "utf8"));
+  if (!data.title || !data.date) {
+    throw new Error(`${collection}/${slug}.md: frontmatter needs "title" and "date"`);
   }
-  const years = [...byYear.keys()].sort((a, b) => b - a);
+  return {
+    slug,
+    title: String(data.title),
+    date: new Date(data.date),
+    type: data.type || "",
+    where: data.where || "",
+    rating: data.rating ? String(data.rating) : "",
+    draft: Boolean(data.draft),
+    body: content,
+  };
+}
 
-  const groups = years.map((year) => {
-    const yearPosts = byYear.get(year).sort((a, b) => b.date - a.date);
-    const items = yearPosts
-      .map(
-        (post) =>
-          `        <li><a href="${post.slug}.html">${post.title}</a><time datetime="${isoDate(post.date)}">${shortDate(post.date)}</time></li>`
-      )
+// Every entry in a collection, drafts included, newest first.
+export function loadEntries(collection) {
+  const dir = path.join(root, collections[collection].dir);
+  if (!fs.existsSync(dir)) return [];
+  return fs
+    .readdirSync(dir)
+    .filter((f) => f.endsWith(".md") && f !== "EXAMPLE.md")
+    .map((f) => readEntry(collection, path.basename(f, ".md")))
+    .sort((a, b) => b.date - a.date);
+}
+
+export function renderPage(collection, entry) {
+  const c = collections[collection];
+  const template = fs.readFileSync(templatePath, "utf8");
+  const extra = details(entry).map((d) => ` · ${escapeHtml(d)}`).join("");
+  return template
+    .replaceAll("{{title}}", escapeHtml(entry.title))
+    .replaceAll("{{displayDate}}", displayDate(entry.date))
+    .replaceAll("{{isoDate}}", isoDate(entry.date))
+    .replace("{{details}}", extra)
+    .replace("{{backHref}}", c.backHref)
+    .replace("{{backLabel}}", c.backLabel)
+    .replace("{{body}}", indentBody(marked.parse(entry.body)));
+}
+
+function renderList(collection, entries) {
+  const c = collections[collection];
+  const byYear = new Map();
+  for (const entry of entries) {
+    const year = entry.date.getUTCFullYear();
+    if (!byYear.has(year)) byYear.set(year, []);
+    byYear.get(year).push(entry);
+  }
+
+  const groups = [...byYear.keys()].map((year) => {
+    const items = byYear
+      .get(year)
+      .map((entry) => {
+        const meta = [shortDate(entry.date), entry.type].filter(Boolean).map(escapeHtml).join(" · ");
+        return `        <li><a href="${c.out(entry.slug)}">${escapeHtml(entry.title)}</a><time datetime="${isoDate(entry.date)}">${meta}</time></li>`;
+      })
       .join("\n");
     return `    <section class="archive-year" aria-labelledby="year-${year}">
       <h3 id="year-${year}">${year}</h3>
@@ -99,18 +146,19 @@ ${items}
   return groups.join("\n");
 }
 
-function updateIndex(posts) {
+function updateIndex(collection, entries) {
+  const c = collections[collection];
+  const indexPath = path.join(root, c.index);
   const html = fs.readFileSync(indexPath, "utf8");
-  const start = "<!-- POSTS:START -->";
-  const end = "<!-- POSTS:END -->";
+  const start = `<!-- ${c.marker}:START -->`;
+  const end = `<!-- ${c.marker}:END -->`;
   const startIdx = html.indexOf(start);
   const endIdx = html.indexOf(end);
   if (startIdx === -1 || endIdx === -1) {
-    throw new Error("index.html is missing POSTS:START/POSTS:END markers");
+    throw new Error(`${c.index} is missing ${c.marker}:START/${c.marker}:END markers`);
   }
-  const before = html.slice(0, startIdx + start.length);
-  const after = html.slice(endIdx);
-  const updated = `${before}\n${renderIndexList(posts)}\n    ${after}`;
+  const list = entries.length ? `\n${renderList(collection, entries)}` : "";
+  const updated = `${html.slice(0, startIdx + start.length)}${list}\n    ${html.slice(endIdx)}`;
   fs.writeFileSync(indexPath, updated);
 }
 
@@ -119,8 +167,7 @@ function escapeXml(str) {
 }
 
 function buildFeed(posts) {
-  const sorted = [...posts].sort((a, b) => b.date - a.date);
-  const items = sorted
+  const items = posts
     .map(
       (post) => `    <item>
       <title>${escapeXml(post.title)}</title>
@@ -145,19 +192,26 @@ ${items}
   fs.writeFileSync(feedPath, feed);
 }
 
-function main() {
-  const posts = loadPosts();
-  const template = fs.readFileSync(templatePath, "utf8");
+// Renders every published entry and refreshes the index lists and feed.
+// A draft gets no page, and its old page is removed if it was published before.
+export function build() {
+  const counts = [];
+  for (const collection of Object.keys(collections)) {
+    const c = collections[collection];
+    const entries = loadEntries(collection);
+    const live = entries.filter((e) => !e.draft);
 
-  for (const post of posts) {
-    const html = renderPost(post, template);
-    fs.writeFileSync(path.join(root, `${post.slug}.html`), html);
+    for (const entry of entries) {
+      const outPath = path.join(root, c.out(entry.slug));
+      if (entry.draft) fs.rmSync(outPath, { force: true });
+      else fs.writeFileSync(outPath, renderPage(collection, entry));
+    }
+
+    updateIndex(collection, live);
+    if (collection === "posts") buildFeed(live);
+    counts.push(`${live.length} ${c.label}`);
   }
-
-  updateIndex(posts);
-  buildFeed(posts);
-
-  console.log(`Built ${posts.length} post(s), updated index.html and feed.xml`);
+  console.log(`Built ${counts.join(", ")}; updated index pages and feed.xml`);
 }
 
-main();
+if (import.meta.main) build();
