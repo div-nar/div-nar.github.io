@@ -246,6 +246,22 @@ body.menu-open .menu-toggle span {
   background: #faf9f6;
 }
 
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-left: auto;
+}
+
+.header-link {
+  color: var(--muted);
+  font-weight: 400;
+}
+
+.header-link[aria-current="page"] {
+  color: var(--ink);
+}
+
 .theme-toggle {
   appearance: none;
   display: inline-flex;
@@ -375,6 +391,48 @@ body.menu-open .menu-toggle span {
 .post-body iframe {
   max-width: 100%;
   height: auto;
+}
+
+/* Entry photo: stacked above the title, then in the left margin on wide screens
+   so the text keeps the site's single column. */
+.entry-photo {
+  margin: 0 0 28px;
+}
+
+.entry-photo img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 4px;
+  background: var(--frame);
+}
+
+@media (min-width: 1200px) {
+  main.has-photo {
+    display: grid;
+    grid-template-columns: 320px minmax(0, 1fr);
+    /* Spare height from a tall photo goes below the text, not between it. */
+    grid-template-rows: auto auto 1fr;
+    column-gap: 32px;
+    margin-left: -352px;
+  }
+
+  main.has-photo > * {
+    grid-column: 2;
+  }
+
+  main.has-photo > .back-link {
+    align-self: start;
+  }
+
+  main.has-photo > .entry-photo {
+    grid-column: 1;
+    grid-row: 1 / span 3;
+    position: sticky;
+    top: 72px;
+    align-self: start;
+    margin: 6px 0 0;
+  }
 }
 
 .back-link {

@@ -1,0 +1,668 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="robots" content="noindex" />
+  <title>Write — Divith Narendra</title>
+  <link rel="icon" href="../favicon.ico" sizes="any" />
+  <style>
+    :root {
+      --bg: #faf9f6;
+      --text: #1a1a1a;
+      --muted: #666666;
+      --border: #ddd;
+      --accent: #1a1a1a;
+      --accent-text: #ffffff;
+      --error: #b3261e;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #15171a;
+        --text: #f2f1ee;
+        --muted: #9a9a9a;
+        --border: #333538;
+        --accent: #f2f1ee;
+        --accent-text: #15171a;
+        --error: #ff8a80;
+      }
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 3rem 1rem 6rem;
+      color: var(--text);
+      background: var(--bg);
+    }
+
+    .top {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      gap: 1.5rem;
+      margin-bottom: 2.5rem;
+    }
+
+    h1 {
+      font-size: 1rem;
+      font-weight: 600;
+      margin: 0;
+    }
+
+    .tabs { display: flex; gap: 1rem; }
+
+    .link-button {
+      font: inherit;
+      font-size: 0.9rem;
+      padding: 0;
+      border: none;
+      background: none;
+      color: var(--muted);
+      cursor: pointer;
+    }
+
+    .tabs button[aria-pressed="true"] {
+      color: var(--text);
+      text-decoration: underline;
+      text-underline-offset: 4px;
+    }
+
+    #sign-out { margin-left: auto; font-size: 0.8rem; }
+
+    label {
+      display: block;
+      font-size: 0.8rem;
+      font-weight: 500;
+      color: var(--muted);
+      margin-bottom: 0.4rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .row {
+      display: flex;
+      gap: 1.25rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .row > div { flex: 1; min-width: 0; }
+
+    @media (max-width: 560px) {
+      .row { flex-direction: column; gap: 1.5rem; }
+    }
+
+    select, input, textarea {
+      width: 100%;
+      font-family: inherit;
+      font-size: 1rem;
+      padding: 0.5rem 0;
+      border: none;
+      border-bottom: 1px solid var(--border);
+      border-radius: 0;
+      background: transparent;
+      color: var(--text);
+    }
+
+    select:focus-visible, input:focus-visible, textarea:focus-visible {
+      outline: none;
+      border-color: var(--text);
+    }
+
+    textarea {
+      min-height: 52vh;
+      line-height: 1.7;
+      resize: vertical;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 0.92rem;
+      padding: 0.75rem 0;
+    }
+
+    .field { margin-bottom: 1.5rem; }
+    .hint { font-size: 0.8rem; color: var(--muted); margin: 0.5rem 0 0; line-height: 1.5; }
+    .hint a { color: var(--text); }
+
+    .photo-field { display: flex; gap: 1rem; align-items: center; }
+    .photo-field img { width: 96px; height: 96px; object-fit: cover; border-radius: 4px; background: var(--border); }
+    .photo-field input[type="file"] { display: none; }
+
+    .btn {
+      font-family: inherit;
+      font-size: 0.9rem;
+      font-weight: 600;
+      padding: 0.7rem 1.4rem;
+      border: 1px solid transparent;
+      border-radius: 0.5rem;
+      background: var(--accent);
+      color: var(--accent-text);
+      cursor: pointer;
+    }
+
+    .btn:hover { opacity: 0.8; }
+    .btn:disabled { opacity: 0.4; cursor: default; }
+
+    .btn.secondary {
+      background: transparent;
+      color: var(--text);
+      border-color: var(--border);
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      align-items: center;
+      margin-top: 2rem;
+    }
+
+    .status { font-size: 0.85rem; color: var(--muted); }
+    .status.error { color: var(--error); }
+    .status a { color: var(--text); }
+
+    [hidden] { display: none !important; }
+  </style>
+</head>
+<body>
+  <!-- Shown until this browser has a GitHub token -->
+  <section id="sign-in" hidden>
+    <div class="top"><h1>Write</h1></div>
+    <div class="field">
+      <label for="token">GitHub token</label>
+      <input type="password" id="token" autocomplete="off" spellcheck="false" />
+      <p class="hint">
+        Publishing commits to your site's repo, so this browser needs a GitHub token.
+        <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener noreferrer">Create a fine-grained token</a>
+        with access to <b>div-nar/div-nar.github.io</b> only and <b>Contents: Read and write</b>.
+        It stays in this browser and is only sent to GitHub.
+      </p>
+    </div>
+    <div class="actions">
+      <button id="sign-in-btn" class="btn" type="button">Continue</button>
+      <span class="status" id="sign-in-status" role="status"></span>
+    </div>
+  </section>
+
+  <section id="editor" hidden>
+    <div class="top">
+      <h1>Write</h1>
+      <div class="tabs" role="group" aria-label="Section">
+        <button class="link-button" type="button" data-collection="posts" aria-pressed="true">Writing</button>
+        <button class="link-button" type="button" data-collection="drinks" aria-pressed="false">Madeera</button>
+      </div>
+      <button id="sign-out" class="link-button" type="button">Sign out</button>
+    </div>
+
+    <div class="row">
+      <div>
+        <label for="entry-select">Entry</label>
+        <select id="entry-select"></select>
+      </div>
+      <div>
+        <label for="date">Date</label>
+        <input type="date" id="date" />
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="title">Title</label>
+      <input type="text" id="title" />
+    </div>
+
+    <div id="drink-fields" hidden>
+      <div class="row">
+        <div>
+          <label for="category">Category</label>
+          <select id="category">
+            <option value="Spirits">Spirits</option>
+            <option value="Wines">Wines</option>
+            <option value="Beers">Beers</option>
+          </select>
+        </div>
+        <div>
+          <label for="maker">Maker</label>
+          <input type="text" id="maker" placeholder="Amrut Distilleries" />
+        </div>
+      </div>
+      <div class="row">
+        <div>
+          <label for="where">Where</label>
+          <input type="text" id="where" placeholder="Toit, Bengaluru" />
+        </div>
+        <div>
+          <label for="rating">Rating</label>
+          <input type="text" id="rating" placeholder="4/5" />
+        </div>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Photo</label>
+      <div class="photo-field">
+        <img id="photo-preview" alt="" hidden />
+        <label class="btn secondary" for="photo-input" style="text-transform:none;letter-spacing:0;margin:0">Choose photo</label>
+        <input type="file" id="photo-input" accept="image/*" />
+        <button id="photo-remove" class="link-button" type="button" hidden>Remove</button>
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="body">Body (Markdown)</label>
+      <textarea id="body" placeholder="Write here…"></textarea>
+      <p class="hint">Blank line between paragraphs. **bold**, *italic*, [link](https://…), ## subheading. Changes save in this browser as you type, and nothing goes on the site until you publish.</p>
+    </div>
+
+    <div class="actions">
+      <button id="new-btn" class="btn secondary" type="button">New</button>
+      <button id="preview-btn" class="btn secondary" type="button">Preview</button>
+      <button id="publish-btn" class="btn" type="button">Publish</button>
+      <button id="discard-btn" class="link-button" type="button" hidden>Discard changes</button>
+      <span class="status" id="status" role="status"></span>
+    </div>
+  </section>
+
+  <script src="https://cdn.jsdelivr.net/npm/marked@14.1.3/marked.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/js-yaml@4.1.0/dist/js-yaml.min.js"></script>
+  <script>
+    const REPO = 'div-nar/div-nar.github.io';
+    const BRANCH = 'main';
+    const API = `https://api.github.com/repos/${REPO}`;
+    const RAW = `https://raw.githubusercontent.com/${REPO}/${BRANCH}`;
+    const SITE = 'https://div-nar.github.io';
+    const TOKEN_KEY = 'write:token';
+    const PHOTO_MAX = 1600;
+
+    // Mirrors `collections` in scripts/build.js.
+    const COLLECTIONS = {
+      posts: { dir: 'posts', out: (slug) => `${slug}.html`, back: ['index.html', '← Back to writing'] },
+      drinks: { dir: 'drinks', out: (slug) => `madeera-${slug}.html`, back: ['madeera.html', '← Back to Madeera'] },
+    };
+    const TEXT_FIELDS = ['title', 'date', 'category', 'maker', 'where', 'rating', 'body'];
+
+    const $ = (id) => document.getElementById(id);
+    const status = $('status');
+    let collection = 'posts';
+    let entries = [];       // [{ slug, data, body }] from the repo
+    let current = null;     // the repo entry being edited, or null for a new one
+    let photo = null;       // { dataUrl } for a new upload, { path } for the saved one, or null
+
+    // --- storage (wrapped: private windows can throw) -------------------------
+
+    function store(key, value) {
+      try {
+        if (value === null) localStorage.removeItem(key);
+        else localStorage.setItem(key, JSON.stringify(value));
+      } catch {}
+    }
+
+    function load(key) {
+      try { return JSON.parse(localStorage.getItem(key)); } catch { return null; }
+    }
+
+    // --- helpers --------------------------------------------------------------
+
+    function today() {
+      return new Date().toLocaleDateString('en-CA');
+    }
+
+    function slugify(title) {
+      return title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+    }
+
+    function escapeHtml(s) {
+      return String(s).replace(/[<>&"]/g, (c) => ({ '<': '&lt;', '>': '&gt;', '&': '&amp;', '"': '&quot;' }[c]));
+    }
+
+    function say(html, isError = false) {
+      status.classList.toggle('error', isError);
+      status.innerHTML = html;
+    }
+
+    function parseMarkdownFile(text) {
+      const m = text.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n?([\s\S]*)$/);
+      if (!m) return { data: {}, body: text };
+      // JSON schema keeps `date: 2026-05-01` a plain string.
+      return { data: jsyaml.load(m[1], { schema: jsyaml.JSON_SCHEMA }) || {}, body: m[2].trim() };
+    }
+
+    function toMarkdownFile(data, body) {
+      return `---\n${jsyaml.dump(data, { lineWidth: -1 })}---\n${body.trim()}\n`;
+    }
+
+    // --- GitHub ---------------------------------------------------------------
+
+    async function gh(path, options = {}) {
+      const res = await fetch(path.startsWith('http') ? path : `${API}${path}`, {
+        ...options,
+        cache: 'no-store',
+        headers: {
+          Authorization: `Bearer ${load(TOKEN_KEY)}`,
+          Accept: options.raw ? 'application/vnd.github.raw+json' : 'application/vnd.github+json',
+          'X-GitHub-Api-Version': '2022-11-28',
+          ...(options.body ? { 'Content-Type': 'application/json' } : {}),
+        },
+      });
+      if (res.status === 404 && options.allow404) return null;
+      if (!res.ok) {
+        const detail = await res.json().catch(() => ({}));
+        if (res.status === 401) throw new Error('GitHub rejected the token. Sign out and paste a new one.');
+        throw new Error(`GitHub: ${detail.message || res.statusText}`);
+      }
+      return options.raw ? res.text() : res.json();
+    }
+
+    async function loadEntries() {
+      const dir = COLLECTIONS[collection].dir;
+      const files = (await gh(`/contents/${dir}?ref=${BRANCH}`, { allow404: true })) || [];
+      const mds = files.filter((f) => f.name.endsWith('.md') && f.name !== 'EXAMPLE.md');
+      entries = await Promise.all(mds.map(async (f) => {
+        const text = await gh(`/contents/${f.path}?ref=${BRANCH}`, { raw: true });
+        return { slug: f.name.slice(0, -3), ...parseMarkdownFile(text) };
+      }));
+      entries.sort((a, b) => String(b.data.date).localeCompare(String(a.data.date)));
+    }
+
+    function blobToBase64(blob) {
+      return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result.split(',')[1]);
+        reader.readAsDataURL(blob);
+      });
+    }
+
+    // One commit with the Markdown file plus any photo change.
+    async function commit(message, files) {
+      const ref = await gh(`/git/ref/heads/${BRANCH}`);
+      const head = await gh(`/git/commits/${ref.object.sha}`);
+      const tree = await Promise.all(files.map(async (f) => {
+        const entry = { path: f.path, mode: '100644', type: 'blob' };
+        if (f.delete) return { ...entry, sha: null };
+        if (f.base64) {
+          const blob = await gh('/git/blobs', { method: 'POST', body: JSON.stringify({ content: f.base64, encoding: 'base64' }) });
+          return { ...entry, sha: blob.sha };
+        }
+        return { ...entry, content: f.content };
+      }));
+      const newTree = await gh('/git/trees', { method: 'POST', body: JSON.stringify({ base_tree: head.tree.sha, tree }) });
+      const newCommit = await gh('/git/commits', {
+        method: 'POST',
+        body: JSON.stringify({ message, tree: newTree.sha, parents: [ref.object.sha] }),
+      });
+      await gh(`/git/refs/heads/${BRANCH}`, { method: 'PATCH', body: JSON.stringify({ sha: newCommit.sha }) });
+    }
+
+    // --- photo ----------------------------------------------------------------
+
+    // Shrinks phone photos to at most PHOTO_MAX px on the long side, as JPEG.
+    async function shrink(file) {
+      const bitmap = await createImageBitmap(file);
+      const scale = Math.min(1, PHOTO_MAX / Math.max(bitmap.width, bitmap.height));
+      const canvas = document.createElement('canvas');
+      canvas.width = Math.round(bitmap.width * scale);
+      canvas.height = Math.round(bitmap.height * scale);
+      canvas.getContext('2d').drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+      return canvas.toDataURL('image/jpeg', 0.85);
+    }
+
+    function photoSrc() {
+      if (!photo) return '';
+      return photo.dataUrl || `${RAW}/${photo.path}`;
+    }
+
+    function showPhoto() {
+      $('photo-preview').hidden = !photo;
+      $('photo-remove').hidden = !photo;
+      $('photo-preview').src = photoSrc();
+    }
+
+    // --- form state and local drafts -----------------------------------------
+
+    function draftKey() {
+      return `write:draft:${collection}:${current ? current.slug : 'new'}`;
+    }
+
+    function readForm() {
+      const form = {};
+      for (const f of TEXT_FIELDS) form[f] = $(f).value;
+      form.photo = photo;
+      return form;
+    }
+
+    function fillForm(form) {
+      for (const f of TEXT_FIELDS) $(f).value = form[f] || '';
+      if (!$('category').value) $('category').value = 'Spirits';
+      if (!$('date').value) $('date').value = today();
+      photo = form.photo || null;
+      showPhoto();
+    }
+
+    function fromEntry(entry) {
+      const form = { ...entry.data, body: entry.body };
+      form.photo = entry.data.photo ? { path: entry.data.photo } : null;
+      return form;
+    }
+
+    function saveDraft() {
+      store(draftKey(), readForm());
+      $('discard-btn').hidden = false;
+    }
+
+    function openEntry(entry) {
+      current = entry;
+      const draft = load(draftKey());
+      fillForm(draft || (entry ? fromEntry(entry) : {}));
+      $('discard-btn').hidden = !draft;
+      $('entry-select').value = entry ? entry.slug : '';
+      say(draft ? 'Restored your unpublished changes.' : entry ? 'Published' : '');
+    }
+
+    function renderSelect() {
+      $('entry-select').innerHTML = '<option value="">New entry</option>' +
+        entries.map((e) => `<option value="${e.slug}">${escapeHtml(e.data.title || e.slug)}</option>`).join('');
+    }
+
+    async function switchTo(next) {
+      collection = next;
+      for (const b of document.querySelectorAll('.tabs button')) {
+        b.setAttribute('aria-pressed', String(b.dataset.collection === next));
+      }
+      $('drink-fields').hidden = next !== 'drinks';
+      $('title').placeholder = next === 'drinks' ? 'Amrut Fusion' : 'Post title';
+      await run('Loading…', async () => {
+        await loadEntries();
+        renderSelect();
+        openEntry(null);
+      });
+    }
+
+    async function run(label, task) {
+      const buttons = document.querySelectorAll('#editor button');
+      for (const b of buttons) b.disabled = true;
+      say(label);
+      try {
+        await task();
+      } catch (err) {
+        say(escapeHtml(err.message), true);
+      } finally {
+        for (const b of buttons) b.disabled = false;
+      }
+    }
+
+    // --- preview and publish --------------------------------------------------
+
+    function details(form) {
+      return collection === 'drinks' ? [form.maker, form.where, form.rating].filter(Boolean) : [];
+    }
+
+    // Approximates scripts/build.js renderPage in the browser.
+    async function preview(tab) {
+      const form = readForm();
+      const c = COLLECTIONS[collection];
+      const template = await (await fetch('../templates/post.html', { cache: 'no-store' })).text();
+      const date = new Date(form.date || today());
+      const html = template
+        .replace('<head>', `<head>\n  <base href="${new URL('..', location.href)}" />`)
+        .replaceAll('{{title}}', escapeHtml(form.title || 'Untitled'))
+        .replaceAll('{{displayDate}}', date.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric', timeZone: 'UTC' }))
+        .replaceAll('{{isoDate}}', form.date)
+        .replace('{{details}}', details(form).map((d) => ` · ${escapeHtml(d)}`).join(''))
+        .replace('{{mainClass}}', photo ? ' class="has-photo"' : '')
+        .replace('{{photo}}', photo ? `<figure class="entry-photo"><img src="${photoSrc()}" alt="" /></figure>\n    ` : '')
+        .replace('{{backHref}}', c.back[0])
+        .replace('{{backLabel}}', c.back[1])
+        .replace('{{body}}', marked.parse(form.body || ''));
+      tab.document.open();
+      tab.document.write(html);
+      tab.document.close();
+    }
+
+    async function publish() {
+      const form = readForm();
+      const title = form.title.trim();
+      if (!title || !form.body.trim()) throw new Error('Title and body are required');
+
+      const c = COLLECTIONS[collection];
+      let slug = current ? current.slug : slugify(title);
+      if (!slug) throw new Error('Title needs at least one letter or number');
+      if (!current) {
+        const base = slug;
+        for (let n = 2; entries.some((e) => e.slug === slug); n++) slug = `${base}-${n}`;
+      }
+
+      const data = { title, date: form.date || today() };
+      if (collection === 'drinks') {
+        for (const key of ['category', 'maker', 'where', 'rating']) {
+          if (form[key].trim()) data[key] = form[key].trim();
+        }
+      }
+
+      const files = [];
+      const oldPhoto = current?.data.photo;
+      if (photo?.dataUrl) {
+        data.photo = `images/${c.dir}/${slug}.jpg`;
+        files.push({ path: data.photo, base64: photo.dataUrl.split(',')[1] });
+      } else if (photo?.path) {
+        data.photo = photo.path;
+      }
+      if (oldPhoto && oldPhoto !== data.photo) files.push({ path: oldPhoto, delete: true });
+      files.push({ path: `${c.dir}/${slug}.md`, content: toMarkdownFile(data, form.body) });
+
+      await commit(`${current ? 'Update' : 'Publish'}: ${title}`, files);
+
+      store(draftKey(), null);
+      await loadEntries();
+      renderSelect();
+      openEntry(entries.find((e) => e.slug === slug) || null);
+      const url = `${SITE}/${c.out(slug)}`;
+      say(`Published. The site rebuilds in a minute or two: <a href="${url}" target="_blank" rel="noopener">${url.replace('https://', '')}</a>`);
+    }
+
+    // --- wiring ---------------------------------------------------------------
+
+    $('entry-select').addEventListener('change', () => {
+      openEntry(entries.find((e) => e.slug === $('entry-select').value) || null);
+    });
+
+    for (const b of document.querySelectorAll('.tabs button')) {
+      b.addEventListener('click', () => switchTo(b.dataset.collection));
+    }
+
+    for (const f of TEXT_FIELDS) $(f).addEventListener('input', saveDraft);
+
+    $('photo-input').addEventListener('change', () => {
+      const file = $('photo-input').files[0];
+      $('photo-input').value = '';
+      if (!file) return;
+      run('Preparing photo…', async () => {
+        try {
+          photo = { dataUrl: await shrink(file) };
+        } catch {
+          throw new Error("This browser can't read that photo. Try a JPEG or PNG.");
+        }
+        showPhoto();
+        saveDraft();
+        say('');
+      });
+    });
+
+    $('photo-remove').addEventListener('click', () => {
+      photo = null;
+      showPhoto();
+      saveDraft();
+    });
+
+    $('new-btn').addEventListener('click', () => openEntry(null));
+
+    $('discard-btn').addEventListener('click', () => {
+      store(draftKey(), null);
+      openEntry(current);
+    });
+
+    $('preview-btn').addEventListener('click', () => {
+      // Open the tab now so the browser doesn't treat it as a popup.
+      const tab = window.open('', '_blank');
+      preview(tab).catch((err) => { tab.close(); say(escapeHtml(err.message), true); });
+    });
+
+    $('publish-btn').addEventListener('click', () => {
+      if (!confirm(`Publish "${$('title').value}" to div-nar.github.io?`)) return;
+      run('Publishing…', publish);
+    });
+
+    $('sign-out').addEventListener('click', () => {
+      store(TOKEN_KEY, null);
+      location.reload();
+    });
+
+    $('sign-in-btn').addEventListener('click', async () => {
+      const token = $('token').value.trim();
+      const out = $('sign-in-status');
+      out.classList.remove('error');
+      out.textContent = 'Checking…';
+      store(TOKEN_KEY, token);
+      try {
+        const repo = await gh('');
+        if (!repo.permissions?.push) throw new Error("This token can read the repo but can't write to it. Give it Contents: Read and write.");
+        start();
+      } catch (err) {
+        store(TOKEN_KEY, null);
+        out.classList.add('error');
+        out.textContent = err.message;
+      }
+    });
+
+    function start() {
+      $('sign-in').hidden = true;
+      $('editor').hidden = false;
+      switchTo('posts');
+    }
+
+    // Demo mode for trying the editor locally: sample entries, no GitHub calls.
+    const DEMO = ['localhost', '127.0.0.1'].includes(location.hostname) && new URLSearchParams(location.search).has('demo');
+    if (DEMO) {
+      const sample = {
+        posts: [],
+        drinks: [
+          { slug: 'amrut-fusion', data: { title: 'Amrut Fusion', date: '2026-09-02', category: 'Spirits', maker: 'Amrut Distilleries', where: 'Home', rating: '4/5' }, body: 'Peat, then dark chocolate.' },
+          { slug: 'tintin', data: { title: 'Tintin', date: '2026-10-20', category: 'Beers', maker: 'Toit Brewpub', where: 'Toit, Bengaluru' }, body: 'A hazy wit that smells of orange peel.' },
+        ],
+      };
+      loadEntries = async () => { entries = [...sample[collection]]; };
+      commit = async (message, files) => {
+        const md = files.find((f) => f.path.endsWith('.md'));
+        const slug = md.path.split('/').pop().slice(0, -3);
+        const list = sample[collection].filter((e) => e.slug !== slug);
+        list.push({ slug, ...parseMarkdownFile(md.content) });
+        sample[collection] = list;
+        console.log('[demo] would commit:', message, files.map((f) => f.path));
+      };
+      document.title = 'Write (demo)';
+      start();
+    } else if (load(TOKEN_KEY)) start();
+    else $('sign-in').hidden = false;
+  </script>
+</body>
+</html>

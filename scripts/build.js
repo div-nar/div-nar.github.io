@@ -24,18 +24,18 @@ export const collections = {
     backLabel: "← Back to writing",
   },
   drinks: {
-    label: "Off the Keg",
+    label: "Madeera",
     dir: "drinks",
-    index: "off-the-keg.html",
+    index: "madeera.html",
     marker: "DRINKS",
-    out: (slug) => `keg-${slug}.html`,
-    backHref: "off-the-keg.html",
-    backLabel: "← Back to Off the Keg",
+    out: (slug) => `madeera-${slug}.html`,
+    backHref: "madeera.html",
+    backLabel: "← Back to Madeera",
     shelf: true,
   },
 };
 
-// Off the Keg is shelved like Books: a category in the gutter, in this order.
+// Madeera is shelved like Books: a category in the gutter, in this order.
 export const CATEGORIES = ["Spirits", "Wines", "Beers"];
 
 // gray-matter parses `date: 2026-05-01` as UTC midnight, so format in UTC too;
@@ -93,6 +93,7 @@ export function readEntry(collection, slug) {
     maker: data.maker || "",
     where: data.where || "",
     rating: data.rating ? String(data.rating) : "",
+    photo: data.photo || "",
     draft: Boolean(data.draft),
     body: content,
   };
@@ -118,6 +119,8 @@ export function renderPage(collection, entry) {
     .replaceAll("{{displayDate}}", displayDate(entry.date))
     .replaceAll("{{isoDate}}", isoDate(entry.date))
     .replace("{{details}}", extra)
+    .replace("{{mainClass}}", entry.photo ? ' class="has-photo"' : "")
+    .replace("{{photo}}", entry.photo ? `<figure class="entry-photo"><img src="${escapeHtml(entry.photo)}" alt="${escapeHtml(entry.title)}" /></figure>\n    ` : "")
     .replace("{{backHref}}", c.backHref)
     .replace("{{backLabel}}", c.backLabel)
     .replace("{{body}}", indentBody(marked.parse(entry.body)));
