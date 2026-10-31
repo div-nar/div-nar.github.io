@@ -95,8 +95,8 @@ body {
   padding: 72px 24px 60px;
   color: var(--ink);
   background: var(--paper);
-  font-family: var(--font-sans);
-  font-size: 14px;
+  font-family: var(--font-serif);
+  font-size: 15px;
   font-weight: 400;
   line-height: 1.7;
   -webkit-font-smoothing: antialiased;
@@ -167,6 +167,15 @@ blockquote {
   color: var(--quote-ink);
   font-family: var(--font-serif);
   font-size: 15px;
+}
+
+/* Serif carries the reading text; the small UI chrome stays in sans. */
+h2,
+h3,
+.nav,
+.header-right,
+.writing-heading {
+  font-family: var(--font-sans);
 }
 
 code,
