@@ -48,7 +48,7 @@ html[data-theme="light"] {
   --paper: #faf9f6;
   --ink: #292824;
   --link: #080808;
-  --muted: #77746d;
+  --muted: #716e67; /* 4.8:1 on paper; #77746d was 4.4:1 */
   --rule: #e5e2db;
   --quote-rule: #d5d2ca;
   --quote-ink: #59564d;
@@ -169,13 +169,22 @@ blockquote {
   font-size: 15px;
 }
 
-/* Serif carries the reading text; the small UI chrome stays in sans. */
+/* Serif carries the reading text; the small UI chrome and small labels
+   stay in sans, where Geist reads better at 11-12px. */
 h2,
 h3,
-.nav,
 .header-right,
-.writing-heading {
+.writing-heading,
+.genre-heading,
+.book-author,
+.visual-desc,
+.post-meta {
   font-family: var(--font-sans);
+}
+
+/* Dates are mono everywhere. */
+.now-updated {
+  font-family: var(--font-mono);
 }
 
 code,
@@ -209,7 +218,17 @@ hr {
   line-height: 1.4;
 }
 
-/* Hamburger: fixed top-left of the viewport, two lines (bottom longer) */
+/* Menu motion: one curve for everything, quick to open and quicker to close
+   so the page is never kept waiting. */
+:root {
+  --menu-ease: cubic-bezier(0.32, 0.72, 0, 1);
+  --menu-in: 420ms;
+  --menu-out: 260ms;
+  --menu-green: #0d2818;
+}
+
+/* Hamburger: fixed top-left of the viewport, two lines (bottom longer).
+   Closing it draws an X: both lines turn 45° about their left ends. */
 .menu-toggle {
   position: fixed;
   top: 2.5rem;
@@ -220,36 +239,66 @@ hr {
   border: none;
   padding: 0;
   cursor: pointer;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  align-items: flex-start;
   z-index: 100;
 }
 
+/* A 44px hit area without moving the drawn icon. */
+.menu-toggle::before {
+  content: "";
+  position: absolute;
+  inset: -15px -8px;
+}
+
 .menu-toggle span {
-  display: block;
+  position: absolute;
+  left: 0;
+  width: 28px;
   height: 1.5px;
   background: var(--ink);
-  transition: width 0.2s ease, transform 0.2s ease, opacity 0.2s ease;
   transform-origin: left center;
+  transition: transform var(--menu-in) var(--menu-ease), background-color var(--menu-in) var(--menu-ease);
 }
 
-.menu-toggle span:nth-child(1) { width: 60%; }
-.menu-toggle span:nth-child(2) { width: 100%; }
+.menu-toggle span:nth-child(1) { top: 0; transform: rotate(0deg) scaleX(0.6); }
+.menu-toggle span:nth-child(2) { bottom: 0; transform: rotate(0deg) scaleX(1); }
 .menu-toggle span:nth-child(3) { display: none; }
 
-.menu-toggle[aria-expanded="true"] span:nth-child(1) {
-  width: 100%;
-  transform: translateY(5px) rotate(45deg);
+/* 17.7px arms at ±45° span the icon's 12.5px gap exactly, so they cross dead centre. */
+.menu-toggle[aria-expanded="true"] span:nth-child(1) { transform: rotate(45deg) scaleX(0.632); }
+.menu-toggle[aria-expanded="true"] span:nth-child(2) { transform: rotate(-45deg) scaleX(0.632); }
+
+/* The green wash is its own layer so it can fade; a gradient background can't. */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 98;
+  /* Holds deep green behind the links, then eases into the page, so the
+     links keep their contrast on short screens too. */
+  background: linear-gradient(to bottom, var(--menu-green) 0, var(--menu-green) 15rem, var(--paper) 100%);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--menu-out) var(--menu-ease);
 }
 
-.menu-toggle[aria-expanded="true"] span:nth-child(2) {
-  width: 100%;
-  transform: translateY(-7px) rotate(-45deg);
+body.menu-open::before {
+  opacity: 1;
+  transition-duration: var(--menu-in);
 }
 
-/* Nav overlay */
+main,
+.site-header {
+  transition: opacity var(--menu-in) var(--menu-ease);
+}
+
+body.menu-open main,
+body.menu-open .site-header {
+  opacity: 0;
+  transition-duration: var(--menu-out);
+}
+
+/* Nav overlay. visibility keeps hidden links out of the tab order; its
+   delay lets the fade finish before they go. */
 .nav {
   position: fixed;
   top: 6.5rem;
@@ -257,55 +306,66 @@ hr {
   display: flex;
   flex-direction: column;
   gap: 1rem;
+  font-family: var(--font-sans);
   font-size: 16px;
-  opacity: 0;
-  transform: translateY(-8px);
-  transition: opacity 0.2s ease, transform 0.2s ease;
-  pointer-events: none;
+  visibility: hidden;
   z-index: 99;
+  transition: visibility 0s linear var(--menu-out);
 }
 
 .nav.open {
-  opacity: 1;
-  transform: translateY(0);
-  pointer-events: auto;
+  visibility: visible;
+  transition-delay: 0s;
 }
 
 .nav a {
-  color: var(--ink);
-}
-
-/* Menu open: forest green fading into the page, content hidden */
-html {
-  min-height: 100dvh;
-}
-
-html:has(body.menu-open) {
-  background: linear-gradient(to bottom, #0d2818 0%, var(--paper) 100%);
-}
-
-body.menu-open {
-  background: transparent;
-}
-
-body.menu-open main,
-body.menu-open .site-header {
-  opacity: 0;
-  pointer-events: none;
-}
-
-body.menu-open .nav a {
   color: #faf9f6;
+  opacity: 0;
+  transform: translateY(-6px);
+  transition: opacity 120ms var(--menu-ease), transform var(--menu-out) var(--menu-ease), color 160ms ease;
 }
 
-body.menu-open .nav a:hover,
-body.menu-open .nav a[aria-current="page"] {
+/* Links settle in one after another as the wash arrives. */
+.nav.open a {
+  opacity: 1;
+  transform: none;
+  transition: opacity var(--menu-in) var(--menu-ease), transform var(--menu-in) var(--menu-ease), color 160ms ease;
+}
+
+.nav.open a:nth-child(1) { transition-delay: 40ms; }
+.nav.open a:nth-child(2) { transition-delay: 70ms; }
+.nav.open a:nth-child(3) { transition-delay: 100ms; }
+.nav.open a:nth-child(4) { transition-delay: 130ms; }
+.nav.open a:nth-child(5) { transition-delay: 160ms; }
+
+.nav.open a:hover,
+.nav.open a[aria-current="page"] {
   color: #a0d4b2;
   opacity: 1;
 }
 
 body.menu-open .menu-toggle span {
   background: #faf9f6;
+}
+
+/* The page behind the menu shouldn't scroll. */
+html {
+  scrollbar-gutter: stable;
+}
+
+html:has(body.menu-open) {
+  overflow: hidden;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --menu-in: 1ms;
+    --menu-out: 1ms;
+  }
+
+  .nav.open a {
+    transition-delay: 0s !important;
+  }
 }
 
 .header-right {
@@ -340,6 +400,17 @@ body.menu-open .menu-toggle span {
   font-size: 14px;
   line-height: 1;
   cursor: pointer;
+}
+
+/* A 44px hit area around the 24px glyph. */
+.theme-toggle {
+  position: relative;
+}
+
+.theme-toggle::before {
+  content: "";
+  position: absolute;
+  inset: -10px;
 }
 
 .theme-toggle:hover {
