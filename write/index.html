@@ -260,8 +260,8 @@
         dir: 'drinks',
         out: (slug) => `madeera-${slug}.html`,
         back: ['madeera.html', '← Back to Madeera'],
-        starter: () => `title: \ndate: ${today()}\ncategory: Spirits\nmaker: \nwhere: \nrating: \n\n`,
-        keys: ['title', 'date', 'category', 'maker', 'where', 'rating', 'photo', 'link', 'draft'],
+        starter: () => `title: \ndate: ${today()}\ncategory: Spirits\n\n`,
+        keys: ['title', 'date', 'category', 'photo', 'link', 'draft'],
       },
     };
 
@@ -342,23 +342,10 @@
       return `${lines.join('\n')}\n\n${body}`;
     }
 
-    // With no title: line, a leading "# Heading" becomes the title (and leaves
-    // the body); otherwise the first line of prose names the post.
-    function resolveTitle(header, body) {
-      if (header.title) return { title: header.title, body };
-      const lines = body.split('\n');
-      const first = lines.findIndex((l) => l.trim());
-      if (first === -1) return { title: '', body };
-      const heading = lines[first].match(/^#\s+(.+)$/);
-      if (heading) return { title: heading[1].trim(), body: lines.slice(first + 1).join('\n').trim() };
-      const plain = lines[first].replace(/[*_`>#\[\]]|\(http[^)]*\)/g, '').trim();
-      const title = plain.length > 60 ? `${plain.slice(0, 60).replace(/\s+\S*$/, '')}…` : plain;
-      return { title, body };
-    }
-
-    // Header values -> frontmatter. Keys the site doesn't use are kept as typed.
-    function toData(header, title) {
-      const data = { title, date: header.date || today() };
+    // Header values -> frontmatter. title and date always come first; any
+    // other key is kept as typed.
+    function toData(header) {
+      const data = { title: header.title || '', date: header.date || '' };
       for (const [key, val] of Object.entries(header)) {
         if (key === 'title' || key === 'date' || key === 'link') continue;
         if (key === 'draft') {
@@ -529,7 +516,7 @@
 
     function renderKeys() {
       const keys = COLLECTIONS[collection].keys.map((k) => `<b>${k}:</b>`).join(' ');
-      $('keys').innerHTML = `${keys} · all optional, add any of your own · blank line, then Markdown · paste or drop a photo to put it inline`;
+      $('keys').innerHTML = `${keys} · title and date are required, the rest optional, add any of your own · blank line, then Markdown · paste or drop a photo to put it inline`;
     }
 
     async function switchTo(next) {
@@ -560,16 +547,12 @@
 
     // Everything publish and preview need, read from the box.
     function readEntry() {
-      const { header, body: raw } = splitText(text.value);
-      const { title, body } = resolveTitle(header, raw);
-      return { header, title, body, data: toData(header, title) };
+      const { header, body } = splitText(text.value);
+      const data = toData(header);
+      return { header, title: data.title, body, data };
     }
 
     // --- preview and publish --------------------------------------------------
-
-    function details(data) {
-      return collection === 'drinks' ? [data.maker, data.where, data.rating].filter(Boolean) : [];
-    }
 
     // Approximates scripts/build.js renderPage in the browser.
     async function preview(tab) {
@@ -585,7 +568,6 @@
         .replaceAll('{{title}}', escapeHtml(title || 'Untitled'))
         .replaceAll('{{displayDate}}', isNaN(date) ? escapeHtml(data.date) : date.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric', timeZone: 'UTC' }))
         .replaceAll('{{isoDate}}', escapeHtml(data.date))
-        .replace('{{details}}', details(data).map((d) => ` · ${escapeHtml(d)}`).join(''))
         .replace('{{mainClass}}', data.photo ? ' class="has-photo"' : '')
         .replace('{{photo}}', data.photo ? `<figure class="entry-photo"><img src="${photoSrc(data.photo)}" alt="" /></figure>\n    ` : '')
         .replace('{{backHref}}', c.back[0])
@@ -598,8 +580,10 @@
 
     async function publish() {
       const { header, title, body, data } = readEntry();
-      if (!title) throw new Error('Write something first: a title: line or a first line to name it');
-      if (isNaN(new Date(data.date))) throw new Error(`date: should look like ${today()}`);
+      if (!title) throw new Error('Every entry needs a title: line');
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(data.date) || isNaN(new Date(data.date))) {
+        throw new Error(`Every entry needs a date: line like ${today()}`);
+      }
 
       const c = COLLECTIONS[collection];
       // link: picks the URL of a new entry; an existing entry keeps its URL.
@@ -734,7 +718,7 @@
           { slug: 'i-need-not', data: { title: 'I Need Not', date: '2026-05-01' }, body: 'I need not of approval, for why must my craft be tied to a score?' },
         ],
         drinks: [
-          { slug: 'amrut-fusion', data: { title: 'Amrut Fusion', date: '2026-09-02', category: 'Spirits', maker: 'Amrut Distilleries', where: 'Home', rating: '4/5' }, body: 'Peat, then dark chocolate.' },
+          { slug: 'amrut-fusion', data: { title: 'Amrut Fusion', date: '2026-09-02', category: 'Spirits' }, body: 'Peat, then dark chocolate.' },
         ],
       };
       loadEntries = async () => { entries = [...sample[collection]]; };

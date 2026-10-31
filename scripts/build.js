@@ -73,11 +73,6 @@ function indentBody(html) {
     .join("\n");
 }
 
-// Drinks show who made them, where, and a rating next to the date.
-function details(entry) {
-  return [entry.maker, entry.where, entry.rating].filter(Boolean);
-}
-
 export function readEntry(collection, slug) {
   const file = path.join(root, collections[collection].dir, `${slug}.md`);
   if (!fs.existsSync(file)) return null;
@@ -90,9 +85,6 @@ export function readEntry(collection, slug) {
     title: String(data.title),
     date: new Date(data.date),
     category: data.category || "",
-    maker: data.maker || "",
-    where: data.where || "",
-    rating: data.rating ? String(data.rating) : "",
     photo: data.photo || "",
     draft: Boolean(data.draft),
     body: content,
@@ -113,12 +105,10 @@ export function loadEntries(collection) {
 export function renderPage(collection, entry) {
   const c = collections[collection];
   const template = fs.readFileSync(templatePath, "utf8");
-  const extra = details(entry).map((d) => ` · ${escapeHtml(d)}`).join("");
   return template
     .replaceAll("{{title}}", escapeHtml(entry.title))
     .replaceAll("{{displayDate}}", displayDate(entry.date))
     .replaceAll("{{isoDate}}", isoDate(entry.date))
-    .replace("{{details}}", extra)
     .replace("{{mainClass}}", entry.photo ? ' class="has-photo"' : "")
     .replace("{{photo}}", entry.photo ? `<figure class="entry-photo"><img src="${escapeHtml(entry.photo)}" alt="${escapeHtml(entry.title)}" /></figure>\n    ` : "")
     .replace("{{backHref}}", c.backHref)
@@ -162,8 +152,7 @@ function renderShelf(collection, entries) {
       const items = entries
         .filter((e) => e.category === category)
         .map((e) => {
-          const maker = e.maker ? `<span class="book-author">${escapeHtml(e.maker)}</span>` : "";
-          return `        <li><a href="${c.out(e.slug)}" class="book-title">${escapeHtml(e.title)}</a>${maker}</li>`;
+          return `        <li><a href="${c.out(e.slug)}" class="book-title">${escapeHtml(e.title)}</a></li>`;
         });
       if (!items.length) return null;
       return `    <div class="book-section">

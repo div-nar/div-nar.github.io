@@ -18,10 +18,10 @@ photo: images/posts/rain.jpg
 It rained all day.
 ```
 
-- Every key is optional. With no `title:`, a leading `# Heading` (or else the first line) names the post. `date:` defaults to today.
+- `title:` and `date:` are required on every entry; a new entry starts with both, date set to today. Everything else is optional.
 - `photo:` shows a photo beside the entry; **Add photo** fills it in. Paste or drop a photo into the text to put it inline. Photos shrink to 1600px before upload.
 - `link:` sets the URL of a new entry. `draft: yes` saves it to the repo but keeps it off the site.
-- Madeera entries also take `category:` (Spirits, Wines or Beers, shelved like Books), `maker:`, `where:` and `rating:`.
+- Madeera entries also take `category:` (Spirits, Wines or Beers), which shelves them like Books.
 - Any other key you add is kept in the file, so you can start using it later.
 - Changes save in that browser as you type. **Publish** (or Cmd+S) commits the Markdown and any photos to `main` in one commit. The `Deploy site` GitHub Action then builds the pages and the site updates in a minute or two.
 
