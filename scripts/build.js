@@ -31,12 +31,8 @@ export const collections = {
     out: (slug) => `madeera-${slug}.html`,
     backHref: "madeera.html",
     backLabel: "← Back to Madeera",
-    shelf: true,
   },
 };
-
-// Madeera is shelved like Books: a category in the gutter, in this order.
-export const CATEGORIES = ["Spirits", "Wines", "Beers"];
 
 // gray-matter parses `date: 2026-05-01` as UTC midnight, so format in UTC too;
 // local time would shift the day back when built west of UTC.
@@ -84,7 +80,6 @@ export function readEntry(collection, slug) {
     slug,
     title: String(data.title),
     date: new Date(data.date),
-    category: data.category || "",
     photo: data.photo || "",
     draft: Boolean(data.draft),
     body: content,
@@ -143,29 +138,6 @@ ${items}
   return groups.join("\n");
 }
 
-function renderShelf(collection, entries) {
-  const c = collections[collection];
-  const known = new Set(CATEGORIES);
-  const other = [...new Set(entries.map((e) => e.category).filter((k) => !known.has(k)))];
-  return [...CATEGORIES, ...other]
-    .map((category) => {
-      const items = entries
-        .filter((e) => e.category === category)
-        .map((e) => {
-          return `        <li><a href="${c.out(e.slug)}" class="book-title">${escapeHtml(e.title)}</a></li>`;
-        });
-      if (!items.length) return null;
-      return `    <div class="book-section">
-      <h2 class="genre-heading">${escapeHtml(category || "Other")}</h2>
-      <ul class="book-list">
-${items.join("\n")}
-      </ul>
-    </div>`;
-    })
-    .filter(Boolean)
-    .join("\n\n");
-}
-
 function updateIndex(collection, entries) {
   const c = collections[collection];
   const indexPath = path.join(root, c.index);
@@ -177,8 +149,7 @@ function updateIndex(collection, entries) {
   if (startIdx === -1 || endIdx === -1) {
     throw new Error(`${c.index} is missing ${c.marker}:START/${c.marker}:END markers`);
   }
-  const render = c.shelf ? renderShelf : renderList;
-  const list = entries.length ? `\n${render(collection, entries)}` : "";
+  const list = entries.length ? `\n${renderList(collection, entries)}` : "";
   const updated = `${html.slice(0, startIdx + start.length)}${list}\n    ${html.slice(endIdx)}`;
   fs.writeFileSync(indexPath, updated);
 }

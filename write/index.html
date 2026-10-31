@@ -260,8 +260,8 @@
         dir: 'drinks',
         out: (slug) => `madeera-${slug}.html`,
         back: ['madeera.html', '← Back to Madeera'],
-        starter: () => `title: \ndate: ${today()}\ncategory: Spirits\n\n`,
-        keys: ['title', 'date', 'category', 'photo', 'link', 'draft'],
+        starter: () => `title: \ndate: ${today()}\n\n`,
+        keys: ['title', 'date', 'photo', 'link', 'draft'],
       },
     };
 
@@ -718,7 +718,7 @@
           { slug: 'i-need-not', data: { title: 'I Need Not', date: '2026-05-01' }, body: 'I need not of approval, for why must my craft be tied to a score?' },
         ],
         drinks: [
-          { slug: 'amrut-fusion', data: { title: 'Amrut Fusion', date: '2026-09-02', category: 'Spirits' }, body: 'Peat, then dark chocolate.' },
+          { slug: 'amrut-fusion', data: { title: 'Amrut Fusion', date: '2026-09-02' }, body: 'Peat, then dark chocolate.' },
         ],
       };
       loadEntries = async () => { entries = [...sample[collection]]; };
