@@ -4,27 +4,45 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="robots" content="noindex" />
-  <title>Write — Divith Narendra</title>
+  <title>Write</title>
   <link rel="icon" href="../favicon.ico" sizes="any" />
   <style>
+    @font-face {
+      font-family: 'Geist';
+      src: url('../fonts/Geist.woff2') format('woff2');
+      font-weight: 100 900;
+      font-display: swap;
+    }
+
+    @font-face {
+      font-family: 'Geist Mono';
+      src: url('../fonts/GeistMono.woff2') format('woff2');
+      font-weight: 100 900;
+      font-display: swap;
+    }
+
     :root {
-      --bg: #faf9f6;
-      --text: #1a1a1a;
-      --muted: #666666;
-      --border: #ddd;
-      --accent: #1a1a1a;
-      --accent-text: #ffffff;
+      color-scheme: light;
+      --paper: #faf9f6;
+      --ink: #292824;
+      --muted: #77746d;
+      --rule: #e5e2db;
+      --key: #8a6d3b;
+      --accent: #292824;
+      --accent-text: #faf9f6;
       --error: #b3261e;
     }
 
     @media (prefers-color-scheme: dark) {
       :root {
-        --bg: #15171a;
-        --text: #f2f1ee;
-        --muted: #9a9a9a;
-        --border: #333538;
-        --accent: #f2f1ee;
-        --accent-text: #15171a;
+        color-scheme: dark;
+        --paper: #121213;
+        --ink: #deddd8;
+        --muted: #9d9b96;
+        --rule: #303030;
+        --key: #d1b47a;
+        --accent: #deddd8;
+        --accent-text: #121213;
         --error: #ff8a80;
       }
     }
@@ -32,33 +50,30 @@
     * { box-sizing: border-box; }
 
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
-      max-width: 760px;
+      font-family: 'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font-size: 14px;
+      max-width: 720px;
       margin: 0 auto;
-      padding: 3rem 1rem 6rem;
-      color: var(--text);
-      background: var(--bg);
+      padding: 3rem 1rem 4rem;
+      color: var(--ink);
+      background: var(--paper);
+      -webkit-font-smoothing: antialiased;
     }
 
     .top {
       display: flex;
       flex-wrap: wrap;
       align-items: baseline;
-      gap: 1.5rem;
-      margin-bottom: 2.5rem;
+      gap: 0.5rem 1.25rem;
+      margin-bottom: 1.5rem;
     }
 
-    h1 {
-      font-size: 1rem;
-      font-weight: 600;
-      margin: 0;
-    }
+    h1 { font-size: 14px; font-weight: 600; margin: 0; }
 
     .tabs { display: flex; gap: 1rem; }
 
     .link-button {
       font: inherit;
-      font-size: 0.9rem;
       padding: 0;
       border: none;
       background: none;
@@ -66,75 +81,75 @@
       cursor: pointer;
     }
 
+    .link-button:hover { color: var(--ink); }
+
     .tabs button[aria-pressed="true"] {
-      color: var(--text);
+      color: var(--ink);
       text-decoration: underline;
       text-underline-offset: 4px;
     }
 
-    #sign-out { margin-left: auto; font-size: 0.8rem; }
-
-    label {
-      display: block;
-      font-size: 0.8rem;
-      font-weight: 500;
-      color: var(--muted);
-      margin-bottom: 0.4rem;
-      text-transform: uppercase;
-      letter-spacing: 0.04em;
-    }
-
-    .row {
+    .top-right {
+      margin-left: auto;
       display: flex;
-      gap: 1.25rem;
-      margin-bottom: 1.5rem;
+      gap: 1rem;
+      align-items: baseline;
     }
 
-    .row > div { flex: 1; min-width: 0; }
-
-    @media (max-width: 560px) {
-      .row { flex-direction: column; gap: 1.5rem; }
-    }
-
-    select, input, textarea {
-      width: 100%;
-      font-family: inherit;
-      font-size: 1rem;
-      padding: 0.5rem 0;
+    select {
+      font: inherit;
+      color: var(--ink);
+      background: transparent;
       border: none;
-      border-bottom: 1px solid var(--border);
+      border-bottom: 1px solid var(--rule);
+      padding: 0.2rem 0;
+      max-width: 14rem;
+    }
+
+    /* One box, like Bear Blog: "key: value" lines, a blank line, then Markdown. */
+    textarea {
+      display: block;
+      width: 100%;
+      min-height: 68vh;
+      padding: 1.25rem 0;
+      border: none;
+      border-top: 1px solid var(--rule);
+      border-bottom: 1px solid var(--rule);
       border-radius: 0;
       background: transparent;
-      color: var(--text);
-    }
-
-    select:focus-visible, input:focus-visible, textarea:focus-visible {
-      outline: none;
-      border-color: var(--text);
-    }
-
-    textarea {
-      min-height: 52vh;
-      line-height: 1.7;
+      color: var(--ink);
+      font-family: 'Geist Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 14px;
+      line-height: 1.75;
       resize: vertical;
-      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-      font-size: 0.92rem;
-      padding: 0.75rem 0;
+      tab-size: 2;
     }
 
-    .field { margin-bottom: 1.5rem; }
-    .hint { font-size: 0.8rem; color: var(--muted); margin: 0.5rem 0 0; line-height: 1.5; }
-    .hint a { color: var(--text); }
+    textarea:focus-visible { outline: none; border-color: var(--muted); }
+    textarea.dragging { border-color: var(--ink); }
 
-    .photo-field { display: flex; gap: 1rem; align-items: center; }
-    .photo-field img { width: 96px; height: 96px; object-fit: cover; border-radius: 4px; background: var(--border); }
-    .photo-field input[type="file"] { display: none; }
+    .keys {
+      font-family: 'Geist Mono', ui-monospace, monospace;
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.7;
+      margin: 0.75rem 0 0;
+    }
+
+    .keys b { color: var(--key); font-weight: 400; }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      align-items: center;
+      margin-top: 1.5rem;
+    }
 
     .btn {
-      font-family: inherit;
-      font-size: 0.9rem;
+      font: inherit;
       font-weight: 600;
-      padding: 0.7rem 1.4rem;
+      padding: 0.6rem 1.2rem;
       border: 1px solid transparent;
       border-radius: 0.5rem;
       background: var(--accent);
@@ -147,21 +162,30 @@
 
     .btn.secondary {
       background: transparent;
-      color: var(--text);
-      border-color: var(--border);
+      color: var(--ink);
+      border-color: var(--rule);
     }
 
-    .actions {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.75rem;
-      align-items: center;
-      margin-top: 2rem;
-    }
-
-    .status { font-size: 0.85rem; color: var(--muted); }
+    .status { color: var(--muted); }
     .status.error { color: var(--error); }
-    .status a { color: var(--text); }
+    .status a { color: var(--ink); }
+
+    #photo-input { display: none; }
+
+    .field label { display: block; color: var(--muted); margin-bottom: 0.4rem; }
+
+    .field input {
+      width: 100%;
+      font: inherit;
+      padding: 0.5rem 0;
+      border: none;
+      border-bottom: 1px solid var(--rule);
+      background: transparent;
+      color: var(--ink);
+    }
+
+    .hint { color: var(--muted); line-height: 1.6; }
+    .hint a { color: var(--ink); }
 
     [hidden] { display: none !important; }
   </style>
@@ -193,72 +217,20 @@
         <button class="link-button" type="button" data-collection="posts" aria-pressed="true">Writing</button>
         <button class="link-button" type="button" data-collection="drinks" aria-pressed="false">Madeera</button>
       </div>
-      <button id="sign-out" class="link-button" type="button">Sign out</button>
-    </div>
-
-    <div class="row">
-      <div>
-        <label for="entry-select">Entry</label>
-        <select id="entry-select"></select>
-      </div>
-      <div>
-        <label for="date">Date</label>
-        <input type="date" id="date" />
+      <div class="top-right">
+        <select id="entry-select" aria-label="Open an entry"></select>
+        <button id="sign-out" class="link-button" type="button">Sign out</button>
       </div>
     </div>
 
-    <div class="field">
-      <label for="title">Title</label>
-      <input type="text" id="title" />
-    </div>
-
-    <div id="drink-fields" hidden>
-      <div class="row">
-        <div>
-          <label for="category">Category</label>
-          <select id="category">
-            <option value="Spirits">Spirits</option>
-            <option value="Wines">Wines</option>
-            <option value="Beers">Beers</option>
-          </select>
-        </div>
-        <div>
-          <label for="maker">Maker</label>
-          <input type="text" id="maker" placeholder="Amrut Distilleries" />
-        </div>
-      </div>
-      <div class="row">
-        <div>
-          <label for="where">Where</label>
-          <input type="text" id="where" placeholder="Toit, Bengaluru" />
-        </div>
-        <div>
-          <label for="rating">Rating</label>
-          <input type="text" id="rating" placeholder="4/5" />
-        </div>
-      </div>
-    </div>
-
-    <div class="field">
-      <label>Photo</label>
-      <div class="photo-field">
-        <img id="photo-preview" alt="" hidden />
-        <label class="btn secondary" for="photo-input" style="text-transform:none;letter-spacing:0;margin:0">Choose photo</label>
-        <input type="file" id="photo-input" accept="image/*" />
-        <button id="photo-remove" class="link-button" type="button" hidden>Remove</button>
-      </div>
-    </div>
-
-    <div class="field">
-      <label for="body">Body (Markdown)</label>
-      <textarea id="body" placeholder="Write here…"></textarea>
-      <p class="hint">Blank line between paragraphs. **bold**, *italic*, [link](https://…), ## subheading. Changes save in this browser as you type, and nothing goes on the site until you publish.</p>
-    </div>
+    <textarea id="text" spellcheck="true" aria-label="Entry" aria-describedby="keys"></textarea>
+    <p class="keys" id="keys"></p>
 
     <div class="actions">
-      <button id="new-btn" class="btn secondary" type="button">New</button>
-      <button id="preview-btn" class="btn secondary" type="button">Preview</button>
       <button id="publish-btn" class="btn" type="button">Publish</button>
+      <button id="preview-btn" class="btn secondary" type="button">Preview</button>
+      <label class="btn secondary" for="photo-input">Add photo</label>
+      <input type="file" id="photo-input" accept="image/*" />
       <button id="discard-btn" class="link-button" type="button" hidden>Discard changes</button>
       <span class="status" id="status" role="status"></span>
     </div>
@@ -275,19 +247,31 @@
     const TOKEN_KEY = 'write:token';
     const PHOTO_MAX = 1600;
 
-    // Mirrors `collections` in scripts/build.js.
+    // Mirrors `collections` in scripts/build.js. `starter` is the text a new entry opens with.
     const COLLECTIONS = {
-      posts: { dir: 'posts', out: (slug) => `${slug}.html`, back: ['index.html', '← Back to writing'] },
-      drinks: { dir: 'drinks', out: (slug) => `madeera-${slug}.html`, back: ['madeera.html', '← Back to Madeera'] },
+      posts: {
+        dir: 'posts',
+        out: (slug) => `${slug}.html`,
+        back: ['index.html', '← Back to writing'],
+        starter: () => `title: \ndate: ${today()}\n\n`,
+        keys: ['title', 'date', 'photo', 'link', 'draft'],
+      },
+      drinks: {
+        dir: 'drinks',
+        out: (slug) => `madeera-${slug}.html`,
+        back: ['madeera.html', '← Back to Madeera'],
+        starter: () => `title: \ndate: ${today()}\ncategory: Spirits\nmaker: \nwhere: \nrating: \n\n`,
+        keys: ['title', 'date', 'category', 'maker', 'where', 'rating', 'photo', 'link', 'draft'],
+      },
     };
-    const TEXT_FIELDS = ['title', 'date', 'category', 'maker', 'where', 'rating', 'body'];
 
     const $ = (id) => document.getElementById(id);
     const status = $('status');
+    const text = $('text');
     let collection = 'posts';
     let entries = [];       // [{ slug, data, body }] from the repo
     let current = null;     // the repo entry being edited, or null for a new one
-    let photo = null;       // { dataUrl } for a new upload, { path } for the saved one, or null
+    let uploads = {};       // repo path -> data URL for photos not yet committed
 
     // --- storage (wrapped: private windows can throw) -------------------------
 
@@ -332,6 +316,64 @@
       return `---\n${jsyaml.dump(data, { lineWidth: -1 })}---\n${body.trim()}\n`;
     }
 
+    // --- the one-box format ---------------------------------------------------
+
+    // The (?!\/\/) keeps a bare link like https://… from reading as a key.
+    const HEADER_LINE = /^([A-Za-z][\w-]*):(?!\/\/)[ \t]*(.*)$/;
+
+    // Leading "key: value" lines count as the header only when a blank line
+    // (or the end) follows them, so a body that opens with "Note: ..." stays body.
+    function splitText(value) {
+      const lines = value.replace(/\r\n/g, '\n').split('\n');
+      let i = 0;
+      while (i < lines.length && HEADER_LINE.test(lines[i])) i++;
+      if (i === 0 || (i < lines.length && lines[i].trim() !== '')) return { header: {}, body: value.trim() };
+
+      const header = {};
+      for (const line of lines.slice(0, i)) {
+        const [, key, val] = line.match(HEADER_LINE);
+        if (val.trim()) header[key.toLowerCase()] = val.trim();
+      }
+      return { header, body: lines.slice(i).join('\n').trim() };
+    }
+
+    function joinText(data, body) {
+      const lines = Object.entries(data).map(([k, v]) => `${k}: ${v}`);
+      return `${lines.join('\n')}\n\n${body}`;
+    }
+
+    // With no title: line, a leading "# Heading" becomes the title (and leaves
+    // the body); otherwise the first line of prose names the post.
+    function resolveTitle(header, body) {
+      if (header.title) return { title: header.title, body };
+      const lines = body.split('\n');
+      const first = lines.findIndex((l) => l.trim());
+      if (first === -1) return { title: '', body };
+      const heading = lines[first].match(/^#\s+(.+)$/);
+      if (heading) return { title: heading[1].trim(), body: lines.slice(first + 1).join('\n').trim() };
+      const plain = lines[first].replace(/[*_`>#\[\]]|\(http[^)]*\)/g, '').trim();
+      const title = plain.length > 60 ? `${plain.slice(0, 60).replace(/\s+\S*$/, '')}…` : plain;
+      return { title, body };
+    }
+
+    // Header values -> frontmatter. Keys the site doesn't use are kept as typed.
+    function toData(header, title) {
+      const data = { title, date: header.date || today() };
+      for (const [key, val] of Object.entries(header)) {
+        if (key === 'title' || key === 'date' || key === 'link') continue;
+        if (key === 'draft') {
+          if (/^(true|yes|1)$/i.test(val)) data.draft = true;
+          continue;
+        }
+        data[key] = val;
+      }
+      return data;
+    }
+
+    function isDraft() {
+      return /^(true|yes|1)$/i.test(splitText(text.value).header.draft || '');
+    }
+
     // --- GitHub ---------------------------------------------------------------
 
     async function gh(path, options = {}) {
@@ -365,21 +407,12 @@
       entries.sort((a, b) => String(b.data.date).localeCompare(String(a.data.date)));
     }
 
-    function blobToBase64(blob) {
-      return new Promise((resolve) => {
-        const reader = new FileReader();
-        reader.onload = () => resolve(reader.result.split(',')[1]);
-        reader.readAsDataURL(blob);
-      });
-    }
-
-    // One commit with the Markdown file plus any photo change.
+    // One commit with the Markdown file plus any new photos.
     async function commit(message, files) {
       const ref = await gh(`/git/ref/heads/${BRANCH}`);
       const head = await gh(`/git/commits/${ref.object.sha}`);
       const tree = await Promise.all(files.map(async (f) => {
         const entry = { path: f.path, mode: '100644', type: 'blob' };
-        if (f.delete) return { ...entry, sha: null };
         if (f.base64) {
           const blob = await gh('/git/blobs', { method: 'POST', body: JSON.stringify({ content: f.base64, encoding: 'base64' }) });
           return { ...entry, sha: blob.sha };
@@ -394,7 +427,7 @@
       await gh(`/git/refs/heads/${BRANCH}`, { method: 'PATCH', body: JSON.stringify({ sha: newCommit.sha }) });
     }
 
-    // --- photo ----------------------------------------------------------------
+    // --- photos ---------------------------------------------------------------
 
     // Shrinks phone photos to at most PHOTO_MAX px on the long side, as JPEG.
     async function shrink(file) {
@@ -407,61 +440,96 @@
       return canvas.toDataURL('image/jpeg', 0.85);
     }
 
-    function photoSrc() {
-      if (!photo) return '';
-      return photo.dataUrl || `${RAW}/${photo.path}`;
+    function photoPath() {
+      const stamp = new Date().toISOString().replace(/\D/g, '').slice(0, 14);
+      return `images/${COLLECTIONS[collection].dir}/${stamp}.jpg`;
     }
 
-    function showPhoto() {
-      $('photo-preview').hidden = !photo;
-      $('photo-remove').hidden = !photo;
-      $('photo-preview').src = photoSrc();
+    // Photos not yet committed preview from memory; committed ones from the repo.
+    function photoSrc(path) {
+      return uploads[path] || `${RAW}/${path}`;
     }
 
-    // --- form state and local drafts -----------------------------------------
+    // "Add photo" fills the photo: line (the photo beside the entry).
+    function setPhotoLine(path) {
+      const value = text.value;
+      const { header } = splitText(value);
+      if (!Object.keys(header).length) {
+        text.value = `photo: ${path}\n\n${value}`;
+      } else if (/^photo:.*$/m.test(value.split(/\n\s*\n/)[0])) {
+        text.value = value.replace(/^photo:.*$/m, `photo: ${path}`);
+      } else {
+        const end = value.search(/\n\s*\n/);
+        text.value = `${value.slice(0, end)}\nphoto: ${path}${value.slice(end)}`;
+      }
+    }
+
+    // Pasting or dropping a photo puts it inline at the cursor, Bear Blog style.
+    function insertAtCursor(snippet) {
+      const { selectionStart: start, selectionEnd: end, value } = text;
+      text.value = value.slice(0, start) + snippet + value.slice(end);
+      text.selectionStart = text.selectionEnd = start + snippet.length;
+      text.focus();
+    }
+
+    function addPhoto(file, place) {
+      return run('Preparing photo…', async () => {
+        let dataUrl;
+        try {
+          dataUrl = await shrink(file);
+        } catch {
+          throw new Error("This browser can't read that photo. Try a JPEG or PNG.");
+        }
+        const path = photoPath();
+        uploads[path] = dataUrl;
+        place(path);
+        saveDraft();
+        say('');
+      });
+    }
+
+    // --- editor state and local drafts ----------------------------------------
 
     function draftKey() {
       return `write:draft:${collection}:${current ? current.slug : 'new'}`;
     }
 
-    function readForm() {
-      const form = {};
-      for (const f of TEXT_FIELDS) form[f] = $(f).value;
-      form.photo = photo;
-      return form;
-    }
-
-    function fillForm(form) {
-      for (const f of TEXT_FIELDS) $(f).value = form[f] || '';
-      if (!$('category').value) $('category').value = 'Spirits';
-      if (!$('date').value) $('date').value = today();
-      photo = form.photo || null;
-      showPhoto();
-    }
-
-    function fromEntry(entry) {
-      const form = { ...entry.data, body: entry.body };
-      form.photo = entry.data.photo ? { path: entry.data.photo } : null;
-      return form;
-    }
-
     function saveDraft() {
-      store(draftKey(), readForm());
+      store(draftKey(), { text: text.value, uploads });
       $('discard-btn').hidden = false;
+      updatePublishLabel();
+    }
+
+    function updatePublishLabel() {
+      $('publish-btn').textContent = isDraft() ? 'Save draft' : 'Publish';
     }
 
     function openEntry(entry) {
       current = entry;
       const draft = load(draftKey());
-      fillForm(draft || (entry ? fromEntry(entry) : {}));
+      uploads = draft?.uploads || {};
+      text.value = draft ? draft.text
+        : entry ? joinText(entry.data, entry.body)
+        : COLLECTIONS[collection].starter();
       $('discard-btn').hidden = !draft;
       $('entry-select').value = entry ? entry.slug : '';
-      say(draft ? 'Restored your unpublished changes.' : entry ? 'Published' : '');
+      updatePublishLabel();
+      say(draft ? 'Restored your unsaved changes.' : entry ? (entry.data.draft ? 'Draft, not on the site' : 'Published') : '');
+      if (!entry && !draft) {
+        // Cursor after "title: ".
+        text.focus();
+        text.selectionStart = text.selectionEnd = 'title: '.length;
+      }
     }
 
     function renderSelect() {
       $('entry-select').innerHTML = '<option value="">New entry</option>' +
-        entries.map((e) => `<option value="${e.slug}">${escapeHtml(e.data.title || e.slug)}</option>`).join('');
+        entries.map((e) => `<option value="${e.slug}">${escapeHtml(e.data.title || e.slug)}${e.data.draft ? ' (draft)' : ''}</option>`).join('');
+    }
+
+    function renderKeys() {
+      const keys = COLLECTIONS[collection].keys.map((k) => `<b>${k}:</b>`).join(' ');
+      $('keys').innerHTML = `${keys} · all optional, add any of your own · blank line, then Markdown · paste or drop a photo to put it inline`;
     }
 
     async function switchTo(next) {
@@ -469,8 +537,7 @@
       for (const b of document.querySelectorAll('.tabs button')) {
         b.setAttribute('aria-pressed', String(b.dataset.collection === next));
       }
-      $('drink-fields').hidden = next !== 'drinks';
-      $('title').placeholder = next === 'drinks' ? 'Amrut Fusion' : 'Post title';
+      renderKeys();
       await run('Loading…', async () => {
         await loadEntries();
         renderSelect();
@@ -491,73 +558,77 @@
       }
     }
 
+    // Everything publish and preview need, read from the box.
+    function readEntry() {
+      const { header, body: raw } = splitText(text.value);
+      const { title, body } = resolveTitle(header, raw);
+      return { header, title, body, data: toData(header, title) };
+    }
+
     // --- preview and publish --------------------------------------------------
 
-    function details(form) {
-      return collection === 'drinks' ? [form.maker, form.where, form.rating].filter(Boolean) : [];
+    function details(data) {
+      return collection === 'drinks' ? [data.maker, data.where, data.rating].filter(Boolean) : [];
     }
 
     // Approximates scripts/build.js renderPage in the browser.
     async function preview(tab) {
-      const form = readForm();
+      const { title, body, data } = readEntry();
       const c = COLLECTIONS[collection];
       const template = await (await fetch('../templates/post.html', { cache: 'no-store' })).text();
-      const date = new Date(form.date || today());
-      const html = template
+      const date = new Date(data.date);
+      // Inline photos not yet committed show from memory.
+      let html = marked.parse(body);
+      for (const [path, dataUrl] of Object.entries(uploads)) html = html.replaceAll(path, dataUrl);
+      const page = template
         .replace('<head>', `<head>\n  <base href="${new URL('..', location.href)}" />`)
-        .replaceAll('{{title}}', escapeHtml(form.title || 'Untitled'))
-        .replaceAll('{{displayDate}}', date.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric', timeZone: 'UTC' }))
-        .replaceAll('{{isoDate}}', form.date)
-        .replace('{{details}}', details(form).map((d) => ` · ${escapeHtml(d)}`).join(''))
-        .replace('{{mainClass}}', photo ? ' class="has-photo"' : '')
-        .replace('{{photo}}', photo ? `<figure class="entry-photo"><img src="${photoSrc()}" alt="" /></figure>\n    ` : '')
+        .replaceAll('{{title}}', escapeHtml(title || 'Untitled'))
+        .replaceAll('{{displayDate}}', isNaN(date) ? escapeHtml(data.date) : date.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric', timeZone: 'UTC' }))
+        .replaceAll('{{isoDate}}', escapeHtml(data.date))
+        .replace('{{details}}', details(data).map((d) => ` · ${escapeHtml(d)}`).join(''))
+        .replace('{{mainClass}}', data.photo ? ' class="has-photo"' : '')
+        .replace('{{photo}}', data.photo ? `<figure class="entry-photo"><img src="${photoSrc(data.photo)}" alt="" /></figure>\n    ` : '')
         .replace('{{backHref}}', c.back[0])
         .replace('{{backLabel}}', c.back[1])
-        .replace('{{body}}', marked.parse(form.body || ''));
+        .replace('{{body}}', html);
       tab.document.open();
-      tab.document.write(html);
+      tab.document.write(page);
       tab.document.close();
     }
 
     async function publish() {
-      const form = readForm();
-      const title = form.title.trim();
-      if (!title || !form.body.trim()) throw new Error('Title and body are required');
+      const { header, title, body, data } = readEntry();
+      if (!title) throw new Error('Write something first: a title: line or a first line to name it');
+      if (isNaN(new Date(data.date))) throw new Error(`date: should look like ${today()}`);
 
       const c = COLLECTIONS[collection];
-      let slug = current ? current.slug : slugify(title);
-      if (!slug) throw new Error('Title needs at least one letter or number');
+      // link: picks the URL of a new entry; an existing entry keeps its URL.
+      let slug = current ? current.slug : slugify(header.link || title);
+      if (!slug) throw new Error('The title needs at least one letter or number for its URL. Add a link: line.');
       if (!current) {
         const base = slug;
         for (let n = 2; entries.some((e) => e.slug === slug); n++) slug = `${base}-${n}`;
       }
 
-      const data = { title, date: form.date || today() };
-      if (collection === 'drinks') {
-        for (const key of ['category', 'maker', 'where', 'rating']) {
-          if (form[key].trim()) data[key] = form[key].trim();
-        }
-      }
+      // Commit only the photos the entry still uses.
+      const used = Object.keys(uploads).filter((p) => data.photo === p || body.includes(p));
+      const files = used.map((p) => ({ path: p, base64: uploads[p].split(',')[1] }));
+      files.push({ path: `${c.dir}/${slug}.md`, content: toMarkdownFile(data, body) });
 
-      const files = [];
-      const oldPhoto = current?.data.photo;
-      if (photo?.dataUrl) {
-        data.photo = `images/${c.dir}/${slug}.jpg`;
-        files.push({ path: data.photo, base64: photo.dataUrl.split(',')[1] });
-      } else if (photo?.path) {
-        data.photo = photo.path;
-      }
-      if (oldPhoto && oldPhoto !== data.photo) files.push({ path: oldPhoto, delete: true });
-      files.push({ path: `${c.dir}/${slug}.md`, content: toMarkdownFile(data, form.body) });
-
-      await commit(`${current ? 'Update' : 'Publish'}: ${title}`, files);
+      const verb = data.draft ? 'Draft' : current ? 'Update' : 'Publish';
+      await commit(`${verb}: ${title}`, files);
 
       store(draftKey(), null);
+      uploads = {};
       await loadEntries();
       renderSelect();
       openEntry(entries.find((e) => e.slug === slug) || null);
-      const url = `${SITE}/${c.out(slug)}`;
-      say(`Published. The site rebuilds in a minute or two: <a href="${url}" target="_blank" rel="noopener">${url.replace('https://', '')}</a>`);
+      if (data.draft) {
+        say('Saved as a draft. It stays off the site until you remove the draft: line.');
+      } else {
+        const url = `${SITE}/${c.out(slug)}`;
+        say(`Published. The site rebuilds in a minute or two: <a href="${url}" target="_blank" rel="noopener">${url.replace('https://', '')}</a>`);
+      }
     }
 
     // --- wiring ---------------------------------------------------------------
@@ -570,31 +641,42 @@
       b.addEventListener('click', () => switchTo(b.dataset.collection));
     }
 
-    for (const f of TEXT_FIELDS) $(f).addEventListener('input', saveDraft);
+    text.addEventListener('input', saveDraft);
 
     $('photo-input').addEventListener('change', () => {
       const file = $('photo-input').files[0];
       $('photo-input').value = '';
+      if (file) addPhoto(file, setPhotoLine);
+    });
+
+    text.addEventListener('paste', (e) => {
+      const file = [...e.clipboardData.files].find((f) => f.type.startsWith('image/'));
       if (!file) return;
-      run('Preparing photo…', async () => {
-        try {
-          photo = { dataUrl: await shrink(file) };
-        } catch {
-          throw new Error("This browser can't read that photo. Try a JPEG or PNG.");
-        }
-        showPhoto();
-        saveDraft();
-        say('');
-      });
+      e.preventDefault();
+      addPhoto(file, (path) => insertAtCursor(`![](${path})`));
     });
 
-    $('photo-remove').addEventListener('click', () => {
-      photo = null;
-      showPhoto();
-      saveDraft();
+    text.addEventListener('dragover', (e) => {
+      if (![...e.dataTransfer.types].includes('Files')) return;
+      e.preventDefault();
+      text.classList.add('dragging');
+    });
+    text.addEventListener('dragleave', () => text.classList.remove('dragging'));
+    text.addEventListener('drop', (e) => {
+      text.classList.remove('dragging');
+      const file = [...e.dataTransfer.files].find((f) => f.type.startsWith('image/'));
+      if (!file) return;
+      e.preventDefault();
+      addPhoto(file, (path) => insertAtCursor(`\n![](${path})\n`));
     });
 
-    $('new-btn').addEventListener('click', () => openEntry(null));
+    // Cmd/Ctrl+S saves (publishes, or saves the draft).
+    document.addEventListener('keydown', (e) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 's' && !$('editor').hidden) {
+        e.preventDefault();
+        $('publish-btn').click();
+      }
+    });
 
     $('discard-btn').addEventListener('click', () => {
       store(draftKey(), null);
@@ -608,8 +690,12 @@
     });
 
     $('publish-btn').addEventListener('click', () => {
-      if (!confirm(`Publish "${$('title').value}" to div-nar.github.io?`)) return;
-      run('Publishing…', publish);
+      const { title, data } = readEntry();
+      const question = data.draft
+        ? `Save "${title || 'Untitled'}" as a draft?`
+        : `Publish "${title || 'Untitled'}" to div-nar.github.io?`;
+      if (!confirm(question)) return;
+      run(data.draft ? 'Saving…' : 'Publishing…', publish);
     });
 
     $('sign-out').addEventListener('click', () => {
@@ -644,10 +730,11 @@
     const DEMO = ['localhost', '127.0.0.1'].includes(location.hostname) && new URLSearchParams(location.search).has('demo');
     if (DEMO) {
       const sample = {
-        posts: [],
+        posts: [
+          { slug: 'i-need-not', data: { title: 'I Need Not', date: '2026-05-01' }, body: 'I need not of approval, for why must my craft be tied to a score?' },
+        ],
         drinks: [
           { slug: 'amrut-fusion', data: { title: 'Amrut Fusion', date: '2026-09-02', category: 'Spirits', maker: 'Amrut Distilleries', where: 'Home', rating: '4/5' }, body: 'Peat, then dark chocolate.' },
-          { slug: 'tintin', data: { title: 'Tintin', date: '2026-10-20', category: 'Beers', maker: 'Toit Brewpub', where: 'Toit, Bengaluru' }, body: 'A hazy wit that smells of orange peel.' },
         ],
       };
       loadEntries = async () => { entries = [...sample[collection]]; };
@@ -657,6 +744,7 @@
         const list = sample[collection].filter((e) => e.slug !== slug);
         list.push({ slug, ...parseMarkdownFile(md.content) });
         sample[collection] = list;
+        window.lastCommit = { message, files };
         console.log('[demo] would commit:', message, files.map((f) => f.path));
       };
       document.title = 'Write (demo)';
